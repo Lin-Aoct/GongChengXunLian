@@ -173,11 +173,11 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4099</DriverSelection>
+            <DriverSelection>4100</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>Segger\JL2CM3.dll</Flash2>
-          <Flash3></Flash3>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -378,7 +378,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F40_41xxx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\CORE;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\USER;..\HARDWARE\LED;..\HARDWARE\PWM;..\FWLIB\inc</IncludePath>
+              <IncludePath>..\CORE;..\FWLIB\inc;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\USER;..\HARDWARE\LED;..\HARDWARE\PWM;..\HARDWARE\TFT</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -443,14 +443,19 @@
           <GroupName>HARDWARE</GroupName>
           <Files>
             <File>
-              <FileName>led.c</FileName>
+              <FileName>GUI.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\HARDWARE\LED\led.c</FilePath>
+              <FilePath>..\HARDWARE\TFT\GUI.c</FilePath>
             </File>
             <File>
-              <FileName>pwm.c</FileName>
+              <FileName>Lcd_Driver.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\HARDWARE\PWM\pwm.c</FilePath>
+              <FilePath>..\HARDWARE\TFT\Lcd_Driver.c</FilePath>
+            </File>
+            <File>
+              <FileName>QDTFT_demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\TFT\QDTFT_demo.c</FilePath>
             </File>
           </Files>
         </Group>

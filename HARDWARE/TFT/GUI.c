@@ -1,8 +1,5 @@
-#include "stm32f10x.h"
-#include "Lcd_Driver.h"
 #include "GUI.h"
-#include "delay.h"
-#include "font.h"
+
 
 //从ILI93xx读出的数据为GBR格式，而我们写入的时候为RGB格式。
 //通过该函数转换
@@ -18,9 +15,6 @@ u16 LCD_BGR2RGB(u16 c)
   return(rgb);
 
 }
-
-
-
 
 void Gui_Circle(u16 X,u16 Y,u16 R,u16 fc) 
 {//Bresenham算法 

@@ -1,43 +1,38 @@
-//////////////////////////////////////////////////////////////////////////////////	 
-//本程序只供学习使用，未经作者许可，不得用于其它任何用途
-//  功能描述   : 1.8寸LCD 4接口演示例程(STM32系列)
-/******************************************************************************
-//本程序适用与STM32F103C8
-//              GND   电源地
-//              VCC   接5V或3.3v电源
-//              SCL   接PA5（SCL）
-//              SDA   接PA7（SDA）
-//              RES   接PB0
-//              DC    接PB1
-//              CS    接PA4 
-//							BL		接PB10
-*******************************************************************************/
-#include "stm32f10x.h"
 #include "Lcd_Driver.h"
-#include "LCD_Config.h"
-#include "delay.h"
+
+/******************************************************************************
+*              	GND   电源地
+*              	VCC   接5V或3.3v电源
+*              	SCL   接PA5（SCL）
+*              	SDA   接PA7（SDA）
+*              	RES   接PB0
+*              	DC    接PB1
+*              	CS    接PA4 
+*								BL		接PB10
+*******************************************************************************/
+
 
 //液晶IO初始化配置
 void LCD_GPIO_Init(void)
 {
+	GPIO_InitTypeDef GPIO_InitStructure;
 
-	GPIO_InitTypeDef  GPIO_InitStructure;
-	      
-	RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOB ,ENABLE);
-	
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0| GPIO_Pin_10| GPIO_Pin_1;
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOE, ENABLE);
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10| GPIO_Pin_11| GPIO_Pin_12;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
-      
 	
-		RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA ,ENABLE);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
+	GPIO_Init(GPIOC, &GPIO_InitStructure);
 	
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4| GPIO_Pin_5| GPIO_Pin_7;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+	GPIO_Init(GPIOE, &GPIO_InitStructure);
 }
+
+
 //向SPI总线传输一个8位数据
 void  SPI_WriteData(u8 Data)
 {

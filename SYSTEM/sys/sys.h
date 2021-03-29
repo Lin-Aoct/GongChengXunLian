@@ -1,15 +1,16 @@
 #ifndef __SYS_H
 #define __SYS_H	 
 #include "stm32f4xx.h" 
-//////////////////////////////////////////////////////////////////////////////////	 
- 
-//系统时钟初始化	
-//STM32F4工程-库函数版本
-//淘宝店铺：http://mcudev.taobao.com		
-//********************************************************************************
-//修改说明
-//无
-////////////////////////////////////////////////////////////////////////////////// 
+
+
+#include "delay.h"
+#include "usart.h"
+#include "Font.h"
+#include "Lcd_Driver.h"
+#include "GUI.h"
+#include "QDTFT_demo.h"
+#include "LCD_Config.h"
+
 
 
 //0,不支持ucos
@@ -73,20 +74,11 @@
 #define PIout(n)   BIT_ADDR(GPIOI_ODR_Addr,n)  //输出 
 #define PIin(n)    BIT_ADDR(GPIOI_IDR_Addr,n)  //输入
 
+
+
 //以下为汇编函数
 void WFI_SET(void);		//执行WFI指令
 void INTX_DISABLE(void);//关闭所有中断
 void INTX_ENABLE(void);	//开启所有中断
 void MSR_MSP(u32 addr);	//设置堆栈地址 
 #endif
-
-
-
-
-
-
-
-
-
-
-

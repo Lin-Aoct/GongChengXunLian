@@ -1,4 +1,7 @@
+#ifndef __GUI_H
+#define __GUI_H	 
 
+#include "sys.h"
 
 
 u16 LCD_BGR2RGB(u16 c);
@@ -13,4 +16,4 @@ void Gui_DrawFont_GBK24(u16 x, u16 y, u16 fc, u16 bc, u8 *s);
 void Gui_DrawFont_Num32(u16 x, u16 y, u16 fc, u16 bc, u16 num) ;
 
 
-
+#endif
