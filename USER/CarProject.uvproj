@@ -378,7 +378,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F40_41xxx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\CORE;..\FWLIB\inc;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\USER;..\HARDWARE\LED;..\HARDWARE\PWM;..\HARDWARE\TFT</IncludePath>
+              <IncludePath>..\CORE;..\FWLIB\inc;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\SYSTEM\uart4;..\SYSTEM\timer;..\USER;..\HARDWARE\LED;..\HARDWARE\TFT;..\HARDWARE\ENCODER;..\HARDWARE\ESP8266;..\HARDWARE\FIND;..\HARDWARE\MOTOR</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -437,6 +437,16 @@
               <FileType>1</FileType>
               <FilePath>.\system_stm32f4xx.c</FilePath>
             </File>
+            <File>
+              <FileName>pid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\pid.c</FilePath>
+            </File>
+            <File>
+              <FileName>control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\control.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -457,6 +467,21 @@
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\TFT\QDTFT_demo.c</FilePath>
             </File>
+            <File>
+              <FileName>encoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\ENCODER\encoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>find.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\FIND\find.c</FilePath>
+            </File>
+            <File>
+              <FileName>motor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\MOTOR\motor.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -476,6 +501,36 @@
               <FileName>usart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SYSTEM\usart\usart.c</FilePath>
+            </File>
+            <File>
+              <FileName>timer2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SYSTEM\timer\timer2.c</FilePath>
+            </File>
+            <File>
+              <FileName>timer3.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SYSTEM\timer\timer3.c</FilePath>
+            </File>
+            <File>
+              <FileName>timer4.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SYSTEM\timer\timer4.c</FilePath>
+            </File>
+            <File>
+              <FileName>timer5.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SYSTEM\timer\timer5.c</FilePath>
+            </File>
+            <File>
+              <FileName>timer6.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SYSTEM\timer\timer6.c</FilePath>
+            </File>
+            <File>
+              <FileName>timer8.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SYSTEM\timer\timer8.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -3,14 +3,28 @@
 #include "stm32f4xx.h" 
 
 
-#include "delay.h"
+#include <string.h>
+#include <stdlib.h>
+#include <stdarg.h>
 #include "usart.h"
+//#include "uart4.h"
+#include "timer2.h"
+#include "timer3.h"
+#include "timer4.h"
+#include "timer5.h"
+#include "timer6.h"
+#include "timer8.h"
+#include "delay.h"
 #include "Font.h"
 #include "Lcd_Driver.h"
 #include "GUI.h"
 #include "QDTFT_demo.h"
 #include "LCD_Config.h"
-
+#include "motor.h"
+#include "encoder.h"
+#include "find.h"
+#include "control.h"
+//#include "pid.h"
 
 
 //0,不支持ucos
@@ -73,6 +87,25 @@
 
 #define PIout(n)   BIT_ADDR(GPIOI_ODR_Addr,n)  //输出 
 #define PIin(n)    BIT_ADDR(GPIOI_IDR_Addr,n)  //输入
+
+
+extern u8 CONTROL_MODE;					//控制模式变量
+extern u8 IS_USART1_RX_HEAD;		//标志是否接收到数据头
+extern u8 USART1_RX_BUF[4];			//存储USART1接收到的数据
+extern u8 IS_ESP8266_READY;			//标志 ESP8266 是否准备就绪
+extern u8 MOTOR_LEFT_PWM, MOTOR_RIGHT_PWM;	//左右电机 PWM
+extern u8 IS_ESP8266_READY;
+extern u8 IS_USART1_RX_Success;
+extern u8 IS_UART4_RX_Success;
+extern u8 UART4_RX_DATA;			//存储UART4接收到的数据
+extern u16 MOTOR_PWM[4];			//电机PWM
+extern u8 CAR_MODE;						//小车运动模式
+extern u8 FIND_DRIVER;				//标志当前循迹红外模块	0代表前面	1代表右侧
+extern u8 CURRENT_DIRATION;		//标志当前运动方向	0停车	1前	2后	3左	4右
+extern u8 IS_MOTOR_ALL_STOP;	//标志是否强制所有电机停转	0不停转		1停转
+
+
+
 
 
 

@@ -5,15 +5,7 @@
 #if SYSTEM_SUPPORT_UCOS
 #include "includes.h"					//ucos 使用	  
 #endif
-//////////////////////////////////////////////////////////////////////////////////	 
- 
-//串口1初始化		   
-//STM32F4工程-库函数版本
-//淘宝店铺：http://mcudev.taobao.com		
-//********************************************************************************
- 
-////////////////////////////////////////////////////////////////////////////////// 	  
- 
+
 
 //////////////////////////////////////////////////////////////////
 //加入以下代码,支持printf函数,而不需要选择use MicroLIB	  
@@ -100,13 +92,15 @@ void uart_init(u32 bound){
 	
 }
 
-
-void USART1_IRQHandler(void)                	//串口1中断服务程序
+//串口1中断服务程序
+void USART1_IRQHandler(void)
 {
-	u8 Res;
 #ifdef OS_TICKS_PER_SEC	 	//如果时钟节拍数定义了,说明要使用ucosII了.
 	OSIntEnter();    
 #endif
+	
+	#if 0
+	u8 Res;
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)  //接收中断(接收到的数据必须是0x0d 0x0a结尾)
 	{
 		Res =USART_ReceiveData(USART1);//(USART1->DR);	//读取接收到的数据
@@ -129,14 +123,34 @@ void USART1_IRQHandler(void)                	//串口1中断服务程序
 				}		 
 			}
 		}   		 
-  } 
+  }
+#endif
+
+	
+	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)  //接收中断(接收到的数据必须是0x0d 0x0a结尾)
+	{	  
+		u8 current_data;
+		static u8 data_index, last_data, last_last_data;
+		current_data = USART1 -> DR;
+		
+		if(IS_USART1_RX_HEAD == 0)	//未获取到数据头 0xff 0xfe
+		{	
+			if(last_data==0xfe && last_last_data==0xff) 
+				IS_USART1_RX_HEAD=1, data_index=0;
+		}
+		if(IS_USART1_RX_HEAD == 1)	//已经获取到数据头 0xff 0xfe
+		{	
+			USART1_RX_BUF[data_index] = current_data;
+			data_index++;															//数据位索引加一
+			if(data_index == 1) IS_USART1_RX_HEAD=0, IS_USART1_RX_Success=1;	//接收到4字节数据  已经接收完毕，准备重新接收
+		}
+		last_last_data = last_data;		//保存前一次接收到的位
+		last_data = current_data;			//保存本次接收到的位
+	} 
+	
+
 #ifdef OS_TICKS_PER_SEC	 	//如果时钟节拍数定义了,说明要使用ucosII了.
 	OSIntExit();  											 
 #endif
 } 
 #endif	
-
- 
-
-
-
