@@ -30,10 +30,13 @@ void Encoder_Init_TIM3(void)
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);		//使能 GPIO 口时钟 打开复用再修改复用功能
 
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;						//浮空输入
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;				//上拉
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;						//复用
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;					//推挽
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;				//浮空
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource6, GPIO_AF_TIM3);
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource7, GPIO_AF_TIM3);
 
 	//TIM3的时钟信号其实是由A/B相的频率来决定的，类似于外部时钟，然后分频就是对这个脉冲频率分频，比如二分频就是把两个脉冲记为一个脉冲。
 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
@@ -45,14 +48,18 @@ void Encoder_Init_TIM3(void)
 
 	/* 输入比较滤波器 */
 	TIM_ICStructInit(&TIM_ICInitStructure);
-	TIM_ICInitStructure.TIM_ICFilter = 0;
-
 	TIM_ICInit(TIM3, &TIM_ICInitStructure);
+	
 	TIM_ClearFlag(TIM3, TIM_FLAG_Update);				//清除TIM的更新标志位
 	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
 
 	/* 设置编码器模式 */
 	TIM_EncoderInterfaceConfig(TIM3, TIM_EncoderMode_TI12, TIM_ICPolarity_Falling ,TIM_ICPolarity_Falling);
+
+//	TIM3->CCMR1 |= 2 << 0;
+//	TIM3->CCMR1 |= 2 << 8;
+//	TIM3->CCER |= 1<<1; //IC1反向
+//	TIM3->CCER |= 1<<5; //IC2反向
 
   TIM3->CNT = 0;	//计数器初始化
  

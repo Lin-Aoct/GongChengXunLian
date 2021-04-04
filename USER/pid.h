@@ -5,8 +5,11 @@
 
 int balanceX(float Angle);
 int balanceY(float Angle);
-int Speed_X(float side);
-int Speed_Y(float side);
+
+int PID_Speed_Left_Front(float speed);
+int PID_Speed_Left_Behind(float speed);
+int PID_Speed_Right_Front(float speed);
+int PID_Speed_Right_Behind(float speed);
 
 #endif
 

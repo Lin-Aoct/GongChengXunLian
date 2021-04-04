@@ -1,7 +1,10 @@
 #include "motor.h"
 
-u16 MOTOR_PWM[4] = {20000, 20000, 20000, 20000,};						//当前电机CCR值
-u16 MAX_MOTOR_PWM = 32000;	//电机最大CCR值
+//u16 MOTOR_PWM[4] = {20000, 20000, 20000, 20000,};						//当前电机CCR值
+//u16 MAX_MOTOR_PWM = 32000;	//电机最大CCR值
+
+int	MOTOR_PWM[4] = {60, 60, 60, 60};						//当前电机CCR值
+int MAX_MOTOR_PWM = 200;	//电机最大CCR值
 
 /*
 *===================================================================
@@ -15,16 +18,16 @@ void MOTO_GPIO_Config(void)
 	GPIO_InitTypeDef GPIO_InitStructure;																							//定义 GPIO_InitTypeDef 类型的结构体
 
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOF, ENABLE);  		//开启GPIO的外设时钟
-	//GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5;	//设置控制的GPIO引脚
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4;	//设置控制的GPIO引脚
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;                    //通用复用推挽输出 
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;									//不设置上拉
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;                 //设置引脚速率为50MHz
 	GPIO_Init(GPIOE, &GPIO_InitStructure);                            //初始化GPIO
 
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_3 | GPIO_Pin_5 | GPIO_Pin_7;	//设置控制的GPIO引脚
-	GPIO_Init(GPIOE, &GPIO_InitStructure);				//初始化GPIO
+	GPIO_Init(GPIOF, &GPIO_InitStructure);				//初始化GPIO
 }
 
 
@@ -292,4 +295,32 @@ void Calc_Motor_PWM(float xSpeed, float ySpeed, float wSpeed)
     }
     
     MOTOR_PWM_Out(m2_speed, m3_speed, m1_speed, m4_speed);
+}
+
+
+
+/*
+*===================================================================
+*		说明：TIM8 占空比调节 占空比 = TIMx_CCRx / TIMx_ARR
+*		参数：left_front_pwm：	左前轮电机  数值 0-500
+*					left_behind_pwm：	左后轮电机	数值 0-500
+*					right_front_pwm：	右前轮电机	数值 0-500
+*					right_behind_pwm：右后轮电机	数值 0-500
+*		返回：无
+*===================================================================
+*/
+void MOTOR_PWM_Out(u16 left_front_pwm, u16 left_behind_pwm, u16 right_front_pwm, u16 right_behind_pwm)
+{
+
+	//if(IS_MOTOR_ALL_STOP == 1)	left_front_pwm = left_behind_pwm = right_front_pwm = right_behind_pwm = 0;	//所有电机停转
+	
+	if(left_front_pwm > MAX_MOTOR_PWM)	left_front_pwm = MOTOR_PWM[0] = MAX_MOTOR_PWM;
+	if(left_behind_pwm > MAX_MOTOR_PWM)	left_behind_pwm = MOTOR_PWM[1] = MAX_MOTOR_PWM;
+	if(right_front_pwm > MAX_MOTOR_PWM)	right_front_pwm = MOTOR_PWM[2] = MAX_MOTOR_PWM;
+	if(right_behind_pwm > MAX_MOTOR_PWM)	right_behind_pwm = MOTOR_PWM[3] = MAX_MOTOR_PWM;
+	
+	TIM8->CCR1 = left_front_pwm;
+	TIM8->CCR2 = left_behind_pwm;
+	TIM8->CCR4 = right_front_pwm;
+	TIM8->CCR3 = right_behind_pwm;
 }

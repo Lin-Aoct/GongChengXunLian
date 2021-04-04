@@ -13,6 +13,7 @@
 #include "timer4.h"
 #include "timer5.h"
 #include "timer6.h"
+#include "timer7.h"
 #include "timer8.h"
 #include "delay.h"
 #include "Font.h"
@@ -24,7 +25,7 @@
 #include "encoder.h"
 #include "find.h"
 #include "control.h"
-//#include "pid.h"
+#include "pid.h"
 
 
 //0,不支持ucos
@@ -98,14 +99,14 @@ extern u8 IS_ESP8266_READY;
 extern u8 IS_USART1_RX_Success;
 extern u8 IS_UART4_RX_Success;
 extern u8 UART4_RX_DATA;			//存储UART4接收到的数据
-extern u16 MOTOR_PWM[4];			//电机PWM
+extern int MOTOR_PWM[4];			//电机PWM
 extern u8 CAR_MODE;						//小车运动模式
 extern u8 FIND_DRIVER;				//标志当前循迹红外模块	0代表前面	1代表右侧
 extern u8 CURRENT_DIRATION;		//标志当前运动方向	0停车	1前	2后	3左	4右
 extern u8 IS_MOTOR_ALL_STOP;	//标志是否强制所有电机停转	0不停转		1停转
+extern int ENCODER_DATA[4];		//编码器读数变量
 
-
-
+extern float speed_target;
 
 
 

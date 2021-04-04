@@ -18,15 +18,15 @@
 #define MOTO_PIN8_PORT GPIOE
 
 
-#define MOTO_PIN1  GPIO_Pin_5
-#define MOTO_PIN2  GPIO_Pin_7
-#define MOTO_PIN3  GPIO_Pin_3
-#define MOTO_PIN4  GPIO_Pin_1
+#define MOTO_PIN1  GPIO_Pin_1
+#define MOTO_PIN2  GPIO_Pin_3
+#define MOTO_PIN3  GPIO_Pin_5
+#define MOTO_PIN4  GPIO_Pin_7
 
-#define MOTO_PIN5  GPIO_Pin_3
-#define MOTO_PIN6  GPIO_Pin_5
-#define MOTO_PIN7  GPIO_Pin_4
-#define MOTO_PIN8  GPIO_Pin_2
+#define MOTO_PIN5  GPIO_Pin_4
+#define MOTO_PIN6  GPIO_Pin_2
+#define MOTO_PIN7  GPIO_Pin_1
+#define MOTO_PIN8  GPIO_Pin_3
 
 //#define MOTO_PIN_STBY  GPIO_Pin_5
 
@@ -90,5 +90,6 @@ void Car_Raw_Right(void);
 					
 void MOTOR_Speed_Up(u16 motor_pwm);
 void MOTOR_Speed_Down(u16 motor_pwm);
+void MOTOR_PWM_Out(u16 left_front_pwm, u16 left_behind_pwm, u16 right_front_pwm, u16 right_behind_pwm);		//Êä³öµç»ú PWM
 
 #endif

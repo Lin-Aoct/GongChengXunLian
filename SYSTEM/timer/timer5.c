@@ -11,11 +11,14 @@ void Encoder_Init_TIM5(void)
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);	//使能 GPIO 口时钟 打开复用再修改复用功能
 
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1;	//端口配置
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;						//浮空输入
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;				//上拉
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;						//复用
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;					//推挽
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;				//浮空
 	GPIO_Init(GPIOA, &GPIO_InitStructure);					      	//根据设定参数初始化GPIOB
 
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource0, GPIO_AF_TIM5);
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource1, GPIO_AF_TIM5);
+	
 	//TIM3的时钟信号其实是由A/B相的频率来决定的，类似于外部时钟，然后分频就是对这个脉冲频率分频，比如二分频就是把两个脉冲记为一个脉冲。
 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
 	TIM_TimeBaseStructure.TIM_Prescaler = 0;					//不分频

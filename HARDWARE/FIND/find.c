@@ -14,19 +14,21 @@ void Find_IO_Init(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOC,ENABLE); 						//使能GPIOA GPIOC时钟
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOC, ENABLE);	//使能GPIO时钟
 	
-	//PA
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;							//IO端口
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;					//输入
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP; 					//上拉
-	GPIO_Init(GPIOA, &GPIO_InitStructure);								//初始化外设GPIO寄存器
+	//PG
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_11 | GPIO_Pin_13 | GPIO_Pin_15;		//IO端口
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;				//输入
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP; 				//上拉
+	GPIO_Init(GPIOG, &GPIO_InitStructure);							//初始化外设GPIO寄存器
+	
+	//PD
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_4 | GPIO_Pin_6;										//IO端口
+	GPIO_Init(GPIOD, &GPIO_InitStructure);							//初始化外设GPIO寄存器
 	
 	//PC
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 |
-																GPIO_Pin_3 | GPIO_Pin_13 | GPIO_Pin_14 |
-																GPIO_Pin_15;											//IO端口
-	GPIO_Init(GPIOC, &GPIO_InitStructure);													//初始化外设GPIO寄存器
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;										//IO端口
+	GPIO_Init(GPIOC, &GPIO_InitStructure);							//初始化外设GPIO寄存器
 	
 } 
 
@@ -51,9 +53,13 @@ void Find_Test(void)
 	find_arry[6] = Find_Right_3;
 	find_arry[7] = Find_Right_4;
 	
-	for(count=0; count<=7; count++)
+	printf("红外[");
+	for(count=0; count<=3; count++)
 		printf("%d ", find_arry[count]);
-	printf("\n");
+	printf("| ");
+	for(count=4; count<=7; count++)
+		printf("%d ", find_arry[count]);
+	printf("]\n");
 }
 
 /*

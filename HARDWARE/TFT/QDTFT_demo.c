@@ -4,7 +4,6 @@
 unsigned char Num[10]={0,1,2,3,4,5,6,7,8,9};
 void Redraw_Mainmenu(void)
 {
-
 	Lcd_Clear(GRAY0);
 	
 	Gui_DrawFont_GBK16(16,0,BLUE,GRAY0, (u8*)"全动电子技术");

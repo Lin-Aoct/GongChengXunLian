@@ -159,8 +159,9 @@ void Gui_box(u16 x, u16 y, u16 w, u16 h,u16 bc)
 	Gui_DrawLine(x+w-1,y+1,x+w-1,y+1+h,0x2965);
 	Gui_DrawLine(x,y+h,x+w,y+h,0x2965);
 	Gui_DrawLine(x,y,x,y+h,0xEF7D);
-    Gui_DrawLine(x+1,y+1,x+1+w-2,y+1+h-2,bc);
+	Gui_DrawLine(x+1,y+1,x+1+w-2,y+1+h-2,bc);
 }
+
 void Gui_box2(u16 x,u16 y,u16 w,u16 h, u8 mode)
 {
 	if (mode==0)	{
@@ -236,10 +237,10 @@ void Gui_DrawFont_GBK16(u16 x, u16 y, u16 fc, u16 bc, u8 *s)
 			{
 				if (k>32) k-=32; else k=0;
 	
-			    for(i=0;i<16;i++)
-				for(j=0;j<8;j++) 
+				for(i=0;i<16;i++)
+					for(j=0;j<8;j++) 
 					{
-				    	if(asc16[k*16+i]&(0x80>>j))	Gui_DrawPoint(x+j,y+i,fc);
+						if(asc16[k*16+i]&(0x80>>j))	Gui_DrawPoint(x+j,y+i,fc);
 						else 
 						{
 							if (fc!=bc) Gui_DrawPoint(x+j,y+i,bc);
@@ -249,20 +250,17 @@ void Gui_DrawFont_GBK16(u16 x, u16 y, u16 fc, u16 bc, u8 *s)
 			}
 			s++;
 		}
-			
 		else 
 		{
-		
-
 			for (k=0;k<hz16_num;k++) 
 			{
 			  if ((hz16[k].Index[0]==*(s))&&(hz16[k].Index[1]==*(s+1)))
 			  { 
 				    for(i=0;i<16;i++)
 				    {
-						for(j=0;j<8;j++) 
+							for(j=0;j<8;j++) 
 							{
-						    	if(hz16[k].Msk[i*2]&(0x80>>j))	Gui_DrawPoint(x+j,y+i,fc);
+								if(hz16[k].Msk[i*2]&(0x80>>j))	Gui_DrawPoint(x+j,y+i,fc);
 								else {
 									if (fc!=bc) Gui_DrawPoint(x+j,y+i,bc);
 								}

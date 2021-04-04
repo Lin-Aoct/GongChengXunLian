@@ -40,31 +40,50 @@ void TIM6_DAC_IRQHandler(void)
 */
 void Mode_Start(void)
 {
-	front_data = Find_Get_Front();
-	right_data = Find_Get_Right();
+	ENCODER_DATA[0] = Read_Encoder(2);
+	ENCODER_DATA[1] = Read_Encoder(3);
+	ENCODER_DATA[2] = Read_Encoder(4);
+	ENCODER_DATA[3] = Read_Encoder(5);
 	
-	if(step == 0)	Car_Go_Left();		//左平移
+	Set_MOTOR_Left_Front(GO);
+	MOTOR_PWM[0] = abs(PID_Speed_Left_Front(ENCODER_DATA[0]));
+//	MOTOR_PWM[1] = PID_Speed_Left_Front(ENCODER_DATA[1]);
+//	MOTOR_PWM[2] = PID_Speed_Left_Front(ENCODER_DATA[2]);
+//	MOTOR_PWM[3] = PID_Speed_Left_Front(ENCODER_DATA[3]);
+//	Car_Go();
 	
-	if(front_data == 1001 && step == 0)	Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1, step = 1;	//前面处于线中
-	Find();
-	if(right_data == 1001 && step == 1)	step = 2;	//线1中间
+//	printf("编码器[%d %d %d %d]\t", ENCODER_DATA[0], ENCODER_DATA[1], ENCODER_DATA[2], ENCODER_DATA[3]);// Find_Test();
+//	printf("PWM[");
+//	for(count=0; count<=3; count++)
+//		printf("%d ", MOTOR_PWM[count]);
+//	printf("]");
 	
-	if(right_data == 1110 && step == 2)	step = 3;	//出线1
 	
-	if(right_data == 1001 && step == 3)	step = 4;	//线2中间
-	
-	if(right_data == 1110 && step == 4)	step = 5;	//出线2
-		
-	if(count > 0 && step == 5)	count--;						//6*15ms = 150ms
+//	front_data = Find_Get_Front();
+//	right_data = Find_Get_Right();
+//	
+//	if(step == 0)	Car_Go_Left();		//左平移
+//	
+//	if(front_data == 1001 && step == 0)	Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1, step = 1;	//前面处于线中
+//	Find();
+//	if(right_data == 1001 && step == 1)	step = 2;	//线1中间
+//	
+//	if(right_data == 1110 && step == 2)	step = 3;	//出线1
+//	
+//	if(right_data == 1001 && step == 3)	step = 4;	//线2中间
+//	
+//	if(right_data == 1110 && step == 4)	count = 4, step = 5;	//出线2
+//		
+//	if(count > 0 && step == 5)	count--;						//6*15ms = 150ms
 
-	if(count <= 0 && step == 5)	Car_Go_Left(), Stop_Find(), step = 6;	//左移
+////	if(count <= 0 && step == 5)	Car_Go_Left(), Stop_Find(), step = 6;	//左移
 
-	if(right_data == 0000 && step == 6)	
-	{
-		Car_Stop();										//退出出发模式
-		CAR_MODE = 0;
-		USART_SendData(UART4, '1');		//机械臂扫码
-	}
+//	if(count == 0 && step == 5)	
+//	{
+//		Car_Stop();										//退出出发模式
+//		CAR_MODE = 0;
+//		USART_SendData(UART4, '1');		//机械臂扫码
+//	}
 }
 
 /*

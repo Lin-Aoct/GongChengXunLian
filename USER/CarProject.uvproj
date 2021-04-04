@@ -367,8 +367,8 @@
             <uC99>0</uC99>
             <uGnu>0</uGnu>
             <useXO>0</useXO>
-            <v6Lang>3</v6Lang>
-            <v6LangP>3</v6LangP>
+            <v6Lang>1</v6Lang>
+            <v6LangP>1</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
             <v6Lto>0</v6Lto>
@@ -482,6 +482,16 @@
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\MOTOR\motor.c</FilePath>
             </File>
+            <File>
+              <FileName>Picture.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\HARDWARE\TFT\Picture.h</FilePath>
+            </File>
+            <File>
+              <FileName>Font.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\HARDWARE\TFT\Font.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -528,9 +538,19 @@
               <FilePath>..\SYSTEM\timer\timer6.c</FilePath>
             </File>
             <File>
+              <FileName>timer7.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SYSTEM\timer\timer7.c</FilePath>
+            </File>
+            <File>
               <FileName>timer8.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SYSTEM\timer\timer8.c</FilePath>
+            </File>
+            <File>
+              <FileName>sys.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SYSTEM\sys\sys.h</FilePath>
             </File>
           </Files>
         </Group>

@@ -32,71 +32,11 @@ void LCD_GPIO_Init(void)
 	GPIO_Init(GPIOE, &GPIO_InitStructure);
 }
 
-
-//向SPI总线传输一个8位数据
-void  SPI_WriteData(u8 Data)
-{
-	unsigned char i=0;
-	for(i=8;i>0;i--)
-	{
-		if(Data&0x80)	
-	  LCD_SDA_SET; //输出数据
-      else LCD_SDA_CLR;
-	   
-      LCD_SCL_CLR;       
-      LCD_SCL_SET;
-      Data<<=1; 
-	}
-}
-
-//向液晶屏写一个8位指令
-void Lcd_WriteIndex(u8 Index)
-{
-   //SPI 写命令时序开始
-   LCD_CS_CLR;
-   LCD_RS_CLR;
-	 SPI_WriteData(Index);
-   LCD_CS_SET;
-}
-
-//向液晶屏写一个8位数据
-void Lcd_WriteData(u8 Data)
-{
-   LCD_CS_CLR;
-   LCD_RS_SET;
-   SPI_WriteData(Data);
-   LCD_CS_SET; 
-}
-//向液晶屏写一个16位数据
-void LCD_WriteData_16Bit(u16 Data)
-{
-   LCD_CS_CLR;
-   LCD_RS_SET;
-	 SPI_WriteData(Data>>8); 	//写入高8位数据
-	 SPI_WriteData(Data); 			//写入低8位数据
-   LCD_CS_SET; 
-}
-
-void Lcd_WriteReg(u8 Index,u8 Data)
-{
-	Lcd_WriteIndex(Index);
-  Lcd_WriteData(Data);
-}
-
-void Lcd_Reset(void)
-{
-	LCD_RST_CLR;
-	delay_ms(100);
-	LCD_RST_SET;
-	delay_ms(50);
-}
-
 //LCD Init For 1.44Inch LCD Panel with ST7735R.
 void Lcd_Init(void)
 {	
 	LCD_GPIO_Init();
 	Lcd_Reset(); //Reset before LCD Init.
-
 	//LCD Init For 1.44Inch LCD Panel with ST7735R.
 	Lcd_WriteIndex(0x11);//Sleep exit 
 	delay_ms (120);
@@ -185,17 +125,29 @@ void Lcd_Init(void)
 	Lcd_WriteData(0x03); 
 	Lcd_WriteData(0x10);  
 	
+//	Lcd_WriteIndex(0x2a);
+//	Lcd_WriteData(0x00);
+//	Lcd_WriteData(0x00);
+//	Lcd_WriteData(0x00);
+//	Lcd_WriteData(0x7f);
+
+//	Lcd_WriteIndex(0x2b);
+//	Lcd_WriteData(0x00);
+//	Lcd_WriteData(0x00);
+//	Lcd_WriteData(0x00);
+//	Lcd_WriteData(0x9f);
+
 	Lcd_WriteIndex(0x2a);
 	Lcd_WriteData(0x00);
+	Lcd_WriteData(0x00+2);
 	Lcd_WriteData(0x00);
-	Lcd_WriteData(0x00);
-	Lcd_WriteData(0x7f);
+	Lcd_WriteData(0x80+2);
 
 	Lcd_WriteIndex(0x2b);
 	Lcd_WriteData(0x00);
+	Lcd_WriteData(0x00+3);
 	Lcd_WriteData(0x00);
-	Lcd_WriteData(0x00);
-	Lcd_WriteData(0x9f);
+	Lcd_WriteData(0x78+3);
 	
 	Lcd_WriteIndex(0xF0); //Enable test command  
 	Lcd_WriteData(0x01); 
@@ -206,7 +158,68 @@ void Lcd_Init(void)
 	Lcd_WriteData(0x05); 
 	
 	
-	Lcd_WriteIndex(0x29);//Display on	 
+	Lcd_WriteIndex(0x29);//Display on
+	
+	Lcd_Clear(GRAY0);
+}
+
+
+//向SPI总线传输一个8位数据
+void  SPI_WriteData(u8 Data)
+{
+	unsigned char i=0;
+	for(i=8;i>0;i--)
+	{
+		if(Data&0x80)	
+	  LCD_SDA_SET; //输出数据
+      else LCD_SDA_CLR;
+	   
+      LCD_SCL_CLR;       
+      LCD_SCL_SET;
+      Data<<=1; 
+	}
+}
+
+//向液晶屏写一个8位指令
+void Lcd_WriteIndex(u8 Index)
+{
+   //SPI 写命令时序开始
+   LCD_CS_CLR;
+   LCD_RS_CLR;
+	 SPI_WriteData(Index);
+   LCD_CS_SET;
+}
+
+//向液晶屏写一个8位数据
+void Lcd_WriteData(u8 Data)
+{
+   LCD_CS_CLR;
+   LCD_RS_SET;
+   SPI_WriteData(Data);
+   LCD_CS_SET; 
+}
+//向液晶屏写一个16位数据
+void LCD_WriteData_16Bit(u16 Data)
+{
+   LCD_CS_CLR;
+   LCD_RS_SET;
+	 SPI_WriteData(Data>>8); 	//写入高8位数据
+	 SPI_WriteData(Data); 			//写入低8位数据
+   LCD_CS_SET; 
+}
+
+void Lcd_WriteReg(u8 Index,u8 Data)
+{
+	Lcd_WriteIndex(Index);
+  Lcd_WriteData(Data);
+}
+
+void Lcd_Reset(void)
+{
+	LCD_RST_CLR;
+	delay_ms(100);
+	LCD_RST_SET;
+	delay_ms(50);
 }
 
 
