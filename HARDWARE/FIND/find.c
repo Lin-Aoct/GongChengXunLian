@@ -120,9 +120,9 @@ void Find(void)
 			case 0: break;
 			case 1:
 			{
-				if(front_data == 0011 || front_data == 0111)	Car_Raw_Left();//printf("Íù×ó");
-				else if(front_data == 1100 || front_data == 1110)	Car_Raw_Right();//printf("ÍùÓÒ");
-				else Car_Continue();//printf("¼ÌĞø");
+				if(front_data == 0011 || front_data == 0111)	Car_Raw_Left(), printf("Íù×ó");
+				else if(front_data == 1100 || front_data == 1110)	Car_Raw_Right(), printf("ÍùÓÒ");
+				else Car_Continue(), printf("¼ÌĞø");
 				break;
 			}
 			case 2:

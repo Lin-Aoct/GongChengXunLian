@@ -52,7 +52,7 @@ void TIM7_IRQHandler(void)
 //		ENCODER_DATA[2] = Read_Encoder(4);
 //		ENCODER_DATA[3] = Read_Encoder(5);
 
-		printf("±àÂëÆ÷[%d %d %d %d]\t", ENCODER_DATA[0], ENCODER_DATA[1], ENCODER_DATA[2], ENCODER_DATA[3]);// Find_Test();
+		printf("±àÂëÆ÷[%d %d %d %d]\t", ENCODER_DATA[0], ENCODER_DATA[1], ENCODER_DATA[2], ENCODER_DATA[3]); Find_Test();
 		printf("PWM[");
 		for(count=0; count<=3; count++)
 			printf("%d ", MOTOR_PWM[count]);

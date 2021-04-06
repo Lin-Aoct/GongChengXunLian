@@ -378,7 +378,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F40_41xxx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\CORE;..\FWLIB\inc;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\SYSTEM\uart4;..\SYSTEM\timer;..\USER;..\HARDWARE\LED;..\HARDWARE\TFT;..\HARDWARE\ENCODER;..\HARDWARE\ESP8266;..\HARDWARE\FIND;..\HARDWARE\MOTOR</IncludePath>
+              <IncludePath>..\CORE;..\FWLIB\inc;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\SYSTEM\usart2;..\SYSTEM\uart4;..\SYSTEM\timer;..\USER;..\HARDWARE\LED;..\HARDWARE\TFT;..\HARDWARE\ENCODER;..\HARDWARE\ESP8266;..\HARDWARE\FIND;..\HARDWARE\MOTOR;..\HARDWARE\BLUE;..\HARDWARE\KEY;..\HARDWARE\robot_arm</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -447,6 +447,21 @@
               <FileType>1</FileType>
               <FilePath>.\control.c</FilePath>
             </File>
+            <File>
+              <FileName>headfiles.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\headfiles.h</FilePath>
+            </File>
+            <File>
+              <FileName>grasp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\grasp.c</FilePath>
+            </File>
+            <File>
+              <FileName>datarecord.txt</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\datarecord.txt</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -491,6 +506,16 @@
               <FileName>Font.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\HARDWARE\TFT\Font.h</FilePath>
+            </File>
+            <File>
+              <FileName>bluetooth.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\BLUE\bluetooth.c</FilePath>
+            </File>
+            <File>
+              <FileName>robot_arm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\robot_arm\robot_arm.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -551,6 +576,11 @@
               <FileName>sys.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\SYSTEM\sys\sys.h</FilePath>
+            </File>
+            <File>
+              <FileName>uart2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SYSTEM\usart2\uart2.c</FilePath>
             </File>
           </Files>
         </Group>

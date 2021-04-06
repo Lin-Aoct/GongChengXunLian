@@ -3,7 +3,7 @@
 //u16 MOTOR_PWM[4] = {20000, 20000, 20000, 20000,};						//当前电机CCR值
 //u16 MAX_MOTOR_PWM = 32000;	//电机最大CCR值
 
-int	MOTOR_PWM[4] = {60, 60, 60, 60};						//当前电机CCR值
+int	MOTOR_PWM[4] = {0, 0, 0, 0};						//当前电机CCR值
 int MAX_MOTOR_PWM = 200;	//电机最大CCR值
 
 /*

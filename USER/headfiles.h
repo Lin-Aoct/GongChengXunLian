@@ -8,7 +8,7 @@
 
 #include "usart.h"//
 #include "delay.h"
-#include "uart.h"
+#include "uart2.h"
 #include "sys.h"
 #include "usart.h"
 #include "robot_arm.h"

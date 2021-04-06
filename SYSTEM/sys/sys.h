@@ -27,6 +27,10 @@
 #include "control.h"
 #include "pid.h"
 
+#include "headfiles.h"
+
+
+
 
 //0,不支持ucos
 //1,支持ucos
@@ -107,7 +111,7 @@ extern u8 IS_MOTOR_ALL_STOP;	//标志是否强制所有电机停转	0不停转		1停转
 extern int ENCODER_DATA[4];		//编码器读数变量
 
 extern float speed_target;
-
+extern u8 ARM_Action;
 
 
 //以下为汇编函数
