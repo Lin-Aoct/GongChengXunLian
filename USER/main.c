@@ -25,10 +25,10 @@ int	main()
 	//LED_Init();								//LED 灯初始化
 	uart_init(115200);					//USART1 初始化
 	
-	OPENMV_init(9600);					//OPENMV USART2 初始化
-	bluetooth_init(115200);			//蓝牙 USART3 初始化
-	RobotArm_Pwm_init();				//机械臂初始化
-	scan_qr_on();								//机械臂保持扫码动作
+	//OPENMV_init(9600);					//OPENMV USART2 初始化
+	//bluetooth_init(115200);			//蓝牙 USART3 初始化
+	//RobotArm_Pwm_init();				//机械臂初始化
+	//scan_qr_on();								//机械臂保持扫码动作
 
 	Lcd_Init();									//TFT屏幕初始化
 	Find_IO_Init();							//红外循迹模块初始化
@@ -43,12 +43,13 @@ int	main()
 
 	Car_Stop();
 	printf("初始化完成\n");
+	GUI_Draw_Long_Font(1, 1, RED, GRAY0, (u8*)"123+321");
 	
 	while(1)
 	{
-		Lcd_Clear(GRAY0);
-		GUI_Draw_Long_Font(1, 1, RED, GRAY0, (u8*)"123+321");
-		delay_ms(1000);
+		//Lcd_Clear(GRAY0);
+
+		//delay_ms(1000);
 		//Gui_DrawFont_GBK16(0,80,RED,GRAY0, qr_mes);	
 
 //		if(count_flag == 265535) 
@@ -99,7 +100,7 @@ int	main()
 			default: break;
 		}
 		u1_action_mode = 100;
-		//MOTOR_PWM_Out(MOTOR_PWM[0], MOTOR_PWM[1], MOTOR_PWM[2], MOTOR_PWM[3]);
+		MOTOR_PWM_Out(MOTOR_PWM[0], MOTOR_PWM[1], MOTOR_PWM[2], MOTOR_PWM[3]);
 	
 	
 		//机械臂动作判断

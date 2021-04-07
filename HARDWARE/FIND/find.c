@@ -66,7 +66,7 @@ void Find_Test(void)
 *===================================================================
 *		说明：读取前面红外模块的数据
 *		参数：无
-*		返回：result	<u8>	把红外数据变成四位数整数并返回
+*		返回：result	<u16>	把红外数据变成四位数整数并返回
 *===================================================================
 */
 u16 Find_Get_Front(void)
@@ -85,7 +85,7 @@ u16 Find_Get_Front(void)
 *===================================================================
 *		说明：读取右侧红外模块的数据
 *		参数：无
-*		返回：result	<u8>	把红外数据变成四位数整数并返回
+*		返回：result	<u16>	把红外数据变成四位数整数并返回
 *===================================================================
 */
 u16 Find_Get_Right(void)
@@ -120,18 +120,20 @@ void Find(void)
 			case 0: break;
 			case 1:
 			{
-				if(front_data == 0011 || front_data == 0111)	Car_Raw_Left(), printf("往左");
+				if(front_data == 11 || front_data == 111)	Car_Raw_Left(), printf("往左");
 				else if(front_data == 1100 || front_data == 1110)	Car_Raw_Right(), printf("往右");
 				else Car_Continue(), printf("继续");
 				break;
 			}
 			case 2:
 			{
-//				if(front_data == 0011 || front_data == 0111)	Car_Raw_Left(), printf("往左");
-//				else if(front_data == 1100 || front_data == 1110)	Car_Raw_Right(),printf("往右");
-//				else Car_Continue(), printf("继续");
-//				break;
-				if(front_data == 0011 || front_data == 0111 || front_data == 0001)	Car_Back();// printf("往左");
+				/*
+				if(front_data == 0011 || front_data == 0111)	Car_Raw_Left(), printf("往左");
+				else if(front_data == 1100 || front_data == 1110)	Car_Raw_Right(),printf("往右");
+				else Car_Continue(), printf("继续");
+				break;
+				*/
+				if(front_data == 11 || front_data == 111 || front_data == 1)	Car_Back();// printf("往左");
 				else if(front_data == 1100 || front_data == 1110 || front_data == 1000)	Car_Go();//printf("往右");
 				else Car_Continue();//printf("继续");
 				break;
@@ -144,23 +146,16 @@ void Find(void)
 		switch(CURRENT_DIRATION)
 		{
 			case 0: break;
-			case 1:
-			{
-				if(right_data == 0011 || right_data == 0111)	Car_Raw_Left();// printf("往左");
-				else if(right_data == 1100 || right_data == 1110)	Car_Raw_Right();//printf("往右");
-				else Car_Continue();//printf("继续");
-				break;
-			}
 			case 3:
 			{
-				if(right_data == 0011 || right_data == 0111 || right_data == 0001)	Car_Back();//printf("往左");
+				if(right_data == 11 || right_data == 111 || right_data == 1)	Car_Back();//printf("往左");
 				else if(right_data == 1100 || right_data == 1110 || right_data == 1000)	Car_Go();//printf("往右");
 				else Car_Continue();//printf("继续");
 				break;
 			}
 			case 4:
 			{
-				if(right_data == 0011 || right_data == 0111)	Car_Raw_Left();//printf("往左");
+				if(right_data == 11 || right_data == 111)	Car_Raw_Left();//printf("往左");
 				else if(right_data == 1100 || right_data == 1110)	Car_Raw_Right();//printf("往右");
 				else Car_Continue();//printf("继续");
 				break;

@@ -32,7 +32,7 @@ void TIM6_DAC_IRQHandler(void)
 			case 12: Mode_Area1_To_Area2(); break;		//成品区	->	返回区
 			default: break;
 		}
-		printf("\nH1：%d, H2：%d, step：%d\n", front_data, right_data, step);	//打印调试信息
+		//printf("\nH1：%d, H2：%d, step：%d\n", front_data, right_data, step);	//打印调试信息
 		TIM_ClearITPendingBit(TIM6, TIM_IT_Update);			//清除TIM6的中断待处理位
    }       	
 }

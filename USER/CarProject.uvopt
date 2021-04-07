@@ -174,18 +174,18 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>236</LineNumber>
+          <LineNumber>123</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134228612</Address>
+          <Address>134231370</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\涓汉\椤圭洰\绗竷灞婂叏鍥藉ぇ瀛︾敓宸ョ▼璁粌缁煎悎鑳藉姏绔炶禌\宸ョ▼璁粌_STM32F4_Code\HARDWARE\TFT\GUI.c</Filename>
+          <Filename>E:\涓汉\椤圭洰\绗竷灞婂叏鍥藉ぇ瀛︾敓宸ョ▼璁粌缁煎悎鑳藉姏绔炶禌\宸ョ▼璁粌_STM32F4_Code\HARDWARE\FIND\find.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\CarProject\../HARDWARE/TFT/GUI.c\236</Expression>
+          <Expression>\\CarProject\../HARDWARE/FIND/find.c\123</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -206,6 +206,11 @@
         </Ww>
         <Ww>
           <count>3</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>current_str</ItemText>
+        </Ww>
+        <Ww>
+          <count>4</count>
           <WinNumber>1</WinNumber>
           <ItemText>current_str</ItemText>
         </Ww>
