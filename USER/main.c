@@ -25,10 +25,10 @@ int	main()
 	//LED_Init();								//LED 灯初始化
 	uart_init(115200);					//USART1 初始化
 	
-	//OPENMV_init(9600);					//OPENMV USART2 初始化
-	//bluetooth_init(115200);			//蓝牙 USART3 初始化
-	//RobotArm_Pwm_init();				//机械臂初始化
-	//scan_qr_on();								//机械臂保持扫码动作
+	OPENMV_init(9600);					//OPENMV USART2 初始化
+	bluetooth_init(115200);			//蓝牙 USART3 初始化
+	RobotArm_Pwm_init();				//机械臂初始化
+	scan_qr_on();								//机械臂保持扫码动作
 
 	Lcd_Init();									//TFT屏幕初始化
 	Find_IO_Init();							//红外循迹模块初始化
@@ -70,14 +70,14 @@ int	main()
 		}
 		switch(u1_action_mode)
 		{
-			case 0x0: CAR_MODE = 0; Car_Go(); break;
-			case 0x1: CAR_MODE = 0; Car_Back(); break;
-			case 0x2: CAR_MODE = 0; Car_Go_Left(); break;
-			case 0x3: CAR_MODE = 0; Car_Go_Right(); break;
-			case 0x4: CAR_MODE = 0; Car_Left_Front(); break;
-			case 0x5: CAR_MODE = 0; Car_Right_Front(); break;
-			case 0x6: CAR_MODE = 0; Car_Raw_Left(); break;
-			case 0x7: CAR_MODE = 0; Car_Raw_Right(); break;
+			case 0x0: CAR_MODE = 0; MOTOR_PWM_Out(MOTOR_PWM[0], MOTOR_PWM[1], MOTOR_PWM[2], MOTOR_PWM[3]); Car_Go(); break;
+			case 0x1: CAR_MODE = 0; MOTOR_PWM_Out(MOTOR_PWM[0], MOTOR_PWM[1], MOTOR_PWM[2], MOTOR_PWM[3]); Car_Back(); break;
+			case 0x2: CAR_MODE = 0; MOTOR_PWM_Out(MOTOR_PWM[0], MOTOR_PWM[1], MOTOR_PWM[2], MOTOR_PWM[3]); Car_Go_Left(); break;
+			case 0x3: CAR_MODE = 0; MOTOR_PWM_Out(MOTOR_PWM[0], MOTOR_PWM[1], MOTOR_PWM[2], MOTOR_PWM[3]); Car_Go_Right(); break;
+			case 0x4: CAR_MODE = 0; MOTOR_PWM_Out(MOTOR_PWM[0], MOTOR_PWM[1], MOTOR_PWM[2], MOTOR_PWM[3]); Car_Left_Front(); break;
+			case 0x5: CAR_MODE = 0; MOTOR_PWM_Out(MOTOR_PWM[0], MOTOR_PWM[1], MOTOR_PWM[2], MOTOR_PWM[3]); Car_Right_Front(); break;
+			case 0x6: CAR_MODE = 0; MOTOR_PWM_Out(MOTOR_PWM[0], MOTOR_PWM[1], MOTOR_PWM[2], MOTOR_PWM[3]); Car_Raw_Left(); break;
+			case 0x7: CAR_MODE = 0; MOTOR_PWM_Out(MOTOR_PWM[0], MOTOR_PWM[1], MOTOR_PWM[2], MOTOR_PWM[3]); Car_Raw_Right(); break;
 			case 0x8: MOTOR_Speed_Up(10); break;
 			case 0x9: MOTOR_Speed_Down(10); break;
 			case 0x10: CAR_MODE = 0; Car_Stop(); break;
@@ -97,133 +97,109 @@ int	main()
 			case 0x23: USART_SendData(USART2, '1'); break;
 			case 0x24: USART_SendData(USART2, '2'); break;
 			case 0x25: USART_SendData(USART2, '3'); break;
+			case 0x30: IS_MOTOR_ALL_STOP = 1; break;
+			case 0x31: IS_MOTOR_ALL_STOP = 0; break;
 			default: break;
 		}
 		u1_action_mode = 100;
-		MOTOR_PWM_Out(MOTOR_PWM[0], MOTOR_PWM[1], MOTOR_PWM[2], MOTOR_PWM[3]);
+		//MOTOR_PWM_Out(MOTOR_PWM[0], MOTOR_PWM[1], MOTOR_PWM[2], MOTOR_PWM[3]);
 	
 	
 		//机械臂动作判断
-		switch(ARM_Action)
-		{
-			case 0: break;
-			case 1: scan_qr_on(); uart2_sendStr("1"); break;		//扫码姿势 告诉OV扫码
-			case 2: scan_block_top(); uart2_sendStr("2");break;	//颜色识别	告诉OV识别上层颜色
-			case 3: top_grasp_choose1(way1); top_grasp_choose2(way1); top_grasp_choose3(way1); CAR_MODE = 3; break; 	//机械臂抓取色块
-			case 4: 
-			{
-				//第一次放置物料
-				First_choose_place1(qr_mes, 1);
-				First_choose_place2(qr_mes, 1);
-				First_choose_place3(qr_mes, 1);
-				//重新抓取物料
-				cujiagong_choose_grasp1(qr_mes, 1);
-				cujiagong_choose_grasp2(qr_mes, 1);
-				cujiagong_choose_grasp3(qr_mes, 1);
-				CAR_MODE = 5;		//粗加工 -> 半成品
-				break;
-			}
-			case 5: //半成品区上层放置
-			{
-				place_top_product1(qr_mes);
-				place_top_product2(qr_mes);
-				place_top_product3(qr_mes);
-				CAR_MODE = 7;
-				break;
-			}
-			case 6:
-			{
-				//扫描下层物料
-				scan_block_under();		//机械臂识别颜色动作
-				delay_ms(100);
-				uart2_sendStr("3");		//OV扫描颜色
-				break;
-			}
-			case 7:	//准备第一次抓取下层
-			{
-				under_grasp_choose1(way2);		//机械臂伸出
-				CAR_MODE = 8;
-				break;
-			}
-			case 8:	//爪子闭合
-			{
-				Arm0 = 740;		//机械臂抓取动作
-				CAR_MODE = 9;
-				break;
-			}
-			case 9:
-			{
-				Arm_back1();		//机械臂收回
-				place_playload1();	//放置物料到车上
-				under_grasp_choose2(way2);		//机械臂伸出
-				CAR_MODE = 8;		//车向前一格
-				break;
-			}
-			case 10:					//准备第二次抓取
-			{
-				Arm_back1();		//机械臂收回
-				place_playload2();	//放置物料到车上2
-				under_grasp_choose3(way2);		//机械臂伸出
-				CAR_MODE = 8;		//车向前一格
-				break;
-			}
-			case 11:
-			{
-				Arm_back1();		//机械臂收回
-				place_playload3();	//放置物料到车上3
-				CAR_MODE = 10;
-				break;
-			}
-			case 12: 
-			{
-				//第二次放置物料
-				First_choose_place1(qr_mes, 2);
-				First_choose_place2(qr_mes, 2);
-				First_choose_place3(qr_mes, 2);
-				//重新抓取物料
-				cujiagong_choose_grasp1(qr_mes, 2);
-				cujiagong_choose_grasp2(qr_mes, 2);
-				cujiagong_choose_grasp3(qr_mes, 2);
-				CAR_MODE = 11;		//第二次 粗加工 -> 半成品
-				break;
-			}
-			case 13: 
-			{
-				//半成品区下层放置
-				place_under_product1(qr_mes);
-				place_under_product2(qr_mes);
-				place_under_product3(qr_mes);
-				CAR_MODE = 12;									//去返回去
-				break;
-			}
-			default: break;
-		}
-		
-		
-		
-		
-		
-		/*
-		//判断是否收到机械臂动作
-		if(IS_UART4_RX_Success==1) 
-		{
-			car_u1_action_mode = UART4_RX_DATA;
-			printf("收到机械臂指令：%c", UART4_RX_DATA);
-			IS_UART4_RX_Success = 0;
-		}
-		//根据机械臂指令执行对应的动作
-		switch(car_u1_action_mode)
-		{
-			case '1': Mode_Init(), Stop_Find(), CAR_MODE = 2; break;
-			case '2': Mode_Init(), Stop_Find(), CAR_MODE = 3; break;
-			case '3': Mode_Init(), Stop_Find(), CAR_MODE = 4; break;
-			case '4': Mode_Init(), Stop_Find(), CAR_MODE = 5; break;
-			case '5': Mode_Init(), Stop_Find(), CAR_MODE = 6; break;
-			case '6': Mode_Init(), Stop_Find(), CAR_MODE = 7; break;
-			default: break;
-		}
-		car_u1_action_mode = 100;
-		*/
+//		switch(ARM_Action)
+//		{
+//			case 0: break;
+//			case 1: scan_qr_on(); uart2_sendStr("1"); break;		//扫码姿势 告诉OV扫码
+//			case 2: scan_block_top(); uart2_sendStr("2");break;	//颜色识别	告诉OV识别上层颜色
+//			case 3: top_grasp_choose1(way1); top_grasp_choose2(way1); top_grasp_choose3(way1); CAR_MODE = 3; break; 	//机械臂抓取色块
+//			case 4: 
+//			{
+//				//第一次放置物料
+//				First_choose_place1(qr_mes, 1);
+//				First_choose_place2(qr_mes, 1);
+//				First_choose_place3(qr_mes, 1);
+//				//重新抓取物料
+//				cujiagong_choose_grasp1(qr_mes, 1);
+//				cujiagong_choose_grasp2(qr_mes, 1);
+//				cujiagong_choose_grasp3(qr_mes, 1);
+//				CAR_MODE = 5;		//粗加工 -> 半成品
+//				break;
+//			}
+//			case 5: //半成品区上层放置
+//			{
+//				place_top_product1(qr_mes);
+//				place_top_product2(qr_mes);
+//				place_top_product3(qr_mes);
+//				CAR_MODE = 7;
+//				break;
+//			}
+//			case 6:
+//			{
+//				//扫描下层物料
+//				scan_block_under();		//机械臂识别颜色动作
+//				delay_ms(100);
+//				uart2_sendStr("3");		//OV扫描颜色
+//				break;
+//			}
+//			case 7:	//准备第一次抓取下层
+//			{
+//				under_grasp_choose1(way2);		//机械臂伸出
+//				CAR_MODE = 8;
+//				break;
+//			}
+//			case 8:	//爪子闭合
+//			{
+//				Arm0 = 740;		//机械臂抓取动作
+//				CAR_MODE = 9;
+//				break;
+//			}
+//			case 9:
+//			{
+//				Arm_back1();		//机械臂收回
+//				place_playload1();	//放置物料到车上
+//				under_grasp_choose2(way2);		//机械臂伸出
+//				CAR_MODE = 8;		//车向前一格
+//				break;
+//			}
+//			case 10:					//准备第二次抓取
+//			{
+//				Arm_back1();		//机械臂收回
+//				place_playload2();	//放置物料到车上2
+//				under_grasp_choose3(way2);		//机械臂伸出
+//				CAR_MODE = 8;		//车向前一格
+//				break;
+//			}
+//			case 11:
+//			{
+//				Arm_back1();		//机械臂收回
+//				place_playload3();	//放置物料到车上3
+//				CAR_MODE = 10;
+//				break;
+//			}
+//			case 12: 
+//			{
+//				//第二次放置物料
+//				First_choose_place1(qr_mes, 2);
+//				First_choose_place2(qr_mes, 2);
+//				First_choose_place3(qr_mes, 2);
+//				//重新抓取物料
+//				cujiagong_choose_grasp1(qr_mes, 2);
+//				cujiagong_choose_grasp2(qr_mes, 2);
+//				cujiagong_choose_grasp3(qr_mes, 2);
+//				CAR_MODE = 11;		//第二次 粗加工 -> 半成品
+//				break;
+//			}
+//			case 13: 
+//			{
+//				//半成品区下层放置
+//				place_under_product1(qr_mes);
+//				place_under_product2(qr_mes);
+//				place_under_product3(qr_mes);
+//				CAR_MODE = 12;									//去返回去
+//				break;
+//			}
+//			default: break;
+//		}
 	
 	}
 }

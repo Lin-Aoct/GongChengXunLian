@@ -37,6 +37,39 @@ void TIM6_DAC_IRQHandler(void)
    }       	
 }
 
+void Cross_Road_Locate(void)
+{
+	front_data = Find_Get_Front();
+	right_data = Find_Get_Right();
+	
+	if(front_data == 1001 && right_data == 1001) Car_Stop(), Stop_Find(); //CAR_MODE = 0;	//中线
+	else if(front_data == 1110 || front_data == 1100) Car_Go_Right();	//X轴偏左
+	else if(front_data == 111 || front_data == 11) Car_Go_Left();	//X轴偏右
+	else if(right_data == 1110 || right_data == 1100) Car_Back();	//Y轴偏左
+	else if(right_data == 111 || right_data == 11) Car_Go();	//Y轴偏右
+}
+
+void Set_PID_PWM(void)
+{
+	ENCODER_DATA[0] = abs(Read_Encoder(2));
+	ENCODER_DATA[1] = abs(Read_Encoder(3));
+	ENCODER_DATA[2] = abs(Read_Encoder(4));
+	ENCODER_DATA[3] = abs(Read_Encoder(5));
+	
+	if(IS_MOTOR_ALL_STOP == 0)
+	{
+		TIM8->CCR1 = MOTOR_PWM[0] + PID_Speed_Left_Front(ENCODER_DATA[0]);
+		TIM8->CCR2 = MOTOR_PWM[1] + PID_Speed_Left_Behind(ENCODER_DATA[1]);
+		TIM8->CCR4 = MOTOR_PWM[2] + PID_Speed_Right_Front(ENCODER_DATA[2]);
+		TIM8->CCR3 = MOTOR_PWM[3] + PID_Speed_Right_Behind(ENCODER_DATA[3]);
+	}
+	
+	printf("编码器[%d %d %d %d]\t", ENCODER_DATA[0], ENCODER_DATA[1], ENCODER_DATA[2], ENCODER_DATA[3]);
+	printf("PWM[%d %d %d %d]\t", TIM8->CCR1, TIM8->CCR2, TIM8->CCR4, TIM8->CCR3);
+	printf("TS[%.0f]", speed_target);	//打印目标速度
+	printf("\n");
+}
+
 /*
 *===================================================================
 *		说明：出发模式，前往二维码扫码区域
@@ -46,26 +79,7 @@ void TIM6_DAC_IRQHandler(void)
 */
 void Mode_Start(void)
 {
-//	ENCODER_DATA[0] = Read_Encoder(2);
-//	ENCODER_DATA[1] = Read_Encoder(3);
-//	ENCODER_DATA[2] = Read_Encoder(4);
-//	ENCODER_DATA[3] = Read_Encoder(5);
-
-//	Set_MOTOR_Left_Front(GO);
-	
-//	Car_Go();
-	
-//	TIM8->CCR1 = MOTOR_PWM[0] + abs(PID_Speed_Left_Front(ENCODER_DATA[0]));
-//	TIM8->CCR2 = MOTOR_PWM[1] + PID_Speed_Left_Front(ENCODER_DATA[1]);
-//	TIM8->CCR4 = MOTOR_PWM[2] + PID_Speed_Left_Front(ENCODER_DATA[2]);
-//	TIM8->CCR3 = MOTOR_PWM[3] + PID_Speed_Left_Front(ENCODER_DATA[3]);
-
-	
-//	printf("编码器[%d %d %d %d]\t", ENCODER_DATA[0], ENCODER_DATA[1], ENCODER_DATA[2], ENCODER_DATA[3]);
-//	printf("PWM[%d %d %d %d]\t", TIM8->CCR1, TIM8->CCR2, TIM8->CCR3, TIM8->CCR4);
-	// Find_Test();
-
-	
+	//Car_Go();
 	
 	front_data = Find_Get_Front();
 	right_data = Find_Get_Right();
@@ -85,13 +99,15 @@ void Mode_Start(void)
 	if(count > 0 && step == 5)	count--;						//6*15ms = 150ms
 
 //	if(count <= 0 && step == 5)	Car_Go_Left(), Stop_Find(), step = 6;	//左移
-
+	
 	if(count == 0 && step == 5)	
 	{
 		Car_Stop();				//退出出发模式
 		CAR_MODE = 0;
-		ARM_Action =1;		//机械臂扫码
+		ARM_Action = 1;		//机械臂扫码
 	}
+	
+	Set_PID_PWM();
 }
 
 /*
@@ -103,6 +119,8 @@ void Mode_Start(void)
 */
 void Mode_Go_Area1(void)
 {
+	//Car_Back();
+	
 	front_data = Find_Get_Front();
 	right_data = Find_Get_Right();
 	
@@ -116,19 +134,24 @@ void Mode_Go_Area1(void)
 	if(right_data == 1110 && step == 4)	step = 5;	//出线2
 	
 	if(right_data == 1001 && step == 5)	step = 6;	//线3中间
-	if(right_data == 1110 && step == 6)	step = 7;	//出线3
+	if(right_data == 1110 && step == 6)	step = 7, speed_target-=10;	//出线3
 	
-	if((right_data == 1001 || right_data == 0011) && step == 7)	step = 8, MOTOR_Speed_Down(30), Car_Go_Left(), FIND_DRIVER=1, CURRENT_DIRATION=3;	//碰到线4 左平移
+	if((right_data == 1001 || right_data == 11) && step == 7)	step = 8, Car_Stop();	//碰到线4 左平移
+	
+	if(step == 8)	Cross_Road_Locate();
+//	if((right_data == 1001 || right_data == 11) && step == 7)	step = 8, Car_Go_Left(), FIND_DRIVER=1, CURRENT_DIRATION=3;	//碰到线4 左平移
 
-	if(right_data == 0000 && step == 8)	
-	{
-		step = 9;
-		Car_Stop();
-		Stop_Find();
-		MOTOR_Speed_Up(30);
-		ARM_Action = 2;	//机械臂抓取物料
-		CAR_MODE = 0;	//到达物料抓取位置 退出模式
-	}
+//	if(right_data == 0000 && step == 8)	
+//	{
+//		step = 9;
+//		Car_Stop();
+//		Stop_Find();
+//		speed_target+=10;
+//		ARM_Action = 2;	//机械臂抓取物料
+//		CAR_MODE = 0;	//到达物料抓取位置 退出模式
+//	}
+	
+	Set_PID_PWM();
 }
 
 /*
@@ -140,6 +163,8 @@ void Mode_Go_Area1(void)
 */
 void Mode_Area1_To_Area2(void)
 {
+	//Car_Go_Left();
+	
 	front_data = Find_Get_Front();
 	right_data = Find_Get_Right();
 	
@@ -155,7 +180,7 @@ void Mode_Area1_To_Area2(void)
 	if(front_data == 1001 && step == 5)						//线3中间
 	{
 		step = 6;
-		MOTOR_Speed_Down(3000), Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1;	//碰到线3 减速 向前运动 X轴巡线
+		speed_target-=10, Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1;	//碰到线3 减速 向前运动 X轴巡线
 	}
 
 	if(front_data == 0000 && step == 6)
@@ -164,9 +189,11 @@ void Mode_Area1_To_Area2(void)
 		Car_Stop();
 		Stop_Find();
 		ARM_Action = 4;								//机械臂第一次放置物料
-		MOTOR_Speed_Up(3000);
+		speed_target+=10;
 		CAR_MODE = 0;									//粗加工区
 	}
+	
+	Set_PID_PWM();
 }
 
 /*
@@ -178,26 +205,17 @@ void Mode_Area1_To_Area2(void)
 */
 void Mode_Area2_To_Area1(void)
 {
-	front_data = Find_Get_Front();
-	right_data = Find_Get_Right();
+
+	//Car_Go_Right();
+//	if(step == 0)	Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1, step = 1;	//后退	X轴循迹
+//	Find();
+
+//	MOTOR_PWM_Out(MOTOR_PWM[0], MOTOR_PWM[1], MOTOR_PWM[2], MOTOR_PWM[3]);
 	
-	if(step == 0)	Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1, step = 1;	//后退	X轴循迹
-	Find();
+	Cross_Road_Locate();
+	
+	Set_PID_PWM();
 
-//	if(front_data == 1001 && step == 2)	step = 3;	//线1中间
-//	if(front_data == 1110 && step == 3)	step = 4;	//出线1
-//	
-//	if(front_data == 1001 && step == 4)	step = 5;	//线2中间
-//	if(front_data == 1110 && step == 5)	step = 6;	//出线2
-
-//	if(right_data == 0000 && step == 6)	
-//	{
-//		step = 7;
-//		Car_Stop();
-//		Stop_Find();
-//		USART_SendData(UART4, '4');
-//		CAR_MODE = 0;	//原料区
-//	}
 }
 
 /*

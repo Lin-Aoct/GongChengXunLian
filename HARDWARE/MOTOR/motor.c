@@ -3,9 +3,9 @@
 //u16 MOTOR_PWM[4] = {20000, 20000, 20000, 20000,};						//当前电机CCR值
 //u16 MAX_MOTOR_PWM = 32000;	//电机最大CCR值
 
-u8 IS_MOTOR_ALL_STOP = 1;	//标志是否强制所有电机停转	0不停转		1停转
+u8 IS_MOTOR_ALL_STOP = 0;	//标志是否强制所有电机停转	0不停转		1停转
 
-int	MOTOR_PWM[4] = {40, 40, 40, 40};						//当前电机CCR值
+int	MOTOR_PWM[4] = {160, 160, 160, 160};						//当前电机CCR值
 int MAX_MOTOR_PWM = 200;	//电机最大CCR值
 
 /*
