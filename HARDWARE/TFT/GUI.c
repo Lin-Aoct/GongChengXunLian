@@ -213,7 +213,40 @@ void DisplayButtonUp(u16 x1,u16 y1,u16 x2,u16 y2)
 	Gui_DrawLine(x1+1,y2-1,x2,y2-1, GRAY1);  //H
 	Gui_DrawLine(x1,  y2,  x2,y2, GRAY2);  //H
 	Gui_DrawLine(x2-1,y1+1,x2-1,y2, GRAY1);  //V
-    Gui_DrawLine(x2  ,y1  ,x2,y2, GRAY2); //V
+  Gui_DrawLine(x2  ,y1  ,x2,y2, GRAY2); //V
+}
+
+
+void GUI_Draw_Long_Font(u16 x, u16 y, u16 font_color, u16 background_color, u8 *str)
+{
+	u8 i, j, k, c, current_str;
+
+	while(*str) 
+	{	
+		if((*str) < 58) 	//ASCII
+		{
+			current_str = *str;
+			
+			if(current_str>=48) current_str -= 48;				//ASCII数字
+			else if(current_str==43)	current_str = 10;		//判断是否为 + 号 
+			else current_str = 0;
+				
+			for(i=0;i<64;i++)					//列循环
+			{
+				for(j=0;j<2;j++) 				//行包含 2 字节数据
+				{
+					c=*(sz32+current_str*64*2+i*2+j);
+					for(k=0;k<8;k++)			//1 字节 8 位数据
+					{
+						if(c&(0x80>>k))	Gui_DrawPoint(x+j*8+k,y+i,font_color);
+						else if (font_color != background_color) Gui_DrawPoint(x+j*8+k,y+i,background_color);
+					}
+				}
+			}
+			x += 19;	//数字间隔16+像素
+		}
+		str++;			//字符串索引加 1
+	}
 }
 
 
@@ -235,8 +268,8 @@ void Gui_DrawFont_GBK16(u16 x, u16 y, u16 fc, u16 bc, u8 *s)
 			}
 			else 
 			{
-				if (k>32) k-=32; else k=0;
-	
+				if (k>32) k-=32;
+				else k=0;
 				for(i=0;i<16;i++)
 					for(j=0;j<8;j++) 
 					{
@@ -256,29 +289,28 @@ void Gui_DrawFont_GBK16(u16 x, u16 y, u16 fc, u16 bc, u8 *s)
 			{
 			  if ((hz16[k].Index[0]==*(s))&&(hz16[k].Index[1]==*(s+1)))
 			  { 
-				    for(i=0;i<16;i++)
-				    {
-							for(j=0;j<8;j++) 
-							{
-								if(hz16[k].Msk[i*2]&(0x80>>j))	Gui_DrawPoint(x+j,y+i,fc);
-								else {
-									if (fc!=bc) Gui_DrawPoint(x+j,y+i,bc);
-								}
-							}
+					for(i=0;i<16;i++)
+					{
 						for(j=0;j<8;j++) 
-							{
-						    	if(hz16[k].Msk[i*2+1]&(0x80>>j))	Gui_DrawPoint(x+j+8,y+i,fc);
-								else 
-								{
-									if (fc!=bc) Gui_DrawPoint(x+j+8,y+i,bc);
-								}
+						{
+							if(hz16[k].Msk[i*2]&(0x80>>j))	Gui_DrawPoint(x+j,y+i,fc);
+							else {
+								if (fc!=bc) Gui_DrawPoint(x+j,y+i,bc);
 							}
-				    }
+						}
+						for(j=0;j<8;j++) 
+						{
+							if(hz16[k].Msk[i*2+1]&(0x80>>j))	Gui_DrawPoint(x+j+8,y+i,fc);
+							else 
+							{
+								if (fc!=bc) Gui_DrawPoint(x+j+8,y+i,bc);
+							}
+						}
+					}
 				}
-			  }
+			}
 			s+=2;x+=16;
 		} 
-		
 	}
 }
 
@@ -347,27 +379,25 @@ void Gui_DrawFont_GBK24(u16 x, u16 y, u16 fc, u16 bc, u8 *s)
 		}
 	}
 }
+
+
 void Gui_DrawFont_Num32(u16 x, u16 y, u16 fc, u16 bc, u16 num)
 {
 	unsigned char i,j,k,c;
-	//lcd_text_any(x+94+i*42,y+34,32,32,0x7E8,0x0,sz32,knum[i]);
-//	w=w/8;
 
-    for(i=0;i<32;i++)
+	for(i=0;i<32;i++)
 	{
 		for(j=0;j<4;j++) 
 		{
 			c=*(sz32+num*32*4+i*4+j);
 			for (k=0;k<8;k++)	
 			{
-	
-		    	if(c&(0x80>>k))	Gui_DrawPoint(x+j*8+k,y+i,fc);
-				else {
-					if (fc!=bc) Gui_DrawPoint(x+j*8+k,y+i,bc);
+				if(c&(0x80>>k))	Gui_DrawPoint(x+j*8+k,y+i,fc);
+				else
+				{
+					if (fc != bc) Gui_DrawPoint(x+j*8+k,y+i,bc);
 				}
 			}
 		}
 	}
 }
-
-

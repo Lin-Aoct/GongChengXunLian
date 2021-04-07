@@ -1,14 +1,15 @@
 #include "Lcd_Driver.h"
 
+
 /******************************************************************************
 *              	GND   电源地
 *              	VCC   接5V或3.3v电源
-*              	SCL   接PA5（SCL）
-*              	SDA   接PA7（SDA）
-*              	RES   接PB0
-*              	DC    接PB1
-*              	CS    接PA4 
-*								BL		接PB10
+*              	SCL   接PB10（SCL）
+*              	SDA   接PC3（SDA）
+*              	RES   接PE10
+*              	DC    接PB11
+*              	CS    接PB12 
+*								BL		接3.3v
 *******************************************************************************/
 
 
@@ -165,18 +166,16 @@ void Lcd_Init(void)
 
 
 //向SPI总线传输一个8位数据
-void  SPI_WriteData(u8 Data)
+void SPI_WriteData(u8 Data)
 {
 	unsigned char i=0;
 	for(i=8;i>0;i--)
 	{
-		if(Data&0x80)	
-	  LCD_SDA_SET; //输出数据
-      else LCD_SDA_CLR;
-	   
-      LCD_SCL_CLR;       
-      LCD_SCL_SET;
-      Data<<=1; 
+		if(Data&0x80)	LCD_SDA_SET; //输出数据
+    else LCD_SDA_CLR;
+		LCD_SCL_CLR;       
+		LCD_SCL_SET;
+		Data<<=1; 
 	}
 }
 
@@ -204,7 +203,7 @@ void LCD_WriteData_16Bit(u16 Data)
    LCD_CS_CLR;
    LCD_RS_SET;
 	 SPI_WriteData(Data>>8); 	//写入高8位数据
-	 SPI_WriteData(Data); 			//写入低8位数据
+	 SPI_WriteData(Data); 		//写入低8位数据
    LCD_CS_SET; 
 }
 
@@ -257,7 +256,6 @@ void Lcd_SetXY(u16 x,u16 y)
 {
   	Lcd_SetRegion(x,y,x,y);
 }
-
 	
 /*************************************************
 函数名：LCD_DrawPoint
@@ -286,6 +284,7 @@ unsigned int Lcd_ReadPoint(u16 x,u16 y)
   Lcd_WriteData(Data);
   return Data;
 }
+
 /*************************************************
 函数名：Lcd_Clear
 功能：全屏清屏函数
@@ -303,4 +302,3 @@ void Lcd_Clear(u16 Color)
 	  	LCD_WriteData_16Bit(Color);
     }   
 }
-

@@ -1,23 +1,21 @@
 #include "sys.h"
 
 
-u8 CONTROL_MODE;				//控制模式变量
 u8 IS_USART1_RX_HEAD;		//标志是否接收到数据头
+u8 IS_USART1_RX_Success = 0;
 u8 USART1_RX_BUF[4];		//USART1接收缓冲
 u8 USART1_RX_DATA[4];		//存储USART1接收到的数据
 
 u8 UART4_RX_DATA;				//存储UART4接收到的数据
 
-u16 led_val = 50;
-u8 up_flag = 1;
-u32 count_flag;
-u8 action_mode = 10;				//串口1动作指令变量
-u8 car_action_mode = 0;			//机械臂动作指令变量
-u8 IS_USART1_RX_Success = 0;
+u32 count_flag;					//Debug
+u8 u1_action_mode = 10;				//串口1动作指令变量
+u8 car_u1_action_mode = 0;			//机械臂动作指令变量
+
 
 u8 TFT_String[2];
 
-u8 ARM_Action = 0;						//机械臂动作变量
+u8 ARM_Action = 0;			//机械臂动作变量
 
 int	main()
 {
@@ -27,10 +25,10 @@ int	main()
 	//LED_Init();								//LED 灯初始化
 	uart_init(115200);					//USART1 初始化
 	
-	RobotArm_Pwm_init();
-	OPENMV_init(9600);					//USART2
-	bluetooth_init(115200);
-	scan_qr_on();//开始保持扫码动作
+	OPENMV_init(9600);					//OPENMV USART2 初始化
+	bluetooth_init(115200);			//蓝牙 USART3 初始化
+	RobotArm_Pwm_init();				//机械臂初始化
+	scan_qr_on();								//机械臂保持扫码动作
 
 	Lcd_Init();									//TFT屏幕初始化
 	Find_IO_Init();							//红外循迹模块初始化
@@ -48,47 +46,28 @@ int	main()
 	
 	while(1)
 	{
+		Lcd_Clear(GRAY0);
+		GUI_Draw_Long_Font(1, 1, RED, GRAY0, (u8*)"123+321");
+		delay_ms(1000);
 		//Gui_DrawFont_GBK16(0,80,RED,GRAY0, qr_mes);	
 
 //		if(count_flag == 265535) 
 //			count_flag = 0;
 //		count_flag ++;
 
-		/*
-		//判断是否收到机械臂动作
-		if(IS_UART4_RX_Success==1) 
-		{
-			car_action_mode = UART4_RX_DATA;
-			printf("收到机械臂指令：%c", UART4_RX_DATA);
-			IS_UART4_RX_Success = 0;
-		}
-		//根据机械臂指令执行对应的动作
-		switch(car_action_mode)
-		{
-			case '1': Mode_Init(), Stop_Find(), CAR_MODE = 2; break;
-			case '2': Mode_Init(), Stop_Find(), CAR_MODE = 3; break;
-			case '3': Mode_Init(), Stop_Find(), CAR_MODE = 4; break;
-			case '4': Mode_Init(), Stop_Find(), CAR_MODE = 5; break;
-			case '5': Mode_Init(), Stop_Find(), CAR_MODE = 6; break;
-			case '6': Mode_Init(), Stop_Find(), CAR_MODE = 7; break;
-			default: break;
-		}
-		car_action_mode = 100;
-		*/
 		
 		//判断是否收到串口1动作
 		if(IS_USART1_RX_Success==1) 
 		{
 			memcpy(USART1_RX_DATA, USART1_RX_BUF, 4*sizeof(u8));	//获取串口1缓冲区数据
-			action_mode = USART1_RX_DATA[0];
-			printf("收到u1指令：%x", action_mode);
+			u1_action_mode = USART1_RX_DATA[0];
+			printf("收到u1指令：%x", u1_action_mode);
 			//Lcd_Clear(GRAY0);
-			//sprintf((u8*)TFT_String, "%d", action_mode);
+			//sprintf((u8*)TFT_String, "%d", u1_action_mode);
 			//Gui_DrawFont_GBK16(60,80,RED,GRAY0, TFT_String);	
 			IS_USART1_RX_Success = 0;
 		}
-		
-		switch(action_mode)
+		switch(u1_action_mode)
 		{
 			case 0x0: CAR_MODE = 0; Car_Go(); break;
 			case 0x1: CAR_MODE = 0; Car_Back(); break;
@@ -119,8 +98,8 @@ int	main()
 			case 0x25: USART_SendData(USART2, '3'); break;
 			default: break;
 		}
-		//action_mode = 100;
-		MOTOR_PWM_Out(MOTOR_PWM[0], MOTOR_PWM[1], MOTOR_PWM[2], MOTOR_PWM[3]);
+		u1_action_mode = 100;
+		//MOTOR_PWM_Out(MOTOR_PWM[0], MOTOR_PWM[1], MOTOR_PWM[2], MOTOR_PWM[3]);
 	
 	
 		//机械臂动作判断
@@ -218,6 +197,32 @@ int	main()
 			}
 			default: break;
 		}
+		
+		
+		
+		
+		
+		/*
+		//判断是否收到机械臂动作
+		if(IS_UART4_RX_Success==1) 
+		{
+			car_u1_action_mode = UART4_RX_DATA;
+			printf("收到机械臂指令：%c", UART4_RX_DATA);
+			IS_UART4_RX_Success = 0;
+		}
+		//根据机械臂指令执行对应的动作
+		switch(car_u1_action_mode)
+		{
+			case '1': Mode_Init(), Stop_Find(), CAR_MODE = 2; break;
+			case '2': Mode_Init(), Stop_Find(), CAR_MODE = 3; break;
+			case '3': Mode_Init(), Stop_Find(), CAR_MODE = 4; break;
+			case '4': Mode_Init(), Stop_Find(), CAR_MODE = 5; break;
+			case '5': Mode_Init(), Stop_Find(), CAR_MODE = 6; break;
+			case '6': Mode_Init(), Stop_Find(), CAR_MODE = 7; break;
+			default: break;
+		}
+		car_u1_action_mode = 100;
+		*/
 	
 	}
 }

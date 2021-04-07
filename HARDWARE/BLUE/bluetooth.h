@@ -9,7 +9,7 @@
 #define BLUE_RX_PORT    GPIOD
 #define BLUE_RX_Pin     GPIO_Pin_9
 
-extern u8 tx;
+extern u8 tx,tem;
 
 
 

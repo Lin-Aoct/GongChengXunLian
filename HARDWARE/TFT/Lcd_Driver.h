@@ -1,8 +1,11 @@
 #ifndef __LCD_DRIVER_H
 #define __LCD_DRIVER_H	 
 
-
 #include "sys.h"
+
+#define X_MAX_PIXEL	        128
+#define Y_MAX_PIXEL	        160
+
 
 #define RED  	0xf800
 #define GREEN	0x07e0

@@ -478,11 +478,6 @@
               <FilePath>..\HARDWARE\TFT\Lcd_Driver.c</FilePath>
             </File>
             <File>
-              <FileName>QDTFT_demo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\TFT\QDTFT_demo.c</FilePath>
-            </File>
-            <File>
               <FileName>encoder.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\ENCODER\encoder.c</FilePath>
@@ -496,11 +491,6 @@
               <FileName>motor.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\MOTOR\motor.c</FilePath>
-            </File>
-            <File>
-              <FileName>Picture.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\HARDWARE\TFT\Picture.h</FilePath>
             </File>
             <File>
               <FileName>Font.h</FileName>
@@ -536,6 +526,11 @@
               <FileName>usart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SYSTEM\usart\usart.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SYSTEM\usart2\uart2.c</FilePath>
             </File>
             <File>
               <FileName>timer2.c</FileName>
@@ -576,11 +571,6 @@
               <FileName>sys.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\SYSTEM\sys\sys.h</FilePath>
-            </File>
-            <File>
-              <FileName>uart2.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\SYSTEM\usart2\uart2.c</FilePath>
             </File>
           </Files>
         </Group>

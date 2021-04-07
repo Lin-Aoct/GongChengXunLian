@@ -19,8 +19,6 @@
 #include "Font.h"
 #include "Lcd_Driver.h"
 #include "GUI.h"
-#include "QDTFT_demo.h"
-#include "LCD_Config.h"
 #include "motor.h"
 #include "encoder.h"
 #include "find.h"

@@ -50,19 +50,21 @@ void Mode_Start(void)
 //	ENCODER_DATA[1] = Read_Encoder(3);
 //	ENCODER_DATA[2] = Read_Encoder(4);
 //	ENCODER_DATA[3] = Read_Encoder(5);
-//	
-//	//Set_MOTOR_Left_Front(GO);
-//	MOTOR_PWM[0] = abs(PID_Speed_Left_Front(ENCODER_DATA[0]));
-//	MOTOR_PWM[1] = PID_Speed_Left_Front(ENCODER_DATA[1]);
-//	MOTOR_PWM[2] = PID_Speed_Left_Front(ENCODER_DATA[2]);
-//	MOTOR_PWM[3] = PID_Speed_Left_Front(ENCODER_DATA[3]);
+
+//	Set_MOTOR_Left_Front(GO);
+	
 //	Car_Go();
 	
-//	printf("编码器[%d %d %d %d]\t", ENCODER_DATA[0], ENCODER_DATA[1], ENCODER_DATA[2], ENCODER_DATA[3]);// Find_Test();
-//	printf("PWM[");
-//	for(count=0; count<=3; count++)
-//		printf("%d ", MOTOR_PWM[count]);
-//	printf("]");
+//	TIM8->CCR1 = MOTOR_PWM[0] + abs(PID_Speed_Left_Front(ENCODER_DATA[0]));
+//	TIM8->CCR2 = MOTOR_PWM[1] + PID_Speed_Left_Front(ENCODER_DATA[1]);
+//	TIM8->CCR4 = MOTOR_PWM[2] + PID_Speed_Left_Front(ENCODER_DATA[2]);
+//	TIM8->CCR3 = MOTOR_PWM[3] + PID_Speed_Left_Front(ENCODER_DATA[3]);
+
+	
+//	printf("编码器[%d %d %d %d]\t", ENCODER_DATA[0], ENCODER_DATA[1], ENCODER_DATA[2], ENCODER_DATA[3]);
+//	printf("PWM[%d %d %d %d]\t", TIM8->CCR1, TIM8->CCR2, TIM8->CCR3, TIM8->CCR4);
+	// Find_Test();
+
 	
 	
 	front_data = Find_Get_Front();
@@ -86,7 +88,7 @@ void Mode_Start(void)
 
 	if(count == 0 && step == 5)	
 	{
-		Car_Stop();										//退出出发模式
+		Car_Stop();				//退出出发模式
 		CAR_MODE = 0;
 		ARM_Action =1;		//机械臂扫码
 	}

@@ -1,8 +1,5 @@
 #include "bluetooth.h"
 
-
-
-
 void bluetooth_init(u32 baud)
 {
 	GPIO_InitTypeDef  GPIO_InitStructure;
@@ -58,7 +55,7 @@ void bluetooth_init(u32 baud)
 
 //串口1中断
 
-u8 tx = 0 ;
+u8 tx = 0, tem=3 ;
 
 void USART3_IRQHandler(void)
 {
@@ -78,7 +75,7 @@ void USART3_IRQHandler(void)
 		
 			else if(tx==2)
 			{
-			uart3_sendStr("s_2\r\n");
+			  uart3_sendStr("s_2\r\n");
 				top_grasp2();
 				place_playload2();
 
@@ -86,7 +83,7 @@ void USART3_IRQHandler(void)
 			
 			else if(tx==3)
 			{
-			uart3_sendStr("s_3\r\n");
+			  uart3_sendStr("s_3\r\n");
 				top_grasp3();
 				place_playload3();
 
@@ -103,7 +100,7 @@ void USART3_IRQHandler(void)
 		else	 if(tx==5)
    {
 			uart3_sendStr("x_2\r\n");
-		 under_grasp2();
+		  under_grasp2();
 		  Arm_back1();
 		 place_playload2();
 	 }
@@ -111,7 +108,7 @@ void USART3_IRQHandler(void)
 		 
 	else	 if(tx==6)
    {
-			uart3_sendStr("x_3\r\n");
+		uart3_sendStr("x_3\r\n");
 		 under_grasp3();
 		 	Arm_back1();
 		 place_playload3();
@@ -121,19 +118,19 @@ void USART3_IRQHandler(void)
 	 {
 		 uart3_sendStr("r0_1\r\n");
 		 grasp_playload1();
-//		 First_place1();
+		 First_place1();
 	 }
 	else if(tx==8)
 	 {
 		 uart3_sendStr("r0_2\r\n");
 		 grasp_playload2();
-//		 First_place2();
+		 First_place2();
 	 }
 	else  if(tx==9)
 	 {
 		 uart3_sendStr("r0_3\r\n");
-		 grasp_playload3();
-//		 First_place3();
+//		 grasp_playload3();
+		 First_place3();
 	 }
 	else  if(tx==10)//0a半成品第1次放置
 	 {
@@ -157,7 +154,7 @@ void USART3_IRQHandler(void)
 	 else if(tx==13)// 0d 半成品第二次放置
 	 {
 		 uart3_sendStr("r2_1\r\n");
-		 	grasp_playload1();
+		 grasp_playload1();
 		 Third_place1();
 		 
 	 }
@@ -172,7 +169,7 @@ void USART3_IRQHandler(void)
 	 {
 		 uart3_sendStr("r2_3\r\n");
 		 	grasp_playload3();
-		 		Third_place3();
+		 	Third_place3();
 	 }
 	else if(tx==16)// 10  二维码扫码姿势
 	 {
@@ -199,12 +196,13 @@ void USART3_IRQHandler(void)
 	 
 	 else if(tx==21)//15
 	 {
-		 uart3_sendStr("kel_value+\r\n");
-		
+		 uart3_sendStr("middlestate\r\n");
+			middle_state();
 	 }
 	 else if(tx==22)//16
 		  {
 		 uart3_sendStr("kel_value-\r\n");
+			
 		
 	 }
 	 else if(tx==23)//17抓
@@ -225,13 +223,141 @@ void USART3_IRQHandler(void)
 	 {
 		 uart3_sendStr("zhua+\r\n"); 
 		 Arm0 += 3;
+		printf("Arm0 %d\n",Arm0);
 		
 	 }
 	 else if(tx ==27)//1b
 	 {
-		 		 uart3_sendStr("zhua-\r\n");
+		 		uart3_sendStr("zhua-\r\n");
 				Arm0 -= 3;
+		printf("Arm0 %d\n",Arm0);
+
 		 
+	 }
+	 else if(tx==28)//关节1操作
+	 {
+		 uart3_sendStr("Arm1+\r\n");
+		 Arm1 += tem;
+		printf("Arm1 %d\n",Arm1);
+
+	 }
+	 	 else if(tx==29)//1d
+	 {
+		 uart3_sendStr("Arm1-\r\n");
+		 Arm1 -= tem;
+		printf("Arm1 %d\n",Arm1);
+
+	 }
+	 
+	 //关节2操作
+	 	 else if(tx==30)//1e
+	 {
+		 uart3_sendStr("Arm2+\r\n");
+		 Arm2 += tem;
+		printf("Arm2 %d\n",Arm2);
+
+	 }	
+	 else if(tx==31)//1f
+	 {
+		 uart3_sendStr("Arm2-\r\n");
+		 Arm2 -= tem;
+		printf("Arm2 %d\n",Arm2);
+
+	 }
+	 //关节3操作
+	 	 else if(tx==32)//20
+	 {
+		 uart3_sendStr("Arm3+\r\n");
+		 Arm3 += tem;
+		printf("Arm3 %d\n",Arm3);
+
+	 }	 else if(tx==33)//21
+	 {
+		 uart3_sendStr("Arm3-\r\n");
+		 Arm3 -= tem;
+		printf("Arm3 %d\n",Arm3);
+
+	 }
+	 //关节4操作
+	 	 else if(tx==34)//22
+	 {
+		 uart3_sendStr("Arm4+\r\n");
+		 Arm4 += tem;
+		printf("Arm4 %d\n",Arm4);
+
+	 }	
+	 else if(tx==35)//23
+	 {
+		 uart3_sendStr("Arm4-\r\n");
+		 Arm4 -= tem;
+		printf("Arm4 %d\n",Arm4);
+
+	 }
+	 //tem 
+	 else if(tx==36)//24
+	 {
+		 uart3_sendStr("tem+\r\n");
+		 tem += 3;
+		printf("tem %d\n",tem);
+
+		 
+	 }
+	  else if(tx==37)//25
+	 {
+		 uart3_sendStr("tem-\r\n");
+		 tem -= 3;
+		printf("tem %d\n",tem);
+	 }
+	 else if(tx==38)//26
+	 {
+		  uart3_sendStr("grasp_playload1");
+		 	grasp_playload1();
+
+	 }
+	 else if(tx==39)//27
+	 {
+		  uart3_sendStr("grasp_playload2");
+		 grasp_playload2();
+	 }
+	 else if(tx==40)//28
+	 {
+		  uart3_sendStr("grasp_playload3");
+		 grasp_playload3();
+
+	 }
+	  else if(tx==41)//29
+	 {
+		  uart3_sendStr("place_playload1");
+		 	place_playload1();
+
+	 }
+	 else if(tx==42)//2a
+	 {
+		  uart3_sendStr("place_playload2");
+		 place_playload2();
+	 }
+	 else if(tx==43)//2b
+	 {
+		  uart3_sendStr("place_playload3");
+		 place_playload3();
+
+	 }
+	 else if(tx==44)//2c
+	 {
+		  uart3_sendStr("arm_back");
+		 Arm_back();
+
+	 }
+	 else if(tx==45)
+	 {
+		 		printf("\r\n\r\nArm0 %d\n",Arm0);
+				printf("Arm1 %d\n",Arm1);
+		 		printf("Arm2 %d\n",Arm2);
+		    printf("Arm3 %d\n",Arm3);
+		   printf("Arm4 %d\n",Arm4);
+
+
+
 	 }
 			USART_ClearITPendingBit(USART3,USART_IT_RXNE);	
 		

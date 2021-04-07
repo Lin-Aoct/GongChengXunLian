@@ -81,7 +81,7 @@ void USART2_IRQHandler(void)
 				}
 			}
 			if(qr_i == 7)
-				qr_i = 0;
+				qr_i = 0, GUI_Draw_Long_Font(1, 1, RED, GRAY0, (u8*)qr_mes);	//TFT 显示顺序
 		}
 			
 	else if(flag =='B')//进入色块位置接收阶段

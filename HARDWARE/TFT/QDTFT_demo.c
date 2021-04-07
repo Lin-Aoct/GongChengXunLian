@@ -2,6 +2,7 @@
 #include "Picture.h"
 
 unsigned char Num[10]={0,1,2,3,4,5,6,7,8,9};
+
 void Redraw_Mainmenu(void)
 {
 	Lcd_Clear(GRAY0);
@@ -22,18 +23,26 @@ void Redraw_Mainmenu(void)
 
 void Num_Test(void)
 {
+//	u8 i=0;
+//	Lcd_Clear(GRAY0);
+//	Gui_DrawFont_GBK16(16,20,RED,GRAY0,(u8*)"Num Test");
+//	delay_ms(1000);
+//	Lcd_Clear(GRAY0);
+
+//	for(i=0;i<10;i++)
+//	{
+//		Gui_DrawFont_Num32((i%3)*40,32*(i/3)+5,RED,GRAY0,Num[i+1]);
+//		delay_ms(100);
+//	}
+	
 	u8 i=0;
 	Lcd_Clear(GRAY0);
-	Gui_DrawFont_GBK16(16,20,RED,GRAY0,(u8*)"Num Test");
-	delay_ms(1000);
-	Lcd_Clear(GRAY0);
-
-	for(i=0;i<10;i++)
-	{
-	Gui_DrawFont_Num32((i%3)*40,32*(i/3)+5,RED,GRAY0,Num[i+1]);
-	delay_ms(100);
-	}
 	
+	for(i=0;i<7;i++)
+	{
+		Gui_DrawFont_Num32(i*16+3,5,RED,GRAY0,Num[i+1]);
+		delay_ms(500);
+	}
 }
 
 void Font_Test(void)
@@ -64,8 +73,8 @@ void Color_Test(void)
 		Lcd_Clear(WHITE);
 		Lcd_Clear(BLACK);
 		Lcd_Clear(RED);
-	  	Lcd_Clear(GREEN);
-	  	Lcd_Clear(BLUE);
+		Lcd_Clear(GREEN);
+		Lcd_Clear(BLUE);
 	}		
 }
 

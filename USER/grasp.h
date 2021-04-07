@@ -2,6 +2,34 @@
 #define _GRASP_H
 #include "headfiles.h"
 
+extern u16 top_grasp1_arm1,top_grasp1_arm2,top_grasp1_arm3,top_grasp1_arm4;
+extern u16 top_grasp2_arm1,top_grasp2_arm2,top_grasp2_arm3,top_grasp2_arm4;
+extern u16 top_grasp3_arm1,top_grasp3_arm2,top_grasp3_arm3,top_grasp3_arm4;
+
+extern u16 under_grasp1_arm1, under_grasp1_arm2, under_grasp1_arm3, under_grasp1_arm4;
+extern u16 under_grasp2_arm1, under_grasp2_arm2, under_grasp2_arm3, under_grasp2_arm4;
+extern u16 under_grasp3_arm1, under_grasp3_arm2, under_grasp3_arm3, under_grasp3_arm4;
+
+extern u16 first_plcace1_arm1,first_plcace1_arm2,first_plcace1_arm3,first_plcace1_arm4;
+extern u16 first_plcace2_arm1,first_plcace2_arm2,first_plcace2_arm3,first_plcace2_arm4;
+extern u16 first_plcace3_arm1,first_plcace3_arm2,first_plcace3_arm3,first_plcace3_arm4;
+
+extern u16 second_place1_arm1,second_place1_arm2,second_place1_arm3,second_place1_arm4;
+extern u16 second_place2_arm1,second_place2_arm2,second_place2_arm3,second_place2_arm4;
+extern u16 second_place3_arm1,second_place3_arm2,second_place3_arm3,second_place3_arm4;
+
+extern u16 third_place1_arm1,third_place1_arm2,third_place1_arm3,third_place1_arm4;
+extern u16 third_place2_arm1,third_place2_arm2,third_place2_arm3,third_place2_arm4;
+extern u16 third_place3_arm1,third_place3_arm2,third_place3_arm3,third_place3_arm4;
+
+
+
+
+
+
+
+
+
 
 extern void place_playload1(void);//放置第一个物体到小车载物台
 extern void place_playload2(void);//
