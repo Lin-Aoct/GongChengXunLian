@@ -15,6 +15,57 @@ float speed_target = 30.0, PID_MAX_VALUE = 150.0;
 
 u8 target = 0;
 
+
+/*
+*===================================================================
+*		说明：设置PID的值
+*		参数：side		<u8>		电机编号	合法值1234
+*					part		<u8>		选择要编辑的PID的部分
+*					action	<u8>		0	减	1	加
+*					value		<float>	要改变的值大小
+*		返回：无
+*===================================================================
+*/
+void Set_PID_Value(u8 side, u8 part, u8 action, float value)
+{
+	switch(side)	//判断电机
+	{
+		case 1: 
+		{
+			if(part == 1)	{if(action) LF_Speed_Kp += value; else LF_Speed_Kp -= value;}
+			if(part == 2)	{if(action) LF_Speed_Ki += value; else LF_Speed_Ki -= value;}
+			if(part == 3)	{if(action) LF_Speed_Kd += value; else LF_Speed_Kd -= value;}
+			break;
+		}
+		case 2: 
+		{
+			if(part == 1)	{if(action) LB_Speed_Kp += value; else LB_Speed_Kp -= value;}
+			if(part == 2)	{if(action) LB_Speed_Ki += value; else LB_Speed_Ki -= value;}
+			if(part == 3)	{if(action) LB_Speed_Kd += value; else LB_Speed_Kd -= value;}
+			break;
+		}
+		case 3: 
+		{
+			if(part == 1)	{if(action) RF_Speed_Kp += value; else RF_Speed_Kp -= value;}
+			if(part == 2)	{if(action) RF_Speed_Ki += value; else RF_Speed_Ki -= value;}
+			if(part == 3)	{if(action) RF_Speed_Kd += value; else RF_Speed_Kd -= value;}
+			break;
+		}
+		case 4: 
+		{
+			if(part == 1)	{if(action) RB_Speed_Kp += value; else RB_Speed_Kp -= value;}
+			if(part == 2)	{if(action) RB_Speed_Ki += value; else RB_Speed_Ki -= value;}
+			if(part == 3)	{if(action) RB_Speed_Kd += value; else RB_Speed_Kd -= value;}
+			break;
+		}
+		default: break;
+	}
+	printf("[%.0f %.0f %.0f]\t", LF_Speed_Kp, LF_Speed_Ki, LF_Speed_Kd);
+	printf("[%.0f %.0f %.0f]\t", LB_Speed_Kp, LB_Speed_Ki, LB_Speed_Kd);
+	printf("[%.0f %.0f %.0f]\t", RF_Speed_Kp, RF_Speed_Ki, RF_Speed_Kd);
+	printf("[%.0f %.0f %.0f]\n", RB_Speed_Kp, RB_Speed_Ki, RB_Speed_Kd);
+}
+
 /**************************************************************************
 函数功能：左前速度环PD控制
 入口参数：速度

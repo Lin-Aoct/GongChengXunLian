@@ -99,6 +99,36 @@ int	main()
 			case 0x25: USART_SendData(USART2, '3'); break;
 			case 0x30: IS_MOTOR_ALL_STOP = 1; break;
 			case 0x31: IS_MOTOR_ALL_STOP = 0; break;
+			
+			//PIDµ÷²Î
+			case 0x40: Set_PID_Value(1, 1, 1, 1.0); break;
+			case 0x41: Set_PID_Value(1, 1, 0, 1.0); break;
+			case 0x42: Set_PID_Value(1, 2, 1, 1.0); break;
+			case 0x43: Set_PID_Value(1, 2, 0, 1.0); break;
+			case 0x44: Set_PID_Value(1, 3, 1, 1.0); break;
+			case 0x45: Set_PID_Value(1, 3, 0, 1.0); break;
+
+			case 0x46: Set_PID_Value(2, 1, 1, 1.0); break;
+			case 0x47: Set_PID_Value(2, 1, 0, 1.0); break;
+			case 0x48: Set_PID_Value(2, 2, 1, 1.0); break;
+			case 0x49: Set_PID_Value(2, 2, 0, 1.0); break;
+			case 0x50: Set_PID_Value(2, 3, 1, 1.0); break;
+			case 0x51: Set_PID_Value(2, 3, 0, 1.0); break;
+
+			case 0x52: Set_PID_Value(3, 1, 1, 1.0); break;
+			case 0x53: Set_PID_Value(3, 1, 0, 1.0); break;
+			case 0x54: Set_PID_Value(3, 2, 1, 1.0); break;
+			case 0x55: Set_PID_Value(3, 2, 0, 1.0); break;
+			case 0x56: Set_PID_Value(3, 3, 1, 1.0); break;
+			case 0x57: Set_PID_Value(3, 3, 0, 1.0); break;
+
+			case 0x58: Set_PID_Value(4, 1, 1, 1.0); break;
+			case 0x59: Set_PID_Value(4, 1, 0, 1.0); break;
+			case 0x60: Set_PID_Value(4, 2, 1, 1.0); break;
+			case 0x61: Set_PID_Value(4, 2, 0, 1.0); break;
+			case 0x62: Set_PID_Value(4, 3, 1, 1.0); break;
+			case 0x63: Set_PID_Value(4, 3, 0, 1.0); break;
+			
 			default: break;
 		}
 		u1_action_mode = 100;
