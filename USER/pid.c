@@ -6,12 +6,17 @@ float Balance_Kp = 25.0, Balance_Ki = 0.00, Balance_Kd = 100.0;		//X 轴位置环 PI
 float Y_side_Kp = 20.0, Y_side_Ki = 0.0, Y_side_Kd = 200.0;				//Y 轴位置环 PID相关参数
 
 
-float LF_Speed_Kp = -115.5, LF_Speed_Ki = 0.1, LF_Speed_Kd = -2.0;					//PID相关参数
-float LB_Speed_Kp = -135.5, LB_Speed_Ki = 0.1, LB_Speed_Kd = -2.0;					//PID相关参数
-float RF_Speed_Kp = -125.5, RF_Speed_Ki = 0.1, RF_Speed_Kd = -2.0;					//PID相关参数
+float LF_Speed_Kp = -200.5, LF_Speed_Ki = 0.2, LF_Speed_Kd = -5.0;					//PID相关参数
+float LB_Speed_Kp = -100.5, LB_Speed_Ki = 0.1, LB_Speed_Kd = -2.0;					//PID相关参数
+float RF_Speed_Kp = -145.5, RF_Speed_Ki = 0.1, RF_Speed_Kd = -2.0;					//PID相关参数
 float RB_Speed_Kp = -125.5, RB_Speed_Ki = 0.1, RB_Speed_Kd = -2.0;					//PID相关参数
 
-float speed_target = 30.0, PID_MAX_VALUE = 150.0;
+float LF_speed_target = 30.0, LF_PID_MAX_VALUE = 150.0;
+float LB_speed_target = 30.0, LB_PID_MAX_VALUE = 150.0;
+float RF_speed_target = 30.0, RF_PID_MAX_VALUE = 150.0;
+float RB_speed_target = 30.0, RB_PID_MAX_VALUE = 150.0;
+
+u8 Expect_Target_Speed_Sta;		//标志目标速度期望改变的状态	bit0~6	->	改变的目标值	bit7 -> 改变状态
 
 u8 target = 0;
 
@@ -60,11 +65,118 @@ void Set_PID_Value(u8 side, u8 part, u8 action, float value)
 		}
 		default: break;
 	}
-	printf("[%.0f %.0f %.0f]\t", LF_Speed_Kp, LF_Speed_Ki, LF_Speed_Kd);
-	printf("[%.0f %.0f %.0f]\t", LB_Speed_Kp, LB_Speed_Ki, LB_Speed_Kd);
-	printf("[%.0f %.0f %.0f]\t", RF_Speed_Kp, RF_Speed_Ki, RF_Speed_Kd);
-	printf("[%.0f %.0f %.0f]\n", RB_Speed_Kp, RB_Speed_Ki, RB_Speed_Kd);
+	printf("[%0.1f %0.1f %0.1f]\t", LF_Speed_Kp, LF_Speed_Ki, LF_Speed_Kd);
+	printf("[%0.1f %0.1f %0.1f]\n", LB_Speed_Kp, LB_Speed_Ki, LB_Speed_Kd);
+	printf("[%0.1f %0.1f %0.1f]\t", RF_Speed_Kp, RF_Speed_Ki, RF_Speed_Kd);
+	printf("[%0.1f %0.1f %0.1f]\n", RB_Speed_Kp, RB_Speed_Ki, RB_Speed_Kd);
 }
+
+
+/*
+*===================================================================
+*		说明：改变电机目标速度值
+*		参数：side		<u8>		电机编号	合法值 0 1 2 3 4		0 代表全部电机
+*					action	<u8>		0	减	1	加
+*					value		<u8>		要改变的值大小
+*		返回：无
+*===================================================================
+*/
+void Change_Speed_Target(u8 side, u8 action, u8 value)
+{
+	switch(side)
+	{
+		case 0: 	//所有电机
+		{
+			if(action == 0)
+				LF_speed_target -= value, LB_speed_target -= value, RF_speed_target -= value, RB_speed_target -= value;
+			else
+				LF_speed_target += value, LB_speed_target += value, RF_speed_target += value, RB_speed_target += value;
+			break;
+		}
+		case 1: 	//电机1
+		{
+			if(action == 0)	LF_speed_target -= value;	else	LF_speed_target += value;
+			break;
+		}
+		case 2: 	//电机2
+		{
+			if(action == 0)	LB_speed_target -= value;	else	LB_speed_target += value;
+			break;
+		}
+		case 3: 	//电机3
+		{
+			if(action == 0)	RF_speed_target -= value;	else	RF_speed_target += value;
+			break;
+		}
+		case 4: 	//电机4
+		{
+			if(action == 0)	RB_speed_target -= value;	else	RB_speed_target += value;
+			break;
+		}
+		default: break;
+	}
+}
+
+
+/*
+*===================================================================
+*		说明：设置电机目标速度值
+*		参数：side		<u8>		电机编号	合法值 0 1 2 3 4		0 代表全部电机
+*					value		<u8>		要改变的值
+*		返回：无
+*===================================================================
+*/
+void Set_Speed_Target(u8 side, u8 value)
+{
+	switch(side)
+	{
+		case 0: LF_speed_target = LB_speed_target = RF_speed_target = RB_speed_target = value; break;
+		case 1: LF_speed_target = value; break;
+		case 2: LB_speed_target = value; break;
+		case 3: RF_speed_target = value; break;
+		case 4: RB_speed_target = value; break;
+		default: break;
+	}
+}
+
+/*
+*===================================================================
+*		说明：重设电机目标速度值
+*		参数：无
+*		返回：无
+*===================================================================
+*/
+void Reset_Target_Speed(void)
+{
+	if(Expect_Target_Speed_Sta&0x80)	//判断目标预期值是否改变
+	{
+		LF_speed_target = Expect_Target_Speed_Sta&0x7F;
+		LB_speed_target = Expect_Target_Speed_Sta&0x7F;
+		RF_speed_target = Expect_Target_Speed_Sta&0x7F;
+		RB_speed_target = Expect_Target_Speed_Sta&0x7F;
+	}
+	else
+	{
+		LF_speed_target = 30.0;
+		LB_speed_target = 30.0;
+		RF_speed_target = 30.0;
+		RB_speed_target = 30.0;
+	}
+}
+
+/*
+*===================================================================
+*		说明：设置电机目标速度期望值
+*		参数：无
+*		返回：无
+*===================================================================
+*/
+void Set_Expect_Target_Speed(u8 speed)
+{
+	Expect_Target_Speed_Sta |= 0x80;	//标志期望值改变
+	Expect_Target_Speed_Sta |= speed;	//标志速度值
+}
+
 
 /**************************************************************************
 函数功能：左前速度环PD控制
@@ -77,7 +189,7 @@ int PID_Speed_Left_Front(float speed)
 	static float Last_Bias, Integration, Balance_Integration;  //上一次的偏差值
 	int balance;								//平衡的返回值
 
-	Bias = speed - speed_target;  		//求出速度偏差
+	Bias = speed - LF_speed_target;  		//求出速度偏差
 
 	Differential = Bias - Last_Bias;  //求得偏差的变化率	 
 
@@ -86,7 +198,7 @@ int PID_Speed_Left_Front(float speed)
 	balance = (LF_Speed_Kp * Bias)/10 + LF_Speed_Kd*Differential/10 + Balance_Integration;   //计算控制PWM  PD控制
 	Last_Bias = Bias;  //保存上一次的偏差
 	
-	PID_Limit(&balance);
+	PID_Limit(1, &balance);
 	return balance;  //返回值
 }
 
@@ -101,7 +213,7 @@ int PID_Speed_Left_Behind(float speed)
 	static float Last_Bias, Integration, Balance_Integration;  //上一次的偏差值
 	int balance;								//平衡的返回值
 
-	Bias = speed - speed_target;  		//求出速度偏差
+	Bias = speed - LB_speed_target;  		//求出速度偏差
 
 	Differential = Bias - Last_Bias;  //求得偏差的变化率	 
 
@@ -110,7 +222,7 @@ int PID_Speed_Left_Behind(float speed)
 	balance = (LB_Speed_Kp * Bias)/10 + LB_Speed_Kd*Differential/10 + Balance_Integration;   //计算控制PWM  PD控制
 	Last_Bias = Bias;  //保存上一次的偏差
 
-	PID_Limit(&balance);
+	PID_Limit(2, &balance);
 	return balance;  //返回值
 }
 
@@ -125,7 +237,7 @@ int PID_Speed_Right_Front(float speed)
 	static float Last_Bias, Integration, Balance_Integration;  //上一次的偏差值
 	int balance;								//平衡的返回值
 
-	Bias = speed - speed_target;  		//求出速度偏差
+	Bias = speed - RF_speed_target;  		//求出速度偏差
 
 	Differential = Bias - Last_Bias;  //求得偏差的变化率	 
 
@@ -134,7 +246,7 @@ int PID_Speed_Right_Front(float speed)
 	balance = (RF_Speed_Kp * Bias)/10 + RF_Speed_Kd*Differential/10 + Balance_Integration;   //计算控制PWM  PD控制
 	Last_Bias = Bias;  //保存上一次的偏差
 
-	PID_Limit(&balance);
+	PID_Limit(3, &balance);
 	return balance;  //返回值
 }
 
@@ -149,7 +261,7 @@ int PID_Speed_Right_Behind(float speed)
 	static float Last_Bias, Integration, Balance_Integration;  //上一次的偏差值
 	int balance;								//平衡的返回值
 
-	Bias = speed - speed_target;  		//求出速度偏差
+	Bias = speed - RB_speed_target;  		//求出速度偏差
 
 	Differential = Bias - Last_Bias;  //求得偏差的变化率	 
 
@@ -158,22 +270,49 @@ int PID_Speed_Right_Behind(float speed)
 	balance = (RB_Speed_Kp * Bias)/10 + RB_Speed_Kd*Differential/10 + Balance_Integration;   //计算控制PWM  PD控制
 	Last_Bias = Bias;  //保存上一次的偏差
 
-	PID_Limit(&balance);
+	PID_Limit(4, &balance);
 	return balance;  //返回值
 }
 
 
 /**************************************************************************
 函数功能：PID限幅
-入口参数：value	<int>	要限幅的值指针
+入口参数：side	<u8>	限幅的电机编号
+					value	<int>	要限幅的值指针
 返回  值：无
 **************************************************************************/
-void PID_Limit(int* value)
+void PID_Limit(u8 side, int* value)
 {
-	if(*value > PID_MAX_VALUE)	*value = PID_MAX_VALUE;
-	if(*value < -PID_MAX_VALUE)	*value = -PID_MAX_VALUE;
-}
+	switch(side)
+	{
+		case 1:
+		{
+			if(*value > LF_PID_MAX_VALUE)	*value = LF_PID_MAX_VALUE;
+			if(*value < -LF_PID_MAX_VALUE)	*value = -LF_PID_MAX_VALUE;
+			break;
+		}
+		case 2:
+		{
+			if(*value > LB_PID_MAX_VALUE)	*value = LB_PID_MAX_VALUE;
+			if(*value < -LB_PID_MAX_VALUE)	*value = -LB_PID_MAX_VALUE;
+			break;
+		}
+		case 3:
+		{
+			if(*value > RF_PID_MAX_VALUE)	*value = RF_PID_MAX_VALUE;
+			if(*value < -RF_PID_MAX_VALUE)	*value = -RF_PID_MAX_VALUE;
+			break;
+		}
+		case 4:
+		{
+			if(*value > RB_PID_MAX_VALUE)	*value = RB_PID_MAX_VALUE;
+			if(*value < -RB_PID_MAX_VALUE)	*value = -RB_PID_MAX_VALUE;
+			break;
+		}
+		default: break;
+	}
 
+}
 
 
 /**************************************************************************

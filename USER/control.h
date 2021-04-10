@@ -8,12 +8,15 @@ void Mode_Start(void);
 void Mode_Init(void);
 void Mode_Go_Area1(void);
 void Mode_Area1_To_Area2(void);
-void Mode_Area2_To_Area1(void);
-void Mode_Area2_To_Area3(void);
-void Mode_Area3_To_Area2(void);
+void Mode_Area2_To_Area3_Top(void);
+void Mode_Area3_To_Area1(void);
+void Mode_Go_One_Step(void);
+void Mode_Back_One_Step(void);
+
 
 void Set_PID_PWM(void);
 void Cross_Road_Locate(void);
+void Mode_PID_Test(u8 mode);
 
 //出现的mode参数都是数字1代表上层，当在搬运下层过程中使用数字2
 

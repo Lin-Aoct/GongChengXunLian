@@ -68,11 +68,12 @@ void USART2_IRQHandler(void)
 	{
 		
 			res = USART_ReceiveData(USART2);
-			flag_state(res);//给flag赋值确定接收二维码还是色块位置信息
-		if(flag=='A')//进入二维码数据接收阶段
+			flag_state(res);									//给flag赋值确定接收二维码还是色块位置信息
+		if(flag=='A')												//进入二维码数据接收阶段
 		{
 			if(!(res=='A'))
 			{
+				Mode_Init();
 				CAR_MODE = 2;		//小车二维码 -> 原料区
 				if(res!='\0')
 				{
@@ -113,21 +114,12 @@ void USART2_IRQHandler(void)
 				len = 0, ARM_Action = 7;	//第二次接收颜色信息完成
 	}
 		
-		
 	}
 			USART_ClearITPendingBit(USART2,USART_IT_RXNE);			
 	}
 
 
-
-
-
-
-
-
-
-
-	void OPENMV_init(u32 baud)
+void OPENMV_init(u32 baud)
 {
 	GPIO_InitTypeDef  GPIO_InitStructure;
 	USART_InitTypeDef USART_InitStructure;

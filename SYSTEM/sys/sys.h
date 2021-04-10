@@ -101,14 +101,19 @@ extern u8 IS_ESP8266_READY;
 extern u8 IS_USART1_RX_Success;
 extern u8 IS_UART4_RX_Success;
 extern u8 UART4_RX_DATA;			//存储UART4接收到的数据
-extern int MOTOR_PWM[4];			//电机PWM
+extern u8 MOTOR_PWM[4];			//电机PWM
 extern u8 CAR_MODE;						//小车运动模式
-extern u8 FIND_DRIVER;				//标志当前循迹红外模块	0代表前面	1代表右侧
+extern u8 FIND_DRIVER;		//标志当前循迹红外模块	0代表前面	1代表右侧 2代表后面	3代表左侧
 extern u8 CURRENT_DIRATION;		//标志当前运动方向	0停车	1前	2后	3左	4右
 extern u8 IS_MOTOR_ALL_STOP;	//标志是否强制所有电机停转	0不停转		1停转
 extern int ENCODER_DATA[4];		//编码器读数变量
 
-extern float speed_target;
+extern float LF_speed_target;
+extern float LB_speed_target;
+extern float RF_speed_target;
+extern float RB_speed_target;
+extern u8 Expect_Target_Speed_Sta;
+
 extern u8 ARM_Action;
 
 

@@ -1,8 +1,8 @@
 #include "control.h"	
 
 u8 CAR_MODE = 0;						//标志小车模式
-u8 step=0, count = 10;			//标志执行步骤以及计时变量
-u16 front_data, right_data;	//前、右红外循迹模块读数变量
+u8 step =0, count = 10;			//标志执行步骤以及计时变量
+u16 front_data, right_data, behind_data, left_data;	//前 右 后 左 红外循迹模块读数变量
 	
 /*
 *===================================================================
@@ -18,21 +18,35 @@ void TIM6_DAC_IRQHandler(void)
 		switch(CAR_MODE)
 		{
 			case 0: break;
-			case 1: Mode_Start(); break;						//出发
-			case 2: Mode_Go_Area1(); break;					//二维码 			-> 	物料堆放区
-			case 3: Mode_Area1_To_Area2(); break;		//物料堆放区	->	粗加工区
-			case 4: Mode_Area2_To_Area1(); break;		//粗加工区		->	物料堆放区
-			case 5: Mode_Area2_To_Area3(); break;		//粗加工区		->	半成品区
-			case 6: Mode_Area3_To_Area2(); break;		//半成品区		->	粗加工区
-			case 7:; break;		//半成品区		->	原料区
-			case 8:; break;		//车往前走一格
-			case 9:; break;		//车往后退一格
-			case 10: Mode_Area1_To_Area2(); break;		//第二次 物料堆放区	->	粗加工区
-			case 11: Mode_Area1_To_Area2(); break;		//第二次 粗加工区		->	成品区
-			case 12: Mode_Area1_To_Area2(); break;		//成品区	->	返回区
+			case 1: Mode_Start(); break;								//出发
+			case 2: Mode_Go_Area1(); break;							//二维码 			-> 	物料堆放区
+			case 3: Mode_Area1_To_Area2(); break;				//物料堆放区	->	粗加工区
+			case 4: Mode_Area2_To_Area3_Top(); break;		//粗加工区		->	半成品区	顶层模式
+			case 5: Mode_Area3_To_Area1(); break;				//半成品区		->	原料区
+			case 6: Mode_Go_One_Step(); break;					//车往前走一格
+			case 7: Mode_Back_One_Step(); break;				//车往后退一格
+			case 8:; break;		
+			case 9:; break;		
+//			case 10: Mode_Area1_To_Area2(); break;		//第二次 物料堆放区	->	粗加工区
+//			case 11: Mode_Area1_To_Area2(); break;		//第二次 粗加工区		->	成品区
+//			case 12: Mode_Area1_To_Area2(); break;		//成品区	->	返回区
+			
+			case 10: Mode_PID_Test(1); break;
+			case 11: Mode_PID_Test(2); break;
+			case 12: Mode_PID_Test(3); break;
+			case 13: Mode_PID_Test(4); break;
+			
+			case 14: Mode_PID_Test(5); break;
+			case 15: Mode_PID_Test(6); break;
+			case 16: Mode_PID_Test(7); break;
+			case 17: Mode_PID_Test(8); break;
+			
+			case 20: Mode_PID_Test(9); break;
+			case 21: Mode_PID_Test(10); break;
+
 			default: break;
 		}
-		//printf("\nH1：%d, H2：%d, step：%d\n", front_data, right_data, step);	//打印调试信息
+		//printf("H[%d | %d]\tstep[%d]\n", front_data, right_data, step);	//打印调试信息
 		TIM_ClearITPendingBit(TIM6, TIM_IT_Update);			//清除TIM6的中断待处理位
    }       	
 }
@@ -49,6 +63,32 @@ void Cross_Road_Locate(void)
 	else if(right_data == 111 || right_data == 11) Car_Go();	//Y轴偏右
 }
 
+void Mode_PID_Test(u8 mode)
+{
+	switch(mode)
+	{
+		case 1: Car_Go(); FIND_DRIVER=0, CURRENT_DIRATION=1; Find(); break;
+		case 2: Car_Back(); FIND_DRIVER=2, CURRENT_DIRATION=2; Find(); break;
+		case 3: Car_Go_Left(); FIND_DRIVER=3, CURRENT_DIRATION=3; Find(); break;
+		case 4: Car_Go_Right(); FIND_DRIVER=1, CURRENT_DIRATION=4; Find(); break;
+		case 5: Set_MOTOR_Left_Front(GO); Set_MOTOR_Left_Behind(STOP); Set_MOTOR_Right_Front(STOP); Set_MOTOR_Right_Behind(STOP); break;
+		case 6: Set_MOTOR_Left_Front(STOP); Set_MOTOR_Left_Behind(GO); Set_MOTOR_Right_Front(STOP); Set_MOTOR_Right_Behind(STOP); break;
+		case 7: Set_MOTOR_Left_Front(STOP); Set_MOTOR_Left_Behind(STOP); Set_MOTOR_Right_Front(GO); Set_MOTOR_Right_Behind(STOP); break;
+		case 8: Set_MOTOR_Left_Front(STOP); Set_MOTOR_Left_Behind(STOP); Set_MOTOR_Right_Front(STOP); Set_MOTOR_Right_Behind(GO); break;
+		case 9: Car_Go(), Change_Speed_Target(0, 1, 30); break;
+		case 10: Change_Speed_Target(0, 0, 30); break;
+		default: break;
+	}
+	Set_PID_PWM();
+}
+
+/*
+*===================================================================
+*		说明：PID控制电机输出PWM 定时调用本函数
+*		参数：无
+*		返回：无
+*===================================================================
+*/
 void Set_PID_PWM(void)
 {
 	ENCODER_DATA[0] = abs(Read_Encoder(2));
@@ -56,7 +96,7 @@ void Set_PID_PWM(void)
 	ENCODER_DATA[2] = abs(Read_Encoder(4));
 	ENCODER_DATA[3] = abs(Read_Encoder(5));
 	
-	if(IS_MOTOR_ALL_STOP == 0)
+	if(IS_MOTOR_ALL_STOP == 0)	//判断是否上锁
 	{
 		TIM8->CCR1 = MOTOR_PWM[0] + PID_Speed_Left_Front(ENCODER_DATA[0]);
 		TIM8->CCR2 = MOTOR_PWM[1] + PID_Speed_Left_Behind(ENCODER_DATA[1]);
@@ -66,7 +106,7 @@ void Set_PID_PWM(void)
 	
 	printf("编码器[%d %d %d %d]\t", ENCODER_DATA[0], ENCODER_DATA[1], ENCODER_DATA[2], ENCODER_DATA[3]);
 	printf("PWM[%d %d %d %d]\t", TIM8->CCR1, TIM8->CCR2, TIM8->CCR4, TIM8->CCR3);
-	printf("TS[%.0f]", speed_target);	//打印目标速度
+	printf("TS[%.0f %.0f %.0f %.0f]", LF_speed_target, LB_speed_target, RF_speed_target, RB_speed_target);	//打印目标速度
 	printf("\n");
 }
 
@@ -79,28 +119,25 @@ void Set_PID_PWM(void)
 */
 void Mode_Start(void)
 {
-	//Car_Go();
-	
 	front_data = Find_Get_Front();
 	right_data = Find_Get_Right();
 	
-	if(step == 0)	Car_Go_Left();		//左平移
+	if(step == 0)	
+		Set_Expect_Target_Speed(15), Car_Go_Left(), step++;		//左平移	减速
 	
-	if(front_data == 1001 && step == 0)	Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1, step = 1;	//前面处于线中
+	if(front_data == 1001 && step == 1)	Car_Go(), Expect_Target_Speed_Sta|=0x00, Reset_Target_Speed(), FIND_DRIVER = 0, CURRENT_DIRATION = 1, step++;	//前面处于线中
 	Find();
-	if(right_data == 1001 && step == 1)	step = 2;	//线1中间
+	if(right_data == 1001 && step == 2)	step++;	//Y线1 中间
 	
-	if(right_data == 1110 && step == 2)	step = 3;	//出线1
+	if(right_data == 1110 && step == 3)	step++;	//出线1
 	
-	if(right_data == 1001 && step == 3)	step = 4;	//线2中间
+	if(right_data == 1001 && step == 4)	step++;	//线2中间
 	
-	if(right_data == 1110 && step == 4)	count = 3, step = 5;	//出线2
+	if(right_data == 1110 && step == 5)	count = 3, step++;	//出线2
 		
-	if(count > 0 && step == 5)	count--;						//6*15ms = 150ms
+	if(count > 0 && step == 6)	count--;						//3*15ms = 45ms
 
-//	if(count <= 0 && step == 5)	Car_Go_Left(), Stop_Find(), step = 6;	//左移
-	
-	if(count == 0 && step == 5)	
+	if(count == 0 && step == 6)	
 	{
 		Car_Stop();				//退出出发模式
 		CAR_MODE = 0;
@@ -119,39 +156,38 @@ void Mode_Start(void)
 */
 void Mode_Go_Area1(void)
 {
-	//Car_Back();
-	
 	front_data = Find_Get_Front();
 	right_data = Find_Get_Right();
 	
 	if(step == 0)	Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1, step = 1;	//前面处于线中
+	
 	Find();
 	
-	if(right_data == 1001 && step == 1)	step = 2;	//线1中间
-	if(right_data == 1110 && step == 2)	step = 3;	//出线1
+	if(right_data == 1001 && step == 1)	step++;	//线1中间
+	if(right_data == 1110 && step == 2)	step++;	//出线1
 	
-	if(right_data == 1001 && step == 3)	step = 4;	//线2中间
-	if(right_data == 1110 && step == 4)	step = 5;	//出线2
+	if(right_data == 1001 && step == 3)	step++;	//线2中间
+	if(right_data == 1110 && step == 4)	step++;	//出线2
 	
-	if(right_data == 1001 && step == 5)	step = 6;	//线3中间
-	if(right_data == 1110 && step == 6)	step = 7, speed_target-=10;	//出线3
+	if(right_data == 1001 && step == 5)	step++;	//线3中间
+	if(right_data == 1110 && step == 6)	
+		step++, Set_Expect_Target_Speed(15);	//出线3 减速 准备转向
 	
-	if((right_data == 1001 || right_data == 11) && step == 7)	step = 8, Car_Stop();	//碰到线4 左平移
-	
-	if(step == 8)	Cross_Road_Locate();
-//	if((right_data == 1001 || right_data == 11) && step == 7)	step = 8, Car_Go_Left(), FIND_DRIVER=1, CURRENT_DIRATION=3;	//碰到线4 左平移
+	if((right_data == 1001 || right_data == 11) && step == 7)
+		Car_Go_Left(), FIND_DRIVER = 3, CURRENT_DIRATION = 3, step++;	//碰到线4 左平移
 
-//	if(right_data == 0000 && step == 8)	
-//	{
-//		step = 9;
-//		Car_Stop();
-//		Stop_Find();
-//		speed_target+=10;
-//		ARM_Action = 2;	//机械臂抓取物料
-//		CAR_MODE = 0;	//到达物料抓取位置 退出模式
-//	}
-	
 	Set_PID_PWM();
+	
+	if(right_data == 0 && step == 8)	
+	{
+		step++;
+		Car_Stop();
+		Stop_Find();
+		Expect_Target_Speed_Sta|=0x00;
+		Reset_Target_Speed();						//恢复速度
+		ARM_Action = 2;		//机械臂抓取物料
+		CAR_MODE = 0;			//到达物料抓取位置 退出模式
+	}
 }
 
 /*
@@ -163,33 +199,31 @@ void Mode_Go_Area1(void)
 */
 void Mode_Area1_To_Area2(void)
 {
-	//Car_Go_Left();
-	
 	front_data = Find_Get_Front();
 	right_data = Find_Get_Right();
 	
-	if(step == 0)	Car_Go_Left(), FIND_DRIVER=1, CURRENT_DIRATION=3, step = 1;	//左平移	Y轴循迹
+	if(step == 0)
+		Set_Expect_Target_Speed(15), Car_Go_Left(), FIND_DRIVER = 3, CURRENT_DIRATION = 3, step = 1;	//左平移	Y轴循迹
 	Find();
 	
-	if(front_data == 1001 && step == 1)	step = 2;	//线1中间
+	if(front_data == 1001 && step == 1)
+		step = 2, Expect_Target_Speed_Sta|=0x00, Reset_Target_Speed();	//线1中间 恢复速度
 	if(front_data == 1110 && step == 2)	step = 3;	//出线1
 	
 	if(front_data == 1001 && step == 3)	step = 4;	//线2中间
 	if(front_data == 1110 && step == 4)	step = 5;	//出线2
 	
 	if(front_data == 1001 && step == 5)						//线3中间
-	{
-		step = 6;
-		speed_target-=10, Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1;	//碰到线3 减速 向前运动 X轴巡线
-	}
+		Set_Expect_Target_Speed(15), Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1, step++;	//碰到线3 减速 向前运动 X轴巡线
 
 	if(front_data == 0000 && step == 6)
 	{
 		step = 7;
 		Car_Stop();
 		Stop_Find();
-		ARM_Action = 4;								//机械臂第一次放置物料
-		speed_target+=10;
+		ARM_Action = 4;								//机械臂顶层第一次放置物料
+		Expect_Target_Speed_Sta|=0x00;
+		Reset_Target_Speed();					//恢复速度
 		CAR_MODE = 0;									//粗加工区
 	}
 	
@@ -198,102 +232,154 @@ void Mode_Area1_To_Area2(void)
 
 /*
 *===================================================================
-*		说明：粗加工区前往物料堆放区域
+*		说明：粗加工区前往半成品区域	顶层模式
 *		参数：无
 *		返回：无
 *===================================================================
 */
-void Mode_Area2_To_Area1(void)
-{
-
-	//Car_Go_Right();
-//	if(step == 0)	Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1, step = 1;	//后退	X轴循迹
-//	Find();
-
-//	MOTOR_PWM_Out(MOTOR_PWM[0], MOTOR_PWM[1], MOTOR_PWM[2], MOTOR_PWM[3]);
-	
-	Cross_Road_Locate();
-	
-	Set_PID_PWM();
-
-}
-
-/*
-*===================================================================
-*		说明：粗加工区前往半成品区域1
-*		参数：无
-*		返回：无
-*===================================================================
-*/
-void Mode_Area2_To_Area3(void)
+void Mode_Area2_To_Area3_Top(void)
 {
 	front_data = Find_Get_Front();
 	right_data = Find_Get_Right();
 	
-	if(step == 0)	Car_Back(), FIND_DRIVER=0, CURRENT_DIRATION=2, step = 1;	//后退	X轴循迹
+	if(step == 0)	Car_Back(), FIND_DRIVER = 2, CURRENT_DIRATION = 2, step = 1;	//后退	X轴负半轴循迹
+	
 	Find();
 	
-	if(right_data == 1001 && step == 1)	Car_Go_Left(), FIND_DRIVER=1, CURRENT_DIRATION=3, step = 2;	//Y轴线中间 左平移 Y轴循迹
+	if(right_data == 1001 && step == 1)	step++;		//Y线1 中间
+	if(right_data == 1110 && step == 2)	step++;		//出Y线1
 	
-	if(front_data == 1001 && step == 2)	step = 3;	//线1中间
-	if(front_data == 1110 && step == 3)	step = 4;	//出线1
+	if(right_data == 1001 && step == 3)	step++;		//Y线2 中间
+	if(right_data == 1110 && step == 4)	step++;		//出Y线2
 	
-	if(front_data == 1001 && step == 4)	step = 5;	//线2中间
-	if(front_data == 1110 && step == 5)	step = 6;	//出线2
+	if(front_data == 1001 && step == 5)
+		Car_Go_Left(), FIND_DRIVER = 3, CURRENT_DIRATION = 3, count = 4, step++;	//Y线3 中间	左走 Y轴正半轴巡线
 
-	if(front_data == 1001 && step == 6)	Car_Back(), FIND_DRIVER=0, CURRENT_DIRATION=2, step = 7;	//X线3中间	后退	X轴巡线
+	if(count > 0 && step == 6)	count--;					//延时 3*15ms = 45ms
+	if(count == 0 && step == 6) step++;
 	
-	if(right_data == 1001 && step == 7)	step = 8;	//Y线1中间
-	if(right_data == 1110 && step == 8)	step = 9;	//出Y线1
+	if(front_data == 1001 && step == 7)	step++;		//X线1 中间
+	if(front_data == 1110 && step == 8)	step++;		//出X线1
 	
-	if(right_data == 1001 && step == 9)	step = 10;		//Y线2中间
-	if(right_data == 1110 && step == 10)	step = 11;	//出Y线2
+	if(front_data == 1001 && step == 9)	step++;		//X线2 中间
+	if(front_data == 1110 && step == 10)	step++;	//出X线2
 	
-	if(right_data == 1001 && step == 11)
+	if(front_data == 1001 && step == 11)					//X线3 中间 停车
 	{
 		Car_Stop();
 		Stop_Find();
 		CAR_MODE = 0;
-		ARM_Action = 5;
-		step = 12;		//Y线3中间	半成品区
+		ARM_Action = 5;		//机械臂顶层第二次放置
+		step = 12;				//X线3中间	半成品区
 	}
+	
+	Set_PID_PWM();
 }
 
 /*
 *===================================================================
-*		说明：半成品区域1前往粗加工区
+*		说明：半成品区前往原料区
 *		参数：无
 *		返回：无
 *===================================================================
 */
-void Mode_Area3_To_Area2(void)
+void Mode_Area3_To_Area1(void)
 {
 	front_data = Find_Get_Front();
 	right_data = Find_Get_Right();
 	
-	if(step == 0)	Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1, step = 1;	//前进	X轴循迹
+	if(step == 0)
+		Car_Go_Right(), FIND_DRIVER = 1, CURRENT_DIRATION = 4, step = 1;	//右移 Y轴循迹
 	Find();
 	
-	if(right_data == 1001 && step == 1)	step = 2;	//Y线1中间
-	if(right_data == 1110 && step == 2)	step = 3;	//出Y线1
+	if(front_data == 1001 && step == 1)	step++;		//X线1 中间
+	if(front_data == 1110 && step == 2)	step++;		//出 X线1
 	
-	if(right_data == 1001 && step == 3)	step = 4;	//Y线2中间
-	if(right_data == 1110 && step == 4)	step = 5;	//出Y线2
+	if(front_data == 1001 && step == 3)	step++;		//X线2 中间
+	if(front_data == 1110 && step == 4)	step++;		//出 X线2
+	
+	if(front_data == 1001 && step == 5)	step++;		//X线3 中间
+	if(front_data == 1110 && step == 6)	step++;		//出 X线3
+	
+	if(front_data == 1001 && step == 7)	step++;		//X线4 中间
+	if(front_data == 1110 && step == 8)	Set_Expect_Target_Speed(15), step++;		//出 X线4
 
-	if(right_data == 1001 && step == 5)	Car_Go_Right(), FIND_DRIVER=1, CURRENT_DIRATION=4, step = 6;	//Y线3中间	右移	Y轴巡线
+	if(front_data == 1001 && step == 9)	
+		Car_Go_Right(), FIND_DRIVER = 0, CURRENT_DIRATION = 1, Expect_Target_Speed_Sta|=0x00, Reset_Target_Speed(), step++;	//X线5中间	前进	X轴巡线
 	
-	if(front_data == 1001 && step == 6)	step = 7;	//X线1中间
-	if(front_data == 1110 && step == 7)	step = 8;	//出X线1
+	if(right_data == 1001 && step == 10)	step++;	//Y线1 中间
+	if(right_data == 1110 && step == 11)	step++;	//出 Y线1
 	
-	if(front_data == 1001 && step == 8)	step = 9;		//X线2中间
-	if(front_data == 1110 && step == 9)	step = 10;	//出X线2
+	if(right_data == 1001 && step == 12)
+		Car_Stop(), Stop_Find(), CAR_MODE = 0, ARM_Action = 6, step++;		//Y线2 中间	原料区 机械臂识别颜色 准备抓取动作
 	
-	if(front_data == 1001 && step == 10)	Car_Stop(), Stop_Find(), CAR_MODE = 0, step = 11;		//Y线3中间	半成品区
+	Set_PID_PWM();
 }
 
 /*
 *===================================================================
-*		说明：半成品区域2返回
+*		说明：原料区车往前一格
+*		参数：无
+*		返回：无
+*===================================================================
+*/
+void Mode_Go_One_Step(void)
+{
+	front_data = Find_Get_Front();
+	right_data = Find_Get_Right();
+	
+	if(step == 0)
+		Set_Expect_Target_Speed(15), Car_Go_Right(), FIND_DRIVER = 1, CURRENT_DIRATION = 4, step++;	//右平移 Y轴负半轴循迹
+
+	Find();
+	
+	if(right_data == 0000 && step == 1)	
+	{
+		step++;
+		Car_Stop();
+		Stop_Find();
+		Expect_Target_Speed_Sta|=0x00;
+		Reset_Target_Speed();						//恢复速度
+		ARM_Action = 8;									//机械臂抓取物料
+		CAR_MODE = 0;										//到达物料抓取位置 退出模式
+	}
+	
+	Set_PID_PWM();
+}
+
+/*
+*===================================================================
+*		说明：原料区车后退一格
+*		参数：无
+*		返回：无
+*===================================================================
+*/
+void Mode_Back_One_Step(void)
+{
+	front_data = Find_Get_Front();
+	right_data = Find_Get_Right();
+	
+	if(step == 0)
+		Change_Speed_Target(0, 0, 15), Car_Go_Right(), FIND_DRIVER = 3, CURRENT_DIRATION = 3, step++;	//左平移 Y轴正半轴循迹
+
+	Find();
+	
+	if((front_data == 1001 || front_data == 11) && step == 1)	
+	{
+		step++;
+		Car_Stop();
+		Stop_Find();
+		Change_Speed_Target(0, 1, 15);
+		ARM_Action = 9;		//机械臂抓取物料
+		CAR_MODE = 0;			//到达物料抓取位置 退出模式
+	}
+	
+	Set_PID_PWM();
+}
+
+/*
+*===================================================================
+*		说明：半成品区返回
 *		参数：无
 *		返回：无
 *===================================================================
@@ -332,8 +418,7 @@ void Mode_Init(void)
 
 
 
-
-
+/********************机械臂部分控制************************/
 
 
 //抓三个

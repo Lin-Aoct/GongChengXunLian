@@ -141,7 +141,7 @@ void USART1_IRQHandler(void)
 		if(IS_USART1_RX_HEAD == 1)	//已经获取到数据头 0xff 0xfe
 		{	
 			USART1_RX_BUF[data_index] = current_data;
-			data_index++;															//数据位索引加一
+			data_index++;							//数据位索引加一
 			if(data_index == 1) IS_USART1_RX_HEAD=0, IS_USART1_RX_Success=1;	//接收到4字节数据  已经接收完毕，准备重新接收
 		}
 		last_last_data = last_data;		//保存前一次接收到的位

@@ -39,11 +39,12 @@ int	main()
 	Encoder_Init_TIM4();				//TIM4 定时器初始化编码模式
 	Encoder_Init_TIM5();				//TIM5 定时器初始化编码模式
 	TIM6_Init(150, 8399);				//TIM6 设置 15ms 定时中断
-	//TIM7_Init(2000, 8399);			//TIM7 定时 200ms 中断
+	//TIM7_Init(150, 8399);			//TIM7 定时 15ms 中断
 
 	Car_Stop();
+	Lcd_Clear(BLACK);
+	GUI_Draw_Long_Font(1, 1, WHITE, BLACK, (u8*)qr_mes);
 	printf("初始化完成\n");
-	GUI_Draw_Long_Font(1, 1, RED, GRAY0, (u8*)"123+321");
 	
 	while(1)
 	{
@@ -52,8 +53,8 @@ int	main()
 		//delay_ms(1000);
 		//Gui_DrawFont_GBK16(0,80,RED,GRAY0, qr_mes);	
 
-//		if(count_flag == 265535) 
-//			count_flag = 0;
+//		if(count_flag == 65535) 
+//			count_flag = 0,Find_Test();
 //		count_flag ++;
 
 		
@@ -62,7 +63,7 @@ int	main()
 		{
 			memcpy(USART1_RX_DATA, USART1_RX_BUF, 4*sizeof(u8));	//获取串口1缓冲区数据
 			u1_action_mode = USART1_RX_DATA[0];
-			printf("收到u1指令：%x", u1_action_mode);
+			printf("收到u1指令：%x\n", u1_action_mode);
 			//Lcd_Clear(GRAY0);
 			//sprintf((u8*)TFT_String, "%d", u1_action_mode);
 			//Gui_DrawFont_GBK16(60,80,RED,GRAY0, TFT_String);	
@@ -89,45 +90,57 @@ int	main()
 			case 0x15: Mode_Init(), Stop_Find(), CAR_MODE = 4; break;
 			case 0x16: Mode_Init(), Stop_Find(), CAR_MODE = 5; break;
 			case 0x17: Mode_Init(), Stop_Find(), CAR_MODE = 6; break;
-			case 0x18: break;
+			case 0x18: Mode_Init(), Stop_Find(), CAR_MODE = 7; break;
 			case 0x19: break;
 			case 0x20: break;
-			case 0x21: speed_target+=10; break;
-			case 0x22: speed_target-=10; break;
+			case 0x21: Change_Speed_Target(0, 1, 10); break;
+			case 0x22: Change_Speed_Target(0, 0, 10); break;
 			case 0x23: USART_SendData(USART2, '1'); break;
 			case 0x24: USART_SendData(USART2, '2'); break;
 			case 0x25: USART_SendData(USART2, '3'); break;
+			case 0x26: Mode_Init(), Stop_Find(), CAR_MODE = 10; break;
+			case 0x27: Mode_Init(), Stop_Find(), CAR_MODE = 11; break;
+			case 0x28: Mode_Init(), Stop_Find(), CAR_MODE = 12; break;
+			case 0x29: Mode_Init(), Stop_Find(), CAR_MODE = 13; break;
 			case 0x30: IS_MOTOR_ALL_STOP = 1; break;
 			case 0x31: IS_MOTOR_ALL_STOP = 0; break;
+			
+			case 0x33: Mode_Init(), Stop_Find(), CAR_MODE = 14; break;
+			case 0x34: Mode_Init(), Stop_Find(), CAR_MODE = 15; break;
+			case 0x35: Mode_Init(), Stop_Find(), CAR_MODE = 16; break;
+			case 0x36: Mode_Init(), Stop_Find(), CAR_MODE = 17; break;
+			
+			case 0x37: Mode_Init(), Stop_Find(), CAR_MODE = 20; break;
+			case 0x38: Mode_Init(), Stop_Find(), CAR_MODE = 21; break;
 			
 			//PID调参
 			case 0x40: Set_PID_Value(1, 1, 1, 1.0); break;
 			case 0x41: Set_PID_Value(1, 1, 0, 1.0); break;
-			case 0x42: Set_PID_Value(1, 2, 1, 1.0); break;
-			case 0x43: Set_PID_Value(1, 2, 0, 1.0); break;
-			case 0x44: Set_PID_Value(1, 3, 1, 1.0); break;
-			case 0x45: Set_PID_Value(1, 3, 0, 1.0); break;
+			case 0x42: Set_PID_Value(1, 2, 1, 0.1); break;
+			case 0x43: Set_PID_Value(1, 2, 0, 0.1); break;
+			case 0x44: Set_PID_Value(1, 3, 1, 0.1); break;
+			case 0x45: Set_PID_Value(1, 3, 0, 0.1); break;
 
 			case 0x46: Set_PID_Value(2, 1, 1, 1.0); break;
 			case 0x47: Set_PID_Value(2, 1, 0, 1.0); break;
-			case 0x48: Set_PID_Value(2, 2, 1, 1.0); break;
-			case 0x49: Set_PID_Value(2, 2, 0, 1.0); break;
-			case 0x50: Set_PID_Value(2, 3, 1, 1.0); break;
-			case 0x51: Set_PID_Value(2, 3, 0, 1.0); break;
+			case 0x48: Set_PID_Value(2, 2, 1, 0.1); break;
+			case 0x49: Set_PID_Value(2, 2, 0, 0.1); break;
+			case 0x50: Set_PID_Value(2, 3, 1, 0.1); break;
+			case 0x51: Set_PID_Value(2, 3, 0, 0.1); break;
 
 			case 0x52: Set_PID_Value(3, 1, 1, 1.0); break;
 			case 0x53: Set_PID_Value(3, 1, 0, 1.0); break;
-			case 0x54: Set_PID_Value(3, 2, 1, 1.0); break;
-			case 0x55: Set_PID_Value(3, 2, 0, 1.0); break;
-			case 0x56: Set_PID_Value(3, 3, 1, 1.0); break;
-			case 0x57: Set_PID_Value(3, 3, 0, 1.0); break;
+			case 0x54: Set_PID_Value(3, 2, 1, 0.1); break;
+			case 0x55: Set_PID_Value(3, 2, 0, 0.1); break;
+			case 0x56: Set_PID_Value(3, 3, 1, 0.1); break;
+			case 0x57: Set_PID_Value(3, 3, 0, 0.1); break;
 
 			case 0x58: Set_PID_Value(4, 1, 1, 1.0); break;
 			case 0x59: Set_PID_Value(4, 1, 0, 1.0); break;
-			case 0x60: Set_PID_Value(4, 2, 1, 1.0); break;
-			case 0x61: Set_PID_Value(4, 2, 0, 1.0); break;
-			case 0x62: Set_PID_Value(4, 3, 1, 1.0); break;
-			case 0x63: Set_PID_Value(4, 3, 0, 1.0); break;
+			case 0x60: Set_PID_Value(4, 2, 1, 0.1); break;
+			case 0x61: Set_PID_Value(4, 2, 0, 0.1); break;
+			case 0x62: Set_PID_Value(4, 3, 1, 0.1); break;
+			case 0x63: Set_PID_Value(4, 3, 0, 0.1); break;
 			
 			default: break;
 		}
@@ -141,7 +154,7 @@ int	main()
 //			case 0: break;
 //			case 1: scan_qr_on(); uart2_sendStr("1"); break;		//扫码姿势 告诉OV扫码
 //			case 2: scan_block_top(); uart2_sendStr("2");break;	//颜色识别	告诉OV识别上层颜色
-//			case 3: top_grasp_choose1(way1); top_grasp_choose2(way1); top_grasp_choose3(way1); CAR_MODE = 3; break; 	//机械臂抓取色块
+//			case 3: top_grasp_choose1(way1); top_grasp_choose2(way1); top_grasp_choose3(way1); Mode_Init(); CAR_MODE = 3; break; 	//机械臂抓取色块
 //			case 4: 
 //			{
 //				//第一次放置物料
@@ -152,7 +165,8 @@ int	main()
 //				cujiagong_choose_grasp1(qr_mes, 1);
 //				cujiagong_choose_grasp2(qr_mes, 1);
 //				cujiagong_choose_grasp3(qr_mes, 1);
-//				CAR_MODE = 5;		//粗加工 -> 半成品
+//				Mode_Init();
+//				CAR_MODE = 4;		//粗加工 -> 半成品	顶层模式
 //				break;
 //			}
 //			case 5: //半成品区上层放置
@@ -160,7 +174,8 @@ int	main()
 //				place_top_product1(qr_mes);
 //				place_top_product2(qr_mes);
 //				place_top_product3(qr_mes);
-//				CAR_MODE = 7;
+//				Mode_Init();
+//				CAR_MODE = 5;		//半成品	-> 	原料区
 //				break;
 //			}
 //			case 6:
@@ -171,16 +186,18 @@ int	main()
 //				uart2_sendStr("3");		//OV扫描颜色
 //				break;
 //			}
-//			case 7:	//准备第一次抓取下层
+//			case 7:	
 //			{
+//				//准备第一次抓取下层
 //				under_grasp_choose1(way2);		//机械臂伸出
-//				CAR_MODE = 8;
+//				Mode_Init();
+//				CAR_MODE = 6;					//车往前一格
 //				break;
 //			}
 //			case 8:	//爪子闭合
 //			{
 //				Arm0 = 740;		//机械臂抓取动作
-//				CAR_MODE = 9;
+//				CAR_MODE = 7;
 //				break;
 //			}
 //			case 9:

@@ -1,6 +1,6 @@
 #include "find.h"
 
-u8 FIND_DRIVER = 0;	//标志当前循迹红外模块	0代表前面	1代表右侧
+u8 FIND_DRIVER = 0;		//标志当前循迹红外模块	0代表前面	1代表右侧 2代表后面	3代表左侧
 u8 CURRENT_DIRATION;	//标志当前运动方向	0停车	1前	2后	3左	4右
 
 /*
@@ -14,53 +14,34 @@ void Find_IO_Init(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOC, ENABLE);	//使能GPIO时钟
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC |
+													RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOF |
+														RCC_AHB1Periph_GPIOG, ENABLE);	//使能GPIO时钟
 	
-	//PG
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_11 | GPIO_Pin_13 | GPIO_Pin_15;		//IO端口
+
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;				//输入
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP; 				//上拉
-	GPIO_Init(GPIOG, &GPIO_InitStructure);							//初始化外设GPIO寄存器
-	
-	//PD
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_4 | GPIO_Pin_6;										//IO端口
-	GPIO_Init(GPIOD, &GPIO_InitStructure);							//初始化外设GPIO寄存器
 	
 	//PC
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;										//IO端口
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;											//IO端口
 	GPIO_Init(GPIOC, &GPIO_InitStructure);							//初始化外设GPIO寄存器
 	
+	//PD
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_4 | GPIO_Pin_6;					//IO端口
+	GPIO_Init(GPIOD, &GPIO_InitStructure);							//初始化外设GPIO寄存器
+	
+	//PE
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9;											//IO端口
+	GPIO_Init(GPIOE, &GPIO_InitStructure);							//初始化外设GPIO寄存器
+	
+	//PF
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;			//IO端口
+	GPIO_Init(GPIOF, &GPIO_InitStructure);							//初始化外设GPIO寄存器
+	
+	//PG
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_9 | GPIO_Pin_11 | GPIO_Pin_13 | GPIO_Pin_15 | GPIO_Pin_1;		//IO端口
+	GPIO_Init(GPIOG, &GPIO_InitStructure);							//初始化外设GPIO寄存器
 } 
-
-/*
-*===================================================================
-*		说明：红外循迹模块IO引脚测试，读取IO口数据，并通过串口打印数据
-*		参数：无
-*		返回：无
-*===================================================================
-*/
-void Find_Test(void)
-{
-	u8 find_arry[8], count;
-
-	find_arry[0] = Find_Front_1;
-	find_arry[1] = Find_Front_2;
-	find_arry[2] = Find_Front_3;
-	find_arry[3] = Find_Front_4;
-	
-	find_arry[4] = Find_Right_1;
-	find_arry[5] = Find_Right_2;
-	find_arry[6] = Find_Right_3;
-	find_arry[7] = Find_Right_4;
-	
-	printf("红外[");
-	for(count=0; count<=3; count++)
-		printf("%d ", find_arry[count]);
-	printf("| ");
-	for(count=4; count<=7; count++)
-		printf("%d ", find_arry[count]);
-	printf("]\n");
-}
 
 /*
 *===================================================================
@@ -71,14 +52,7 @@ void Find_Test(void)
 */
 u16 Find_Get_Front(void)
 {
-	u8 find_arry[4];
-
-	find_arry[0] = Find_Front_1;
-	find_arry[1] = Find_Front_2;
-	find_arry[2] = Find_Front_3;
-	find_arry[3] = Find_Front_4;
-	
-	return find_arry[0]*1000 + find_arry[1]*100 + find_arry[2]*10 + find_arry[3];
+	return Find_Front_1*1000 + Find_Front_2*100 + Find_Front_3*10 + Find_Front_4;
 }
 
 /*
@@ -90,78 +64,100 @@ u16 Find_Get_Front(void)
 */
 u16 Find_Get_Right(void)
 {
-	u8 find_arry[4];
-
-	find_arry[0] = Find_Right_1;
-	find_arry[1] = Find_Right_2;
-	find_arry[2] = Find_Right_3;
-	find_arry[3] = Find_Right_4;
-	return find_arry[0]*1000 + find_arry[1]*100 + find_arry[2]*10 + find_arry[3];
+	return Find_Right_1*1000 + Find_Right_2*100 + Find_Right_3*10 + Find_Right_4;
 }
 
 /*
 *===================================================================
-*		说明：红外循迹模块巡线，IO读取到低电平代表处于黑线处
+*		说明：读取后面红外模块的数据
+*		参数：无
+*		返回：result	<u16>	把红外数据变成四位数整数并返回
+*===================================================================
+*/
+u16 Find_Get_Behind(void)
+{
+	return Find_Behind_1*1000 + Find_Behind_2*100 + Find_Behind_3*10 + Find_Behind_4;
+}
+
+/*
+*===================================================================
+*		说明：读取左侧红外模块的数据
+*		参数：无
+*		返回：result	<u16>	把红外数据变成四位数整数并返回
+*===================================================================
+*/
+u16 Find_Get_Left(void)
+{
+	return Find_Left_1*1000 + Find_Left_2*100 + Find_Left_3*10 + Find_Left_4;
+}
+
+/*
+*===================================================================
+*		说明：红外循迹模块IO引脚测试，读取IO口数据，并通过串口打印数据
+*		参数：无
+*		返回：无
+*===================================================================
+*/
+void Find_Test(void)
+{
+	printf("红外[%d %d %d %d]", Find_Get_Front(), Find_Get_Right(), Find_Get_Behind(), Find_Get_Left());
+}
+
+/*
+*===================================================================
+*		说明：红外循迹模块巡线 IO读取到低电平代表处于黑线处 定时调用
 *		参数：无
 *		返回：无
 *===================================================================
 */
 void Find(void)
 {
-	u16 front_data, right_data;
+	u16 front_data, right_data, behind_data, left_data;
 	
 	front_data = Find_Get_Front();
 	right_data = Find_Get_Right();
+	behind_data = Find_Get_Behind();
+	left_data = Find_Get_Left();
 	
-	if(FIND_DRIVER == 0)	//前面循迹
+	if(FIND_DRIVER == 0 && CURRENT_DIRATION == 1)				//前面循迹
 	{
-		switch(CURRENT_DIRATION)
-		{
-			case 0: break;
-			case 1:
-			{
-				if(front_data == 11 || front_data == 111)	Car_Raw_Left(), printf("往左");
-				else if(front_data == 1100 || front_data == 1110)	Car_Raw_Right(), printf("往右");
-				else Car_Continue(), printf("继续");
-				break;
-			}
-			case 2:
-			{
-				/*
-				if(front_data == 0011 || front_data == 0111)	Car_Raw_Left(), printf("往左");
-				else if(front_data == 1100 || front_data == 1110)	Car_Raw_Right(),printf("往右");
-				else Car_Continue(), printf("继续");
-				break;
-				*/
-				if(front_data == 11 || front_data == 111 || front_data == 1)	Car_Back();// printf("往左");
-				else if(front_data == 1100 || front_data == 1110 || front_data == 1000)	Car_Go();//printf("往右");
-				else Car_Continue();//printf("继续");
-				break;
-			}
-			default: break;
-		}
+		if(front_data == 11 || front_data == 111 || front_data == 1011)
+			Set_Speed_Target(1, 15), Set_Speed_Target(2, 15), printf("往左 ");
+			//Car_Raw_Left(), printf("往左");
+		else if(front_data == 1100 || front_data == 1110 || front_data == 1101)
+			Set_Speed_Target(3, 15), Set_Speed_Target(4, 15), printf("往右 ");
+			//Car_Raw_Right(), printf("往右");
+		else Car_Continue(),printf("继续 ");
 	}
-	if(FIND_DRIVER == 1)	//右侧循迹
+	else if(FIND_DRIVER == 1 && CURRENT_DIRATION == 4)	//右侧循迹
 	{
-		switch(CURRENT_DIRATION)
-		{
-			case 0: break;
-			case 3:
-			{
-				if(right_data == 11 || right_data == 111 || right_data == 1)	Car_Back();//printf("往左");
-				else if(right_data == 1100 || right_data == 1110 || right_data == 1000)	Car_Go();//printf("往右");
-				else Car_Continue();//printf("继续");
-				break;
-			}
-			case 4:
-			{
-				if(right_data == 11 || right_data == 111)	Car_Raw_Left();//printf("往左");
-				else if(right_data == 1100 || right_data == 1110)	Car_Raw_Right();//printf("往右");
-				else Car_Continue();//printf("继续");
-				break;
-			}
-			default: break;
-		}
+		if(right_data == 11 || right_data == 111)
+			Set_Speed_Target(3, 10), printf("往左");
+			//Car_Raw_Left(), printf("往左");
+		else if(right_data == 1100 || right_data == 1110)
+			Set_Speed_Target(4, 10), printf("往右");
+			//Car_Raw_Right(), printf("往右");
+		else Car_Continue(),printf("继续");
+	}
+	else if(FIND_DRIVER == 2 && CURRENT_DIRATION == 2)	//后面循迹
+	{
+		if(behind_data == 11 || behind_data == 111 || behind_data == 1011)
+			Set_Speed_Target(3, 15), Set_Speed_Target(4, 15), printf("往左 ");
+			//Car_Raw_Left(),printf("往左");
+		else if(behind_data == 1100 || behind_data == 1110 || behind_data == 1101)
+			Set_Speed_Target(1, 15),Set_Speed_Target(2, 15), printf("往右 ");
+			//Car_Raw_Right(), printf("往右");
+		else Car_Continue(),printf("继续 ");
+	}
+	else if(FIND_DRIVER == 3 && CURRENT_DIRATION == 3)	//左侧循迹
+	{
+		if(left_data == 11 || left_data == 111 || left_data == 1011)
+			Set_Speed_Target(2, 10), printf("往左");
+			//Car_Raw_Left(), printf("往左");
+		else if(left_data == 1100 || left_data == 1110 || left_data == 1101)
+			Set_Speed_Target(1, 10), printf("往右");
+			//Car_Raw_Right(), printf("往右");
+		else Car_Continue(), printf("继续");
 	}
 }
 
@@ -178,11 +174,12 @@ void Car_Continue(void)
 	{
 		case 0:	break;
 		case 1:	Car_Go(); break;
-		case 2:	Car_Back(); break;
+		case 2:	Car_Back();break;
 		case 3:	Car_Go_Left(); break;
 		case 4:	Car_Go_Right(); break;
 		default: break;
 	}
+	Reset_Target_Speed();
 }
 
 /*

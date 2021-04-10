@@ -47,16 +47,17 @@ void TIM7_IRQHandler(void)
 	if (TIM_GetITStatus(TIM7, TIM_IT_Update) != RESET)	//检查指定的TIM中断发生与否
 	{
 		u8 count;
-//		ENCODER_DATA[0] = Read_Encoder(2);
-//		ENCODER_DATA[1] = Read_Encoder(3);
-//		ENCODER_DATA[2] = Read_Encoder(4);
-//		ENCODER_DATA[3] = Read_Encoder(5);
+		ENCODER_DATA[0] = Read_Encoder(2);
+		ENCODER_DATA[1] = Read_Encoder(3);
+		ENCODER_DATA[2] = Read_Encoder(4);
+		ENCODER_DATA[3] = Read_Encoder(5);
 
-		printf("编码器[%d %d %d %d]\t", ENCODER_DATA[0], ENCODER_DATA[1], ENCODER_DATA[2], ENCODER_DATA[3]); Find_Test();
+		printf("编码器[%d %d %d %d]\n", ENCODER_DATA[0], ENCODER_DATA[1], ENCODER_DATA[2], ENCODER_DATA[3]); 
+		//Find_Test();
 		printf("PWM[");
 		for(count=0; count<=3; count++)
 			printf("%d ", MOTOR_PWM[count]);
-		printf("] 目标[%.0f]", speed_target);
+		printf("] 目标[%.0f %.0f %.0f %.0f]\n", LF_speed_target, LB_speed_target, RF_speed_target, RB_speed_target);
 		TIM_ClearITPendingBit(TIM7, TIM_IT_Update);			//清除TIM6的中断待处理位
   }       	
 }
