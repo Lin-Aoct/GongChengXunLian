@@ -32,28 +32,28 @@
 			first_plcace3_arm3 = 466,first_plcace3_arm4 = 605;
 
 //半成品区上层
- u16 second_place1_arm1 = 630,second_place1_arm2 = 1078,\
-			second_place1_arm3 = 573,second_place1_arm4 = 1025;
+ u16 second_place1_arm1 = 762,second_place1_arm2 = 846,\
+			second_place1_arm3 = 490,second_place1_arm4 = 1009;
 			
- u16 second_place2_arm1 = 591,second_place2_arm2 = 1168,\
-			second_place2_arm3 = 609,second_place2_arm4 = 944;
+ u16 second_place2_arm1 = 689,second_place2_arm2 = 990,\
+			second_place2_arm3 = 568,second_place2_arm4 = 952;
 			
- u16 second_place3_arm1 = 636,second_place3_arm2 = 1117,\
-			second_place3_arm3 = 602,second_place3_arm4 = 854;
+ u16 second_place3_arm1 = 680,second_place3_arm2 = 970,\
+			second_place3_arm3 = 538,second_place3_arm4 = 875;
 
 //半成品区下层
  u16 third_place1_arm1 = 729,third_place1_arm2 = 877,\
-			third_place1_arm3 = 458,third_place1_arm4 = 1015;
+			third_place1_arm3 = 458,third_place1_arm4 = 1003;
 			
- u16 third_place2_arm1 = 616,third_place2_arm2 = 997,\
-			third_place2_arm3 = 483,third_place2_arm4 = 936;	
+ u16 third_place2_arm1 = 639,third_place2_arm2 = 999,\
+			third_place2_arm3 = 503,third_place2_arm4 = 928;	
 			
- u16 third_place3_arm1 = 665,third_place3_arm2 = 937,\
-		 third_place3_arm3 = 485,third_place3_arm4 = 867;
+ u16 third_place3_arm1 = 684,third_place3_arm2 = 917,\
+		 third_place3_arm3 = 466,third_place3_arm4 = 856;
 
  //第一个载物台各个关节的值
  u16 place1_arm1 = 959;
- u16 place1_arm2 = 1204;
+ u16 place1_arm2 = 1182;
  u16 place1_arm3 = 1003;
  u16 place1_arm4 = 262;
  
@@ -141,7 +141,7 @@ static void Arm3_low_speed3(unsigned int target, unsigned int curt)
 	Arm3_low_speed3(907,800);
 	delay_ms(200);
   Arm1_low_speed(959,880);	 
-	delay_ms(200);
+//	delay_ms(200);
  }
  
  //下层收手
@@ -187,9 +187,9 @@ static void Arm3_low_speed3(unsigned int target, unsigned int curt)
 	 	Arm4 = place1_arm4;
 	 delay_ms(800);
 	 Arm3 = place1_arm3;
-	 delay_ms(900);
+	 delay_ms(750);
 	 Arm2_low_speed(place1_arm2,1060);
-	 delay_ms(800);
+	 delay_ms(500);
 	 Arm1 = place1_arm1;
 	 delay_ms(800);
 	 Arm0 = 654;//爪子微微开
@@ -215,9 +215,9 @@ static void Arm3_low_speed3(unsigned int target, unsigned int curt)
 	 Arm4 = place2_arm4;
 	 delay_ms(800);
 	 Arm3 = place2_arm3;
-	 delay_ms(800);
+	 delay_ms(750);
 	 Arm2_low_speed(place2_arm2,1060);
-	 delay_ms(800);
+	 delay_ms(500);
 	 Arm1 = place2_arm1;
 	 delay_ms(800);
 	 Arm0 = 654;//爪子微微开
@@ -235,9 +235,9 @@ static void Arm3_low_speed3(unsigned int target, unsigned int curt)
 	  Arm4 = place3_arm4;
 	 delay_ms(900);
 	 Arm3 = place3_arm3;
-	 delay_ms(800);
+	 delay_ms(750);
 	 Arm2_low_speed(place3_arm2,1060);
-	 delay_ms(800);
+	 delay_ms(500);
 	 Arm1 = place3_arm1;
 	 delay_ms(800);
 	 Arm0 = 654;//爪子微微开
@@ -262,7 +262,7 @@ static void Arm3_low_speed3(unsigned int target, unsigned int curt)
 	 Arm1 = place1_arm1;
 	 delay_ms(800);
 	 Arm2_low_speed(place1_arm2,1060);
-	 delay_ms(800);
+	 delay_ms(500);
 	 Arm0 = 740;
 	 delay_ms(800);
 	 //收
@@ -292,7 +292,7 @@ static void Arm3_low_speed3(unsigned int target, unsigned int curt)
 	 Arm1 = place2_arm1;
 	 delay_ms(800);
 	 Arm2_low_speed(place2_arm2,1060);
-	 delay_ms(800);
+	 delay_ms(200);
 	 
 	 Arm0 = 740;
 	 delay_ms(800);
@@ -308,9 +308,9 @@ static void Arm3_low_speed3(unsigned int target, unsigned int curt)
 	 Arm3_low_speed3(place3_arm3,907);
 	 delay_ms(200);  
 	 Arm1 = place3_arm1;
-	 delay_ms(800);
+	 delay_ms(750);
 	 Arm2_low_speed(place3_arm2,1060);
-	 delay_ms(800);
+	 delay_ms(200);
 	 Arm0 = 740;
 	 delay_ms(800);
 	 
@@ -797,7 +797,7 @@ void Second_place3(void)
 		
 	  Arm1 = second_place3_arm1;
 	 delay_ms(600);
-	 Arm3 = 602;
+	 Arm3 = 800;
 	delay_ms(800);
 	Arm4 = second_place3_arm4;
 	 delay_ms(800);

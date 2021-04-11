@@ -423,6 +423,11 @@
               <FileType>5</FileType>
               <FilePath>.\datarecord.txt</FilePath>
             </File>
+            <File>
+              <FileName>Vcan_Oscilloscope.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Vcan_Oscilloscope.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

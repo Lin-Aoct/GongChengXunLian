@@ -17,6 +17,8 @@ u8 TFT_String[2];
 
 u8 ARM_Action = 0;			//机械臂动作变量
 
+int motor_current_pwm[4];
+
 int	main()
 {
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);		//配置中断优先级分组
@@ -48,6 +50,9 @@ int	main()
 	
 	while(1)
 	{
+		vcan_sendware((uint8_t *)ENCODER_DATA, sizeof(ENCODER_DATA));
+		//vcan_sendware((uint8_t *)motor_current_pwm[3], sizeof(int));
+
 		//Lcd_Clear(GRAY0);
 
 		//delay_ms(1000);
@@ -91,13 +96,13 @@ int	main()
 			case 0x16: Mode_Init(), Stop_Find(), CAR_MODE = 5; break;
 			case 0x17: Mode_Init(), Stop_Find(), CAR_MODE = 6; break;
 			case 0x18: Mode_Init(), Stop_Find(), CAR_MODE = 7; break;
-			case 0x19: break;
-			case 0x20: break;
-			case 0x21: Change_Speed_Target(0, 1, 10); break;
-			case 0x22: Change_Speed_Target(0, 0, 10); break;
-			case 0x23: USART_SendData(USART2, '1'); break;
-			case 0x24: USART_SendData(USART2, '2'); break;
-			case 0x25: USART_SendData(USART2, '3'); break;
+			case 0x19: ARM_Action = 9; break;
+			case 0x20: Mode_Init(), Stop_Find(), CAR_MODE = 9; break;
+			case 0x21: Change_Speed_Target(0, 1, 5); ENCODER_DATA[4]+=5; break;
+			case 0x22: Change_Speed_Target(0, 0, 5); ENCODER_DATA[4]-=5; break;
+			case 0x23: uart2_sendStr("1"); break;
+			case 0x24: uart2_sendStr("2"); break;
+			case 0x25: uart2_sendStr("3"); break;
 			case 0x26: Mode_Init(), Stop_Find(), CAR_MODE = 10; break;
 			case 0x27: Mode_Init(), Stop_Find(), CAR_MODE = 11; break;
 			case 0x28: Mode_Init(), Stop_Find(), CAR_MODE = 12; break;
@@ -116,29 +121,29 @@ int	main()
 			//PID调参
 			case 0x40: Set_PID_Value(1, 1, 1, 1.0); break;
 			case 0x41: Set_PID_Value(1, 1, 0, 1.0); break;
-			case 0x42: Set_PID_Value(1, 2, 1, 0.1); break;
-			case 0x43: Set_PID_Value(1, 2, 0, 0.1); break;
-			case 0x44: Set_PID_Value(1, 3, 1, 0.1); break;
-			case 0x45: Set_PID_Value(1, 3, 0, 0.1); break;
+			case 0x42: Set_PID_Value(1, 2, 1, 0.01); break;
+			case 0x43: Set_PID_Value(1, 2, 0, 0.01); break;
+			case 0x44: Set_PID_Value(1, 3, 1, 1); break;
+			case 0x45: Set_PID_Value(1, 3, 0, 1); break;
 
 			case 0x46: Set_PID_Value(2, 1, 1, 1.0); break;
 			case 0x47: Set_PID_Value(2, 1, 0, 1.0); break;
-			case 0x48: Set_PID_Value(2, 2, 1, 0.1); break;
-			case 0x49: Set_PID_Value(2, 2, 0, 0.1); break;
-			case 0x50: Set_PID_Value(2, 3, 1, 0.1); break;
-			case 0x51: Set_PID_Value(2, 3, 0, 0.1); break;
+			case 0x48: Set_PID_Value(2, 2, 1, 0.01); break;
+			case 0x49: Set_PID_Value(2, 2, 0, 0.01); break;
+			case 0x50: Set_PID_Value(2, 3, 1, 1); break;
+			case 0x51: Set_PID_Value(2, 3, 0, 1); break;
 
 			case 0x52: Set_PID_Value(3, 1, 1, 1.0); break;
 			case 0x53: Set_PID_Value(3, 1, 0, 1.0); break;
-			case 0x54: Set_PID_Value(3, 2, 1, 0.1); break;
-			case 0x55: Set_PID_Value(3, 2, 0, 0.1); break;
+			case 0x54: Set_PID_Value(3, 2, 1, 0.01); break;
+			case 0x55: Set_PID_Value(3, 2, 0, 0.01); break;
 			case 0x56: Set_PID_Value(3, 3, 1, 0.1); break;
 			case 0x57: Set_PID_Value(3, 3, 0, 0.1); break;
 
 			case 0x58: Set_PID_Value(4, 1, 1, 1.0); break;
 			case 0x59: Set_PID_Value(4, 1, 0, 1.0); break;
-			case 0x60: Set_PID_Value(4, 2, 1, 0.1); break;
-			case 0x61: Set_PID_Value(4, 2, 0, 0.1); break;
+			case 0x60: Set_PID_Value(4, 2, 1, 0.01); break;
+			case 0x61: Set_PID_Value(4, 2, 0, 0.01); break;
 			case 0x62: Set_PID_Value(4, 3, 1, 0.1); break;
 			case 0x63: Set_PID_Value(4, 3, 0, 0.1); break;
 			
@@ -149,104 +154,130 @@ int	main()
 	
 	
 		//机械臂动作判断
-//		switch(ARM_Action)
-//		{
-//			case 0: break;
-//			case 1: scan_qr_on(); uart2_sendStr("1"); break;		//扫码姿势 告诉OV扫码
-//			case 2: scan_block_top(); uart2_sendStr("2");break;	//颜色识别	告诉OV识别上层颜色
-//			case 3: top_grasp_choose1(way1); top_grasp_choose2(way1); top_grasp_choose3(way1); Mode_Init(); CAR_MODE = 3; break; 	//机械臂抓取色块
-//			case 4: 
-//			{
-//				//第一次放置物料
-//				First_choose_place1(qr_mes, 1);
-//				First_choose_place2(qr_mes, 1);
-//				First_choose_place3(qr_mes, 1);
-//				//重新抓取物料
-//				cujiagong_choose_grasp1(qr_mes, 1);
-//				cujiagong_choose_grasp2(qr_mes, 1);
-//				cujiagong_choose_grasp3(qr_mes, 1);
-//				Mode_Init();
-//				CAR_MODE = 4;		//粗加工 -> 半成品	顶层模式
-//				break;
-//			}
-//			case 5: //半成品区上层放置
-//			{
-//				place_top_product1(qr_mes);
-//				place_top_product2(qr_mes);
-//				place_top_product3(qr_mes);
-//				Mode_Init();
-//				CAR_MODE = 5;		//半成品	-> 	原料区
-//				break;
-//			}
-//			case 6:
-//			{
-//				//扫描下层物料
-//				scan_block_under();		//机械臂识别颜色动作
-//				delay_ms(100);
-//				uart2_sendStr("3");		//OV扫描颜色
-//				break;
-//			}
-//			case 7:	
-//			{
-//				//准备第一次抓取下层
-//				under_grasp_choose1(way2);		//机械臂伸出
-//				Mode_Init();
-//				CAR_MODE = 6;					//车往前一格
-//				break;
-//			}
-//			case 8:	//爪子闭合
-//			{
-//				Arm0 = 740;		//机械臂抓取动作
-//				CAR_MODE = 7;
-//				break;
-//			}
-//			case 9:
-//			{
-//				Arm_back1();		//机械臂收回
-//				place_playload1();	//放置物料到车上
-//				under_grasp_choose2(way2);		//机械臂伸出
-//				CAR_MODE = 8;		//车向前一格
-//				break;
-//			}
-//			case 10:					//准备第二次抓取
-//			{
-//				Arm_back1();		//机械臂收回
-//				place_playload2();	//放置物料到车上2
-//				under_grasp_choose3(way2);		//机械臂伸出
-//				CAR_MODE = 8;		//车向前一格
-//				break;
-//			}
-//			case 11:
-//			{
-//				Arm_back1();		//机械臂收回
-//				place_playload3();	//放置物料到车上3
-//				CAR_MODE = 10;
-//				break;
-//			}
-//			case 12: 
-//			{
-//				//第二次放置物料
-//				First_choose_place1(qr_mes, 2);
-//				First_choose_place2(qr_mes, 2);
-//				First_choose_place3(qr_mes, 2);
-//				//重新抓取物料
-//				cujiagong_choose_grasp1(qr_mes, 2);
-//				cujiagong_choose_grasp2(qr_mes, 2);
-//				cujiagong_choose_grasp3(qr_mes, 2);
-//				CAR_MODE = 11;		//第二次 粗加工 -> 半成品
-//				break;
-//			}
-//			case 13: 
-//			{
-//				//半成品区下层放置
-//				place_under_product1(qr_mes);
-//				place_under_product2(qr_mes);
-//				place_under_product3(qr_mes);
-//				CAR_MODE = 12;									//去返回去
-//				break;
-//			}
-//			default: break;
-//		}
+		switch(ARM_Action)
+		{
+			case 0: break;
+			case 1: scan_qr_on(); uart2_sendStr("1"); ARM_Action=0; break;		//扫码姿势 告诉OV扫码
+			case 2: scan_block_top(); uart2_sendStr("2"); ARM_Action=0;	break;	//颜色识别	告诉OV识别上层颜色
+			case 3: top_grasp_choose1(way1); top_grasp_choose2(way1); top_grasp_choose3(way1); Mode_Init(); CAR_MODE = 3; ARM_Action=0; break; 	//机械臂抓取色块
+			case 4: 
+			{
+				printf("机械臂模式[第一次放置]");
+				//第一次放置物料
+				First_choose_place1(qr_mes, 1);
+				First_choose_place2(qr_mes, 1);
+				First_choose_place3(qr_mes, 1);
+				//重新抓取物料
+				printf("机械臂模式[重新抓取物料]");
+				cujiagong_choose_grasp1(qr_mes, 1);
+				cujiagong_choose_grasp2(qr_mes, 1);
+				cujiagong_choose_grasp3(qr_mes, 1);
+				Mode_Init();
+				CAR_MODE = 4;		//粗加工 -> 半成品	顶层模式
+				ARM_Action=0;
+				break;
+			}
+			case 5: //半成品区上层放置
+			{
+				printf("机械臂模式[半成品区下层放置]");
+				place_top_product1(qr_mes);
+				place_top_product2(qr_mes);
+				place_top_product3(qr_mes);
+				Mode_Init();
+				CAR_MODE = 5;		//半成品	-> 	原料区
+				ARM_Action=0;
+				break;
+			}
+			case 6:
+			{
+				//扫描下层物料
+				printf("机械臂模式[扫描下层物料]");
+				scan_block_under();		//机械臂识别颜色动作
+				delay_ms(100);
+				uart2_sendStr("3");		//OV扫描颜色
+				ARM_Action=0;
+				break;
+			}
+			case 7:	
+			{
+				//准备第一次抓取下层
+				printf("机械臂模式[准备第一次抓取下层]");
+				under_grasp_choose1(way2);		//机械臂伸出
+				Mode_Init();
+				CAR_MODE = 6;					//车往前一格
+				ARM_Action=0;
+				break;
+			}
+			case 8:
+			{
+				//爪子闭合
+				printf("机械臂模式[爪子闭合]");
+				Arm0 = 740;		//机械臂抓取动作
+				Mode_Init();
+				CAR_MODE = 7;
+				ARM_Action=0;
+				break;
+			}
+			case 9:
+			{
+				printf("机械臂模式[机械臂收回]");
+				Arm_back1();									//机械臂收回
+				place_playload1();						//放置物料到车上
+				under_grasp_choose2(way2);		//机械臂伸出
+				Mode_Init();
+				CAR_MODE = 8;		//车向前一格
+				ARM_Action=0;
+				break;
+			}
+			case 10:					//准备第二次抓取
+			{
+				printf("机械臂模式[准备第二次抓取]");
+				Arm_back1();		//机械臂收回
+				place_playload2();	//放置物料到车上2
+				under_grasp_choose3(way2);		//机械臂伸出
+				Mode_Init();
+				CAR_MODE = 8;		//车向前一格
+				ARM_Action=0;
+				break;
+			}
+			case 11:
+			{
+				
+				Arm_back1();		//机械臂收回
+				place_playload3();	//放置物料到车上3
+				Mode_Init();
+				CAR_MODE = 10;
+				ARM_Action=0;
+				break;
+			}
+			case 12: 
+			{
+				//第二次放置物料
+				First_choose_place1(qr_mes, 2);
+				First_choose_place2(qr_mes, 2);
+				First_choose_place3(qr_mes, 2);
+				//重新抓取物料
+				cujiagong_choose_grasp1(qr_mes, 2);
+				cujiagong_choose_grasp2(qr_mes, 2);
+				cujiagong_choose_grasp3(qr_mes, 2);
+				Mode_Init();
+				CAR_MODE = 11;		//第二次 粗加工 -> 半成品
+				ARM_Action=0;
+				break;
+			}
+			case 13: 
+			{
+				//半成品区下层放置
+				place_under_product1(qr_mes);
+				place_under_product2(qr_mes);
+				place_under_product3(qr_mes);
+				Mode_Init();
+				CAR_MODE = 12;									//去返回区
+				ARM_Action=0;
+				break;
+			}
+			default: break;
+		}
 	
 	}
 }

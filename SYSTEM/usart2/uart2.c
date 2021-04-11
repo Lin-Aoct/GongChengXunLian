@@ -24,6 +24,7 @@ void uart2_sendStr(char *str)
 //串口3数据发送
 void uart3_sendByte(u8 dat)
 {
+	//printf("串口3发送[%c]", dat);
 	USART3->DR = dat;
 	while((USART3->SR &(1<<7))==0)
 	;
@@ -45,6 +46,8 @@ static void flag_state(u8 num)
 		flag = 'A';
 	else if(num=='B')
 		flag = 'B';
+	else if(num =='C')
+		flag = 'C';
 	else 
 		return;
 	
@@ -82,7 +85,7 @@ void USART2_IRQHandler(void)
 				}
 			}
 			if(qr_i == 7)
-				qr_i = 0, GUI_Draw_Long_Font(1, 1, RED, GRAY0, (u8*)qr_mes);	//TFT 显示顺序
+				qr_i = 0, printf("接收到搬运顺序:%s", qr_mes), Lcd_Clear(BLACK), GUI_Draw_Long_Font(1, 1, WHITE, BLACK, (u8*)qr_mes);	//TFT 显示顺序
 		}
 			
 	else if(flag =='B')//进入色块位置接收阶段
@@ -98,7 +101,7 @@ void USART2_IRQHandler(void)
 				}
 			}
 			if(len >2)
-				len= 0, ARM_Action = 3;	//接收颜色信息完成
+				len= 0, printf("接收到上层色块位置信息:%s\n", way1), ARM_Action = 3;	//接收颜色信息完成
 		}
 		else if(flag=='C')
 		{
@@ -111,7 +114,7 @@ void USART2_IRQHandler(void)
 				}
 			}
 			if(len >2)
-				len = 0, ARM_Action = 7;	//第二次接收颜色信息完成
+				len = 0, printf("接收到下层色块位置信息:%s\n", way2), ARM_Action = 7;	//第二次接收颜色信息完成
 	}
 		
 	}

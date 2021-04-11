@@ -14,6 +14,7 @@ void Encoder_Init_TIM4(void)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;						//复用
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;					//推挽
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;				//浮空
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);					      	//根据设定参数初始化GPIOB
 	
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_TIM4);

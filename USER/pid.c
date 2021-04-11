@@ -6,10 +6,18 @@ float Balance_Kp = 25.0, Balance_Ki = 0.00, Balance_Kd = 100.0;		//X 轴位置环 PI
 float Y_side_Kp = 20.0, Y_side_Ki = 0.0, Y_side_Kd = 200.0;				//Y 轴位置环 PID相关参数
 
 
-float LF_Speed_Kp = -200.5, LF_Speed_Ki = 0.2, LF_Speed_Kd = -5.0;					//PID相关参数
-float LB_Speed_Kp = -100.5, LB_Speed_Ki = 0.1, LB_Speed_Kd = -2.0;					//PID相关参数
-float RF_Speed_Kp = -145.5, RF_Speed_Ki = 0.1, RF_Speed_Kd = -2.0;					//PID相关参数
-float RB_Speed_Kp = -125.5, RB_Speed_Ki = 0.1, RB_Speed_Kd = -2.0;					//PID相关参数
+float LF_Speed_Kp = -230.5, LF_Speed_Ki = -0.37, LF_Speed_Kd = 13.0;					//PID相关参数
+//float LB_Speed_Kp = -285.5, LB_Speed_Ki = -0.01, LB_Speed_Kd = 78.0;					//PID相关参数
+float LB_Speed_Kp = -285.5, LB_Speed_Ki = -0.32, LB_Speed_Kd = 19.0;					//PID相关参数
+float RF_Speed_Kp = -285.5, RF_Speed_Ki = -0.1, RF_Speed_Kd = 19.0;					//PID相关参数
+//float RB_Speed_Kp = -230.5, RB_Speed_Ki = 0.0, RB_Speed_Kd = 0.0;					//PID相关参数
+float RB_Speed_Kp = -230.5, RB_Speed_Ki = -0.26, RB_Speed_Kd = 19.0;					//PID相关参数
+
+//float LF_Speed_Kp = -200.5, LF_Speed_Ki = 0.2, LF_Speed_Kd = -5.0;					//PID相关参数
+//float LB_Speed_Kp = -125.5, LB_Speed_Ki = 0.1, LB_Speed_Kd = -6.0;					//PID相关参数
+//float RF_Speed_Kp = -125.5, RF_Speed_Ki = 0.1, RF_Speed_Kd = -2.0;					//PID相关参数
+//float RB_Speed_Kp = -195.5, RB_Speed_Ki = 0.1, RB_Speed_Kd = -5.0;					//PID相关参数
+
 
 float LF_speed_target = 30.0, LF_PID_MAX_VALUE = 150.0;
 float LB_speed_target = 30.0, LB_PID_MAX_VALUE = 150.0;
@@ -65,10 +73,10 @@ void Set_PID_Value(u8 side, u8 part, u8 action, float value)
 		}
 		default: break;
 	}
-	printf("[%0.1f %0.1f %0.1f]\t", LF_Speed_Kp, LF_Speed_Ki, LF_Speed_Kd);
-	printf("[%0.1f %0.1f %0.1f]\n", LB_Speed_Kp, LB_Speed_Ki, LB_Speed_Kd);
-	printf("[%0.1f %0.1f %0.1f]\t", RF_Speed_Kp, RF_Speed_Ki, RF_Speed_Kd);
-	printf("[%0.1f %0.1f %0.1f]\n", RB_Speed_Kp, RB_Speed_Ki, RB_Speed_Kd);
+	printf("[%0.1f %0.2f %0.1f]\t", LF_Speed_Kp, LF_Speed_Ki, LF_Speed_Kd);
+	printf("[%0.1f %0.2f %0.1f]\t", LB_Speed_Kp, LB_Speed_Ki, LB_Speed_Kd);
+	printf("[%0.1f %0.2f %0.1f]\t", RF_Speed_Kp, RF_Speed_Ki, RF_Speed_Kd);
+	printf("[%0.1f %0.2f %0.1f]\n", RB_Speed_Kp, RB_Speed_Ki, RB_Speed_Kd);
 }
 
 
@@ -157,10 +165,10 @@ void Reset_Target_Speed(void)
 	}
 	else
 	{
-		LF_speed_target = 30.0;
-		LB_speed_target = 30.0;
-		RF_speed_target = 30.0;
-		RB_speed_target = 30.0;
+		LF_speed_target = 30;
+		LB_speed_target = 30;
+		RF_speed_target = 30;
+		RB_speed_target = 30;
 	}
 }
 
@@ -175,6 +183,7 @@ void Set_Expect_Target_Speed(u8 speed)
 {
 	Expect_Target_Speed_Sta |= 0x80;	//标志期望值改变
 	Expect_Target_Speed_Sta |= speed;	//标志速度值
+	Reset_Target_Speed();
 }
 
 
@@ -186,14 +195,21 @@ void Set_Expect_Target_Speed(u8 speed)
 int PID_Speed_Left_Front(float speed)
 {
 	float Differential, Bias;		//定义差分变量和偏差
-	static float Last_Bias, Integration, Balance_Integration;  //上一次的偏差值
+	static float Last_Bias, Integration, Balance_Integration, Flag_Target;  //上一次的偏差值
 	int balance;								//平衡的返回值
 
 	Bias = speed - LF_speed_target;  		//求出速度偏差
 
 	Differential = Bias - Last_Bias;  //求得偏差的变化率	 
 
-	Balance_Integration = Integration * LF_Speed_Ki;   //积分控制
+//	if(++Flag_Target > 10) 						//错频处理积分控制
+//	{
+		Flag_Target = 0;
+		Integration += Bias;  // 积分
+		if(Integration<-50) Integration = -50;	//积分限幅
+		if(Integration>50)  Integration = 50;	
+		Balance_Integration = Integration * LF_Speed_Ki;   //积分控制
+//	}
 	
 	balance = (LF_Speed_Kp * Bias)/10 + LF_Speed_Kd*Differential/10 + Balance_Integration;   //计算控制PWM  PD控制
 	Last_Bias = Bias;  //保存上一次的偏差
@@ -210,14 +226,21 @@ int PID_Speed_Left_Front(float speed)
 int PID_Speed_Left_Behind(float speed)
 {
 	float Differential, Bias;		//定义差分变量和偏差
-	static float Last_Bias, Integration, Balance_Integration;  //上一次的偏差值
+	static float Last_Bias, Integration, Balance_Integration, Flag_Target;  //上一次的偏差值
 	int balance;								//平衡的返回值
 
 	Bias = speed - LB_speed_target;  		//求出速度偏差
 
 	Differential = Bias - Last_Bias;  //求得偏差的变化率	 
 
-	Balance_Integration = Integration * LB_Speed_Ki;   //积分控制
+//	if(++Flag_Target > 10) 						//错频处理积分控制
+//	{
+		Flag_Target = 0;
+		Integration += Bias;  // 积分
+		if(Integration<-50) Integration = -50;	//积分限幅
+		if(Integration>50)  Integration = 50;	
+		Balance_Integration = Integration * LB_Speed_Ki;   //积分控制
+	//}
 	
 	balance = (LB_Speed_Kp * Bias)/10 + LB_Speed_Kd*Differential/10 + Balance_Integration;   //计算控制PWM  PD控制
 	Last_Bias = Bias;  //保存上一次的偏差
@@ -234,14 +257,21 @@ int PID_Speed_Left_Behind(float speed)
 int PID_Speed_Right_Front(float speed)
 {
 	float Differential, Bias;		//定义差分变量和偏差
-	static float Last_Bias, Integration, Balance_Integration;  //上一次的偏差值
+	static float Last_Bias, Integration, Balance_Integration, Flag_Target;  //上一次的偏差值
 	int balance;								//平衡的返回值
 
 	Bias = speed - RF_speed_target;  		//求出速度偏差
 
 	Differential = Bias - Last_Bias;  //求得偏差的变化率	 
 
-	Balance_Integration = Integration * RF_Speed_Ki;   //积分控制
+//	if(++Flag_Target > 10) 						//错频处理积分控制
+//	{
+		Flag_Target = 0;
+		Integration += Bias;  // 积分
+		if(Integration<-50) Integration = -50;	//积分限幅
+		if(Integration>50)  Integration = 50;	
+		Balance_Integration = Integration * RF_Speed_Ki;   //积分控制
+	//}
 	
 	balance = (RF_Speed_Kp * Bias)/10 + RF_Speed_Kd*Differential/10 + Balance_Integration;   //计算控制PWM  PD控制
 	Last_Bias = Bias;  //保存上一次的偏差
@@ -258,14 +288,21 @@ int PID_Speed_Right_Front(float speed)
 int PID_Speed_Right_Behind(float speed)
 {
 	float Differential, Bias;		//定义差分变量和偏差
-	static float Last_Bias, Integration, Balance_Integration;  //上一次的偏差值
+	static float Last_Bias, Integration, Balance_Integration, Flag_Target;  //上一次的偏差值
 	int balance;								//平衡的返回值
 
 	Bias = speed - RB_speed_target;  		//求出速度偏差
 
 	Differential = Bias - Last_Bias;  //求得偏差的变化率	 
 
-	Balance_Integration = Integration * RB_Speed_Ki;   //积分控制
+//	if(++Flag_Target > 10) 						//错频处理积分控制
+//	{
+		Flag_Target = 0;
+		Integration += Bias;  // 积分
+		if(Integration<-50) Integration = -50;	//积分限幅
+		if(Integration>50)  Integration = 50;	
+		Balance_Integration = Integration * RB_Speed_Ki;   //积分控制
+//	}
 	
 	balance = (RB_Speed_Kp * Bias)/10 + RB_Speed_Kd*Differential/10 + Balance_Integration;   //计算控制PWM  PD控制
 	Last_Bias = Bias;  //保存上一次的偏差

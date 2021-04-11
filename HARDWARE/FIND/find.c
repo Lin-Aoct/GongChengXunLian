@@ -3,6 +3,8 @@
 u8 FIND_DRIVER = 0;		//标志当前循迹红外模块	0代表前面	1代表右侧 2代表后面	3代表左侧
 u8 CURRENT_DIRATION;	//标志当前运动方向	0停车	1前	2后	3左	4右
 
+u8 FIND_MODE = 1;			//标志循迹模式 0代表raw	1	代表差速
+
 /*
 *===================================================================
 *		说明：红外循迹模块IO引脚初始化
@@ -121,43 +123,65 @@ void Find(void)
 	
 	if(FIND_DRIVER == 0 && CURRENT_DIRATION == 1)				//前面循迹
 	{
-		if(front_data == 11 || front_data == 111 || front_data == 1011)
-			Set_Speed_Target(1, 15), Set_Speed_Target(2, 15), printf("往左 ");
-			//Car_Raw_Left(), printf("往左");
-		else if(front_data == 1100 || front_data == 1110 || front_data == 1101)
-			Set_Speed_Target(3, 15), Set_Speed_Target(4, 15), printf("往右 ");
-			//Car_Raw_Right(), printf("往右");
-		else Car_Continue(),printf("继续 ");
+		if(FIND_MODE)
+		{
+			if(front_data == 11 || front_data == 111 || front_data == 1011)
+				Set_Speed_Target(1, 15), Set_Speed_Target(2, 15);
+				//Car_Raw_Left();
+			else if(front_data == 1100 || front_data == 1110 || front_data == 1101)
+				Set_Speed_Target(3, 15), Set_Speed_Target(4, 15);
+				//Car_Raw_Right();
+			else if(front_data == 1001) Car_Continue();
+		}
+		else
+		{
+			if(front_data == 11 || front_data == 111 || front_data == 1011)
+				Car_Raw_Left();
+			else if(front_data == 1100 || front_data == 1110 || front_data == 1101)
+				Car_Raw_Right();
+			else Car_Continue();
+		}
 	}
 	else if(FIND_DRIVER == 1 && CURRENT_DIRATION == 4)	//右侧循迹
 	{
-		if(right_data == 11 || right_data == 111)
-			Set_Speed_Target(3, 10), printf("往左");
-			//Car_Raw_Left(), printf("往左");
-		else if(right_data == 1100 || right_data == 1110)
-			Set_Speed_Target(4, 10), printf("往右");
-			//Car_Raw_Right(), printf("往右");
-		else Car_Continue(),printf("继续");
+		if(right_data == 11 || right_data == 111 || right_data == 1011)
+			Set_Speed_Target(3, 10);
+			//Car_Raw_Left();
+		else if(right_data == 1100 || right_data == 1110 || right_data == 1101)
+			Set_Speed_Target(4, 10);
+			//Car_Raw_Right();
+		else if(right_data == 1001) Car_Continue();
 	}
 	else if(FIND_DRIVER == 2 && CURRENT_DIRATION == 2)	//后面循迹
 	{
-		if(behind_data == 11 || behind_data == 111 || behind_data == 1011)
-			Set_Speed_Target(3, 15), Set_Speed_Target(4, 15), printf("往左 ");
-			//Car_Raw_Left(),printf("往左");
-		else if(behind_data == 1100 || behind_data == 1110 || behind_data == 1101)
-			Set_Speed_Target(1, 15),Set_Speed_Target(2, 15), printf("往右 ");
-			//Car_Raw_Right(), printf("往右");
-		else Car_Continue(),printf("继续 ");
+		if(FIND_MODE)
+		{
+			if(behind_data == 11 || behind_data == 111 || behind_data == 1011)
+				Set_Speed_Target(3, 15), Set_Speed_Target(4, 15);
+				//Car_Raw_Left();
+			else if(behind_data == 1100 || behind_data == 1110 || behind_data == 1101)
+				Set_Speed_Target(1, 15),Set_Speed_Target(2, 15);
+				//Car_Raw_Right();
+			else if(behind_data == 1001) Car_Continue();
+		}
+		else
+		{
+			if(behind_data == 11 || behind_data == 111 || behind_data == 1011)
+				Car_Raw_Left();
+			else if(behind_data == 1100 || behind_data == 1110 || behind_data == 1101)
+				Car_Raw_Right();
+			else Car_Continue();
+		}
 	}
 	else if(FIND_DRIVER == 3 && CURRENT_DIRATION == 3)	//左侧循迹
 	{
 		if(left_data == 11 || left_data == 111 || left_data == 1011)
-			Set_Speed_Target(2, 10), printf("往左");
-			//Car_Raw_Left(), printf("往左");
+			Set_Speed_Target(2, 5);
+			//Car_Raw_Left();
 		else if(left_data == 1100 || left_data == 1110 || left_data == 1101)
-			Set_Speed_Target(1, 10), printf("往右");
-			//Car_Raw_Right(), printf("往右");
-		else Car_Continue(), printf("继续");
+			Set_Speed_Target(1, 5);
+			//Car_Raw_Right();
+		else if(left_data == 1001) Car_Continue();
 	}
 }
 
@@ -193,4 +217,5 @@ void Stop_Find(void)
 {
 	FIND_DRIVER = 0;
 	CURRENT_DIRATION = 0;
+	FIND_MODE = 1;
 }

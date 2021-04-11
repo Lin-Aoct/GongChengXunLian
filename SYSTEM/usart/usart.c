@@ -42,6 +42,9 @@ u8 USART_RX_BUF[USART_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
 //bit13~0，	接收到的有效字节数目
 u16 USART_RX_STA=0;       //接收状态标记	
 
+u8 USART1_CMD_MODE = 1;				//标志串口1指令接收模式	0->str 1->FFFE数据头接收	
+
+
 //初始化IO 串口1 
 //bound:波特率
 void uart_init(u32 bound){
@@ -98,59 +101,62 @@ void USART1_IRQHandler(void)
 #ifdef OS_TICKS_PER_SEC	 	//如果时钟节拍数定义了,说明要使用ucosII了.
 	OSIntEnter();    
 #endif
-	
-	#if 0
-	u8 Res;
-	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)  //接收中断(接收到的数据必须是0x0d 0x0a结尾)
-	{
-		Res =USART_ReceiveData(USART1);//(USART1->DR);	//读取接收到的数据
-		
-		if((USART_RX_STA&0x8000)==0)//接收未完成
-		{
-			if(USART_RX_STA&0x4000)//接收到了0x0d
-			{
-				if(Res!=0x0a)USART_RX_STA=0;//接收错误,重新开始
-				else USART_RX_STA|=0x8000;	//接收完成了 
-			}
-			else //还没收到0X0D
-			{	
-				if(Res==0x0d)USART_RX_STA|=0x4000;
-				else
-				{
-					USART_RX_BUF[USART_RX_STA&0X3FFF]=Res ;
-					USART_RX_STA++;
-					if(USART_RX_STA>(USART_REC_LEN-1))USART_RX_STA=0;//接收数据错误,重新开始接收	  
-				}		 
-			}
-		}   		 
-  }
-#endif
 
-	
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)  //接收中断(接收到的数据必须是0x0d 0x0a结尾)
-	{	  
+	{	 
 		u8 current_data;
 		static u8 data_index, last_data, last_last_data;
 		current_data = USART1 -> DR;
 		
-		if(IS_USART1_RX_HEAD == 0)	//未获取到数据头 0xff 0xfe
-		{	
-			if(last_data==0xfe && last_last_data==0xff) 
-				IS_USART1_RX_HEAD=1, data_index=0;
+		if(USART1_CMD_MODE)	//FFFE数据头模式
+		{
+			if(IS_USART1_RX_HEAD == 0)	//未获取到数据头 0xff 0xfe
+			{	
+				if(last_data==0xfe && last_last_data==0xff) 
+					IS_USART1_RX_HEAD=1, data_index=0;
+			}
+			if(IS_USART1_RX_HEAD == 1)	//已经获取到数据头 0xff 0xfe
+			{	
+				if(current_data == 0xCC)
+					USART1_CMD_MODE = 0;		//进入字符串模式
+				else
+				{
+					USART1_RX_BUF[data_index] = current_data;
+					data_index++;							//数据位索引加一
+					if(data_index == 1) IS_USART1_RX_HEAD=0, IS_USART1_RX_Success=1;	//接收到4字节数据  已经接收完毕 准备重新接收
+				}
+			}
+			last_last_data = last_data;		//保存前一次接收到的位
+			last_data = current_data;			//保存本次接收到的位
 		}
-		if(IS_USART1_RX_HEAD == 1)	//已经获取到数据头 0xff 0xfe
-		{	
-			USART1_RX_BUF[data_index] = current_data;
-			data_index++;							//数据位索引加一
-			if(data_index == 1) IS_USART1_RX_HEAD=0, IS_USART1_RX_Success=1;	//接收到4字节数据  已经接收完毕，准备重新接收
+		else	//字符串模式
+		{
+			if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)  //接收中断(接收到的数据必须是0x0d 0x0a结尾)
+			{
+				if((USART_RX_STA&0x8000)==0)//接收未完成
+				{
+					if(USART_RX_STA&0x4000)//接收到了0x0d
+					{
+						if(current_data!=0x0a)USART_RX_STA=0;//接收错误,重新开始
+						else USART_RX_STA|=0x8000;	//接收完成了 
+					}
+					else //还没收到0X0D
+					{	
+						if(current_data==0x0d)USART_RX_STA|=0x4000;
+						else
+						{
+							USART_RX_BUF[USART_RX_STA&0X3FFF]=current_data ;
+							USART_RX_STA++;
+							if(USART_RX_STA>(USART_REC_LEN-1))USART_RX_STA=0;//接收数据错误,重新开始接收	  
+						}		 
+					}
+				}   		 
+			}
 		}
-		last_last_data = last_data;		//保存前一次接收到的位
-		last_data = current_data;			//保存本次接收到的位
 	} 
 	
-
 #ifdef OS_TICKS_PER_SEC	 	//如果时钟节拍数定义了,说明要使用ucosII了.
 	OSIntExit();  											 
 #endif
 } 
-#endif	
+#endif

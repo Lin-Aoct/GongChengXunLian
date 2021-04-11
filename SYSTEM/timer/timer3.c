@@ -33,6 +33,7 @@ void Encoder_Init_TIM3(void)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;						//复用
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;					//推挽
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;				//浮空
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 	
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource6, GPIO_AF_TIM3);
@@ -48,13 +49,14 @@ void Encoder_Init_TIM3(void)
 
 	/* 输入比较滤波器 */
 	TIM_ICStructInit(&TIM_ICInitStructure);
+	TIM_ICInitStructure.TIM_ICFilter = 0xF;
 	TIM_ICInit(TIM3, &TIM_ICInitStructure);
 	
 	TIM_ClearFlag(TIM3, TIM_FLAG_Update);				//清除TIM的更新标志位
 	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
 
 	/* 设置编码器模式 */
-	TIM_EncoderInterfaceConfig(TIM3, TIM_EncoderMode_TI12, TIM_ICPolarity_Falling ,TIM_ICPolarity_Falling);
+	TIM_EncoderInterfaceConfig(TIM3, TIM_EncoderMode_TI12, TIM_ICPolarity_Falling, TIM_ICPolarity_Falling);
 
 //	TIM3->CCMR1 |= 2 << 0;
 //	TIM3->CCMR1 |= 2 << 8;
