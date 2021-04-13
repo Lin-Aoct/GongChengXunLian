@@ -209,7 +209,7 @@ void Car_Left_Front(void)
 }
 
 //***************************原地左转***************************//
-void Car_Raw_Left(void)
+void Car_Yaw_Left(void)
 {
 	Set_MOTOR_Left_Front(BACK);
 	Set_MOTOR_Left_Behind(BACK);
@@ -218,7 +218,7 @@ void Car_Raw_Left(void)
 }
 
 //***************************原地右转***************************//
-void Car_Raw_Right(void)
+void Car_Yaw_Right(void)
 {
 	Set_MOTOR_Left_Front(GO);
 	Set_MOTOR_Left_Behind(GO);

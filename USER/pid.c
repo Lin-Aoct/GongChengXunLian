@@ -181,8 +181,8 @@ void Reset_Target_Speed(void)
 */
 void Set_Expect_Target_Speed(u8 speed)
 {
-	Expect_Target_Speed_Sta |= 0x80;	//标志期望值改变
 	Expect_Target_Speed_Sta |= speed;	//标志速度值
+	Expect_Target_Speed_Sta |= 0x80;	//标志期望值改变
 	Reset_Target_Speed();
 }
 

@@ -85,8 +85,8 @@ void Car_Stop(void);
 void Car_Right_Front(void);
 void Car_Left_Front(void);
 void Car_Turn(void);
-void Car_Raw_Left(void);
-void Car_Raw_Right(void);
+void Car_Yaw_Left(void);
+void Car_Yaw_Right(void);
 					
 void MOTOR_Speed_Up(u16 motor_pwm);
 void MOTOR_Speed_Down(u16 motor_pwm);

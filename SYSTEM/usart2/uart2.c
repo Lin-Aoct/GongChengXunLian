@@ -1,6 +1,7 @@
 #include "uart2.h"
 
 
+u8 AT = 'N';
 static u8 flag = 0 ;
 
 //发送一个字节
@@ -24,12 +25,12 @@ void uart2_sendStr(char *str)
 //串口3数据发送
 void uart3_sendByte(u8 dat)
 {
-	//printf("串口3发送[%c]", dat);
 	USART3->DR = dat;
 	while((USART3->SR &(1<<7))==0)
 	;
 }
- void uart3_sendStr(char *str)
+
+ void uart3_sendStr(u8 *str)
  {
 	 while(*str != '\0')
 	{
@@ -45,14 +46,25 @@ static void flag_state(u8 num)
 	if(num=='A')
 		flag = 'A';
 	else if(num=='B')
-		flag = 'B';
-	else if(num =='C')
+		flag = 'B'; 
+	else if(num == 'C')
 		flag = 'C';
-	else 
 		return;
 	
 }
 
+//openmv信号传输防止没有接收到的情况
+
+void OPENMV_Cmd(char* s)
+{
+	while(AT!='Y')
+		{
+				uart2_sendStr(s);
+			delay_ms(150);
+		}
+		AT = 'N';
+	
+}
 
 //u16 USART_RX_STA=0; 
 //u8 USART_RX_BUF[USART_REC_LEN]; 
@@ -61,6 +73,7 @@ u8 color = 0;
 u8 way1[] = "000";
 u8 way2[] = "000";
 u8 qr_mes[] = "123+123";
+
  
 
 void USART2_IRQHandler(void) 
@@ -71,8 +84,12 @@ void USART2_IRQHandler(void)
 	{
 		
 			res = USART_ReceiveData(USART2);
-			flag_state(res);									//给flag赋值确定接收二维码还是色块位置信息
-		if(flag=='A')												//进入二维码数据接收阶段
+			flag_state(res);//给flag赋值确定接收二维码还是色块位置信
+			if(res=='Y')
+				AT = 'Y';
+			else 
+				AT = 'N';
+		if(flag=='A')//进入二维码数据接收阶段
 		{
 			if(!(res=='A'))
 			{
@@ -101,7 +118,7 @@ void USART2_IRQHandler(void)
 				}
 			}
 			if(len >2)
-				len= 0, printf("接收到上层色块位置信息:%s\n", way1), ARM_Action = 3;	//接收颜色信息完成
+				len= 0, Gui_DrawFont_GBK16(1,67,WHITE,BLACK, way1), printf("接收到上层色块位置信息:%s\n", way1), ARM_Action = 3;	//接收上层颜色信息完成
 		}
 		else if(flag=='C')
 		{
@@ -114,7 +131,7 @@ void USART2_IRQHandler(void)
 				}
 			}
 			if(len >2)
-				len = 0, printf("接收到下层色块位置信息:%s\n", way2), ARM_Action = 7;	//第二次接收颜色信息完成
+				len = 0, Gui_DrawFont_GBK16(1,101,WHITE,BLACK, way2), printf("接收到下层色块位置信息:%s\n", way2), ARM_Action = 7;	//下层颜色信息接收完成
 	}
 		
 	}
@@ -122,7 +139,15 @@ void USART2_IRQHandler(void)
 	}
 
 
-void OPENMV_init(u32 baud)
+
+
+
+
+
+
+
+
+	void OPENMV_init(u32 baud)
 {
 	GPIO_InitTypeDef  GPIO_InitStructure;
 	USART_InitTypeDef USART_InitStructure;

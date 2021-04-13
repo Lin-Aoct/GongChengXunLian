@@ -18,13 +18,16 @@ extern u8 way1[];
 extern u8 redx[];
 extern u8 qr_mes[];
 extern u8 flag;
+extern u8 AT;
 
 
 extern void OPENMV_init(u32 baud);
 extern void uart2_sendByte(u8 dat);
 extern void uart2_sendStr(char *str);
 extern void uart3_sendByte(u8 dat);
-extern void uart3_sendStr(char *str);
+extern void uart3_sendStr(u8 *str);
+extern void OPENMV_Cmd(char* s);
+
 
 
 
