@@ -50,8 +50,7 @@ int	main()
 	
 	while(1)
 	{
-		vcan_sendware((uint8_t *)ENCODER_DATA, sizeof(ENCODER_DATA));
-		//vcan_sendware((uint8_t *)motor_current_pwm[3], sizeof(int));
+		//vcan_sendware((uint8_t *)ENCODER_DATA, sizeof(ENCODER_DATA));		//编码器波形发送
 
 		//Lcd_Clear(GRAY0);
 
@@ -96,7 +95,7 @@ int	main()
 			case 0x16: Mode_Init(), Stop_Find(), CAR_MODE = 5; break;
 			case 0x17: Mode_Init(), Stop_Find(), CAR_MODE = 6; break;
 			case 0x18: Mode_Init(), Stop_Find(), CAR_MODE = 7; break;
-			case 0x19: ARM_Action = 9; break;
+			case 0x19: Mode_Init(), Stop_Find(), CAR_MODE = 8; break;
 			case 0x20: Mode_Init(), Stop_Find(), CAR_MODE = 9; break;
 			case 0x21: Change_Speed_Target(0, 1, 5); ENCODER_DATA[4]+=5; break;
 			case 0x22: Change_Speed_Target(0, 0, 5); ENCODER_DATA[4]-=5; break;
@@ -157,7 +156,7 @@ int	main()
 		switch(ARM_Action)
 		{
 			case 0: break;
-			case 1: scan_qr_on(); uart2_sendStr("1"); ARM_Action=0; break;		//扫码姿势 告诉OV扫码
+			case 1: uart2_sendStr("1"); ARM_Action=0; break;		//扫码姿势 告诉OV扫码
 			case 2: scan_block_top(); uart2_sendStr("2"); ARM_Action=0;	break;	//颜色识别	告诉OV识别上层颜色
 			case 3: top_grasp_choose1(way1); top_grasp_choose2(way1); top_grasp_choose3(way1); Mode_Init(); CAR_MODE = 3; ARM_Action=0; break; 	//机械臂抓取色块
 			case 4: 

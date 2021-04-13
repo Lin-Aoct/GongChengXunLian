@@ -74,7 +74,7 @@ extern void scan_block_under(void);//ÏÂ²ãÎï¿é×ËÊÆ
 extern void grasp_state(void);
 extern void reset_state(void);
 
-extern void middle_state(void);
+extern  void  middle_state(void);
 extern  void Arm_back(void);
 extern  void Arm_back1(void);
 

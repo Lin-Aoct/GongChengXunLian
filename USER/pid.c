@@ -158,6 +158,7 @@ void Reset_Target_Speed(void)
 {
 	if(Expect_Target_Speed_Sta&0x80)	//判断目标预期值是否改变
 	{
+		printf("in");
 		LF_speed_target = Expect_Target_Speed_Sta&0x7F;
 		LB_speed_target = Expect_Target_Speed_Sta&0x7F;
 		RF_speed_target = Expect_Target_Speed_Sta&0x7F;
@@ -181,7 +182,7 @@ void Reset_Target_Speed(void)
 */
 void Set_Expect_Target_Speed(u8 speed)
 {
-	Expect_Target_Speed_Sta |= speed;	//标志速度值
+	Expect_Target_Speed_Sta = speed;	//标志速度值
 	Expect_Target_Speed_Sta |= 0x80;	//标志期望值改变
 	Reset_Target_Speed();
 }

@@ -102,7 +102,7 @@ void USART2_IRQHandler(void)
 				}
 			}
 			if(qr_i == 7)
-				qr_i = 0, printf("接收到搬运顺序:%s", qr_mes), Lcd_Clear(BLACK), GUI_Draw_Long_Font(1, 1, WHITE, BLACK, (u8*)qr_mes);	//TFT 显示顺序
+				qr_i = 0, flag=0, printf("接收到搬运顺序:%s", qr_mes), Lcd_Clear(BLACK), GUI_Draw_Long_Font(1, 1, WHITE, BLACK, (u8*)qr_mes);	//TFT 显示顺序
 		}
 			
 	else if(flag =='B')//进入色块位置接收阶段
@@ -118,7 +118,7 @@ void USART2_IRQHandler(void)
 				}
 			}
 			if(len >2)
-				len= 0, Gui_DrawFont_GBK16(1,67,WHITE,BLACK, way1), printf("接收到上层色块位置信息:%s\n", way1), ARM_Action = 3;	//接收上层颜色信息完成
+				len= 0, flag=0, Gui_DrawFont_GBK16(1,67,WHITE,BLACK, way1), printf("接收到上层色块位置信息:%s\n", way1), ARM_Action = 3;	//接收上层颜色信息完成
 		}
 		else if(flag=='C')
 		{
@@ -131,19 +131,12 @@ void USART2_IRQHandler(void)
 				}
 			}
 			if(len >2)
-				len = 0, Gui_DrawFont_GBK16(1,101,WHITE,BLACK, way2), printf("接收到下层色块位置信息:%s\n", way2), ARM_Action = 7;	//下层颜色信息接收完成
+				len = 0, flag=0, Gui_DrawFont_GBK16(1,101,WHITE,BLACK, way2), printf("接收到下层色块位置信息:%s\n", way2), ARM_Action = 7;	//下层颜色信息接收完成
 	}
 		
 	}
 			USART_ClearITPendingBit(USART2,USART_IT_RXNE);			
 	}
-
-
-
-
-
-
-
 
 
 
