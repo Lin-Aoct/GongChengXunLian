@@ -141,11 +141,21 @@ static void Arm3_low_speed3(unsigned int target, unsigned int curt)
 	delay_ms(50);
 	Arm2 = 1130;
 	delay_ms(100);
+	Arm3_low_speed3(915,850);
+  Arm1_low_speed(929,900);	 
+	delay_ms(200);
+ }
+ void third_place3_armback()
+ {
+	Arm4 = 998;
+	Arm3 = 800;
+	delay_ms(50);
+	Arm2 = 1130;
+	delay_ms(100);
 	Arm3_low_speed3(907,850);
   Arm1_low_speed(929,900);	 
 	delay_ms(200);
  }
- 
  //下层收手
  void Arm_back1(void)
  {
@@ -153,7 +163,7 @@ static void Arm3_low_speed3(unsigned int target, unsigned int curt)
 	delay_ms(50);
 	Arm2 = 1060;
 	delay_ms(100);
-	Arm3_low_speed3(907,850);
+	Arm3_low_speed3(925,850);
   Arm1_low_speed(959,850);
  }
  //中间动作
@@ -258,7 +268,7 @@ static void Arm3_low_speed3(unsigned int target, unsigned int curt)
 	  //抓
    Arm0= Arm_open;
 	 Arm4 = place1_arm4;
-	 delay_ms(600);
+	 delay_ms(700);
 	 Arm1 = place1_arm1;
 	 delay_ms(50);
 	 Arm3 = place1_arm3;
@@ -286,6 +296,7 @@ static void Arm3_low_speed3(unsigned int target, unsigned int curt)
  void grasp_playload2()
  {
 	 	  //抓
+	 delay_ms(50);
 	 Arm0 = Arm_open;
 	 Arm4 = place2_arm4;
 	 delay_ms(900);
@@ -807,7 +818,14 @@ void Third_place1(void)
 	delay_ms(200);
 	
 	//收
-	Arm_back();
+	Arm3 = 800;
+	delay_ms(150);
+	Arm2 = 1130;
+	delay_ms(100);
+	Arm3_low_speed3(958,850);
+	delay_ms(150);
+  Arm1_low_speed(929,900);	 
+	delay_ms(200);
 	
 }
 

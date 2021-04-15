@@ -150,7 +150,7 @@ int	main()
 		{
 			case 0: break;
 			case 1: LED0=1; OPENMV_Cmd("1"); Gui_DrawFont_GBK16(2,100,WHITE,BLACK, (u8*)"扫码"); printf("机械臂模式[扫码]\n"); ARM_Action=0; break;		//扫码姿势 告诉OV扫码
-			case 2: scan_block_top(); LED0=1; OPENMV_Cmd("2"); Gui_DrawFont_GBK16(2,100,WHITE,BLACK, (u8*)"OV扫描上层"); printf("机械臂模式[OV扫描上层]\n"); ARM_Action=0;	break;	//颜色识别	告诉OV识别上层颜色
+			case 2: LED0=1; OPENMV_Cmd("2"); Gui_DrawFont_GBK16(2,100,WHITE,BLACK, (u8*)"OV扫描上层"); printf("机械臂模式[OV扫描上层]\n"); ARM_Action=0;	break;	//颜色识别	告诉OV识别上层颜色
 			case 3: Gui_DrawFont_GBK16(2,100,WHITE,BLACK, (u8*)"抓取上层"); top_grasp_choose1(way1); top_grasp_choose2(way1); top_grasp_choose3(way1); Mode_Init(); CAR_MODE = 3; ARM_Action=0; break; 	//机械臂抓取物料
 			case 4: 
 			{
@@ -182,7 +182,8 @@ int	main()
 				place_top_product2(qr_mes);
 				place_top_product3(qr_mes);
 				Mode_Init();
-				CAR_MODE = 5;			//半成品	-> 	原料区
+				CAR_MODE = 5;					//半成品	-> 	原料区
+				scan_block_under();		//机械臂识别颜色动作
 				ARM_Action=0;
 				break;
 			}
@@ -192,7 +193,6 @@ int	main()
 				printf("机械臂模式[扫描下层物料]\n");
 				Lcd_Clear_Part(2,100,180,32, BLACK);					//部分清屏
 				Gui_DrawFont_GBK16(2,100,WHITE,BLACK, (u8*)"扫描下层物料");
-				scan_block_under();		//机械臂识别颜色动作
 				delay_ms(100);
 				LED0=1;
 				OPENMV_Cmd("3");			//OV扫描颜色
@@ -309,8 +309,8 @@ int	main()
 				place_under_product1(qr_mes);
 				place_under_product2(qr_mes);
 				place_under_product3(qr_mes);
-				Mode_Init();
-				CAR_MODE = 13;		//去返回区
+				//Mode_Init();
+				//CAR_MODE = 13;		//去返回区
 				ARM_Action=0;
 				break;
 			}

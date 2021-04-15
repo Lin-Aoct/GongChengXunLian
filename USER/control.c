@@ -215,7 +215,7 @@ void Mode_Start(void)
 	right_data = Find_Get_Right();
 	
 	if(step == 0)	
-		Set_Expect_Target_Speed(25), Car_Left_Front(), step++, count = 35;		//左上平移	减速 
+		Set_Expect_Target_Speed(35), Car_Left_Front(), step++, count = 35;		//左上平移	减速 
 	
 	if(count > 0 && step == 1)	count--;	//延时510ms
 	
@@ -236,6 +236,7 @@ void Mode_Start(void)
 	if(count == 0 && step == 3)	
 	{
 		Car_Stop();				//退出出发模式
+		Stop_Find();			//停止巡迹
 		CAR_MODE = 0;
 		y_line_step = 0;
 		if(!is_car_debug_mode)
@@ -254,8 +255,56 @@ void Mode_Start(void)
 */
 void Mode_Go_Area1(void)
 {
+	static u8 y_line_step;		//启动模式数y线步骤变量  避免斜移时丢线
+	
 	front_data = Find_Get_Front();
 	right_data = Find_Get_Right();
+	left_data = Find_Get_Left();
+
+	
+//	if(step == 0)	Set_Expect_Target_Speed(30), Car_Left_Front(), step++;	//走左上角
+
+//	if((left_data == 1001 || left_data == 0) && step == 1) y_line_step=1, step++;	//左侧碰线
+//	
+//	if(front_data == 1001 && step == 2)
+//		Car_Go(), Set_Expect_Target_Speed(40), FIND_MODE=0, FIND_DRIVER = 0, CURRENT_DIRATION = 1, step++;	//前面处于线中
+
+//	Find();
+//	if(right_data == 1001 && step == 3)	step++;	//Y线2 中间
+//	if(right_data == 1110 && step == 4)	step++;	//出 Y线2
+//	
+//	if(right_data == 1001 && step == 5)	step++;	//Y线3 中间
+//	if(right_data == 1110 && step == 6)	
+//		step++, Set_Expect_Target_Speed(15);			//出Y线3 减速 准备转向
+//	
+//	if((right_data == 1001 || right_data == 11) && step == 7)
+//		Set_Expect_Target_Speed(7), Car_Go_Right(), FIND_DRIVER = 3, CURRENT_DIRATION = 3, step++;	//碰到线4 左平移
+
+//	Set_PID_PWM();
+
+//	if(right_data == 0 && step == 8)	
+//	{
+//		step++;
+//		Car_Stop();
+//		Stop_Find();
+//		y_line_step = 0;
+//		Expect_Target_Speed_Sta = 0;
+//		Reset_Target_Speed();					//恢复速度
+//		//CAR_MODE = 0;								//到达物料抓取位置
+//		CAR_MODE = 41;								//到达物料抓取位置 开始定点
+//		if(!is_car_debug_mode)
+//			ARM_Action = 2;							//机械臂扫描上层
+//	}
+//	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	if(step == 0)	Set_Expect_Target_Speed(40), Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1, step = 1;	//前面处于线中
 	
@@ -275,9 +324,7 @@ void Mode_Go_Area1(void)
 		Set_Expect_Target_Speed(7), Car_Go_Left(), FIND_DRIVER = 3, CURRENT_DIRATION = 3, step++;	//碰到线4 左平移
 
 	Set_PID_PWM();
-	
-	//if(step == 8)	Cross_Road_Fix(1);		//T形路口定点
-	
+
 	if(right_data == 0 && step == 8)	
 	{
 		step++;
@@ -285,10 +332,10 @@ void Mode_Go_Area1(void)
 		Stop_Find();
 		Expect_Target_Speed_Sta = 0;
 		Reset_Target_Speed();					//恢复速度
-		//CAR_MODE = 0;									//到达物料抓取位置 开始定点
-		CAR_MODE = 41;									//到达物料抓取位置 开始定点
+		//CAR_MODE = 0;								//到达物料抓取位置
+		CAR_MODE = 41;								//到达物料抓取位置 开始定点
 		if(!is_car_debug_mode)
-			ARM_Action = 2;		//机械臂抓取物料
+			ARM_Action = 2;							//机械臂扫描上层
 	}
 }
 
@@ -343,7 +390,6 @@ void Mode_Area1_To_Area2(u8 mode)
 				ARM_Action = 4;
 			else
 				ARM_Action = 14;
-			//ARM_Action = 4 ?mode==1 : 13;	//机械臂放置物料
 		}
 	}
 	
@@ -467,7 +513,11 @@ void Mode_Go_One_Aera1(u8 current_step)
 		if(step == 0)
 			Set_Expect_Target_Speed(15), Car_Go_Right(), FIND_DRIVER = 1, CURRENT_DIRATION = 4, step++;	//右平移 Y轴负半轴循迹
 		Find();
-		if(left_data == 0 && step == 1)	
+		if(left_data == 0 && step == 1) count=16, step++;
+		if(count > 0 && step == 2) count--;
+		if(count == 0 && step == 2) step++;
+		
+		if(step == 3)	
 		{
 			step++;
 			Car_Stop();
@@ -493,7 +543,15 @@ void Mode_Go_One_Aera1(u8 current_step)
 		if(step == 0)
 			Set_Expect_Target_Speed(15), Car_Go_Right(), FIND_DRIVER = 1, CURRENT_DIRATION = 4, step++;	//右平移 Y轴负半轴循迹
 		Find();
-		if(right_data == 0 && step == 1)	
+		
+		//if(right_data == 0 && step == 1)	
+		
+		if(right_data == 0 && step == 1) count=3, step++;
+		
+		if(count > 0 && step == 2) count--;
+		if(count == 0 && step == 2) step++;		//3*15 30ms
+		
+		if(step == 3)
 		{
 			step++;
 			Car_Stop();

@@ -82,19 +82,17 @@ void USART2_IRQHandler(void)
 
 		if(USART_GetITStatus(USART2,USART_IT_RXNE) != RESET)
 	{
-		
 			res = USART_ReceiveData(USART2);
 			flag_state(res);//给flag赋值确定接收二维码还是色块位置信
 			if(res=='Y')
 				AT = 'Y';
 			else 
 				AT = 'N';
+		printf("AT[%c]\n", AT);
 		if(flag=='A')//进入二维码数据接收阶段
 		{
 			if(!(res=='A'))
 			{
-				Mode_Init();
-				CAR_MODE = 2;		//小车二维码 -> 原料区
 				if(res!='\0')
 				{
 					qr_mes[qr_i] = res;
@@ -102,7 +100,7 @@ void USART2_IRQHandler(void)
 				}
 			}
 			if(qr_i == 7)
-				qr_i = 0, flag=0, LED0=0, printf("接收到搬运顺序[%s]\n", qr_mes), Lcd_Clear(BLACK), GUI_Draw_Long_Font(1, 1, WHITE, BLACK, (u8*)qr_mes);	//TFT 显示顺序
+				qr_i = 0, flag=0, LED0=0, Mode_Init(), CAR_MODE = 2, scan_block_top(), printf("接收到搬运顺序[%s]\n", qr_mes), Lcd_Clear(BLACK), GUI_Draw_Long_Font(1, 1, WHITE, BLACK, (u8*)qr_mes);	//TFT 显示顺序
 		}
 			
 	else if(flag =='B')//进入色块位置接收阶段
