@@ -102,7 +102,7 @@ void USART2_IRQHandler(void)
 				}
 			}
 			if(qr_i == 7)
-				qr_i = 0, flag=0, printf("接收到搬运顺序:%s", qr_mes), Lcd_Clear(BLACK), GUI_Draw_Long_Font(1, 1, WHITE, BLACK, (u8*)qr_mes);	//TFT 显示顺序
+				qr_i = 0, flag=0, LED0=0, printf("接收到搬运顺序[%s]\n", qr_mes), Lcd_Clear(BLACK), GUI_Draw_Long_Font(1, 1, WHITE, BLACK, (u8*)qr_mes);	//TFT 显示顺序
 		}
 			
 	else if(flag =='B')//进入色块位置接收阶段
@@ -118,7 +118,7 @@ void USART2_IRQHandler(void)
 				}
 			}
 			if(len >2)
-				len= 0, flag=0, Gui_DrawFont_GBK16(1,67,WHITE,BLACK, way1), printf("接收到上层色块位置信息:%s\n", way1), ARM_Action = 3;	//接收上层颜色信息完成
+				len= 0, flag=0, LED0=0, Gui_DrawFont_GBK16(1,67,WHITE,BLACK, (u8*)"way1:"), Gui_DrawFont_GBK16(35,67,WHITE,BLACK, way1), printf("接收到上层色块位置信息[%s]\n", way1), ARM_Action = 3;	//接收上层颜色信息完成
 		}
 		else if(flag=='C')
 		{
@@ -131,16 +131,16 @@ void USART2_IRQHandler(void)
 				}
 			}
 			if(len >2)
-				len = 0, flag=0, Gui_DrawFont_GBK16(1,101,WHITE,BLACK, way2), printf("接收到下层色块位置信息:%s\n", way2), ARM_Action = 7;	//下层颜色信息接收完成
+				len = 0, flag=0, LED0=0, Gui_DrawFont_GBK16(60,67,WHITE,BLACK, (u8*)"way2:"), Gui_DrawFont_GBK16(95,67,WHITE,BLACK, way2), printf("接收到下层色块位置信息[%s]\n", way2), ARM_Action = 7;	//下层颜色信息接收完成
 	}
 		
 	}
-			USART_ClearITPendingBit(USART2,USART_IT_RXNE);			
-	}
+	USART_ClearITPendingBit(USART2,USART_IT_RXNE);			
+}
 
 
 
-	void OPENMV_init(u32 baud)
+void OPENMV_init(u32 baud)
 {
 	GPIO_InitTypeDef  GPIO_InitStructure;
 	USART_InitTypeDef USART_InitStructure;
@@ -187,11 +187,5 @@ void USART2_IRQHandler(void)
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=3;//抢占优先级3
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority =3;		//子优先级3
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
-	NVIC_Init(&NVIC_InitStructure);	//根据指定的参数初始化VIC寄存器、
-
-
+	NVIC_Init(&NVIC_InitStructure);	//根据指定的参数初始化VIC寄存器
 }
-
-
-
-

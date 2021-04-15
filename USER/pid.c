@@ -19,12 +19,14 @@ float RB_Speed_Kp = -230.5, RB_Speed_Ki = -0.26, RB_Speed_Kd = 19.0;					//PID相
 //float RB_Speed_Kp = -195.5, RB_Speed_Ki = 0.1, RB_Speed_Kd = -5.0;					//PID相关参数
 
 
-float LF_speed_target = 30.0, LF_PID_MAX_VALUE = 150.0;
-float LB_speed_target = 30.0, LB_PID_MAX_VALUE = 150.0;
-float RF_speed_target = 30.0, RF_PID_MAX_VALUE = 150.0;
-float RB_speed_target = 30.0, RB_PID_MAX_VALUE = 150.0;
+float LF_speed_target = 35.0, LF_PID_MAX_VALUE = 150.0;
+float LB_speed_target = 35.0, LB_PID_MAX_VALUE = 150.0;
+float RF_speed_target = 35.0, RF_PID_MAX_VALUE = 150.0;
+float RB_speed_target = 35.0, RB_PID_MAX_VALUE = 150.0;
 
 u8 Expect_Target_Speed_Sta;		//标志目标速度期望改变的状态	bit0~6	->	改变的目标值	bit7 -> 改变状态
+
+float Find_Target_Speed = 35.0;
 
 u8 target = 0;
 
@@ -158,7 +160,6 @@ void Reset_Target_Speed(void)
 {
 	if(Expect_Target_Speed_Sta&0x80)	//判断目标预期值是否改变
 	{
-		printf("in");
 		LF_speed_target = Expect_Target_Speed_Sta&0x7F;
 		LB_speed_target = Expect_Target_Speed_Sta&0x7F;
 		RF_speed_target = Expect_Target_Speed_Sta&0x7F;
@@ -166,10 +167,10 @@ void Reset_Target_Speed(void)
 	}
 	else
 	{
-		LF_speed_target = 30;
-		LB_speed_target = 30;
-		RF_speed_target = 30;
-		RB_speed_target = 30;
+		LF_speed_target = 35;
+		LB_speed_target = 35;
+		RF_speed_target = 35;
+		RB_speed_target = 35;
 	}
 }
 
@@ -196,7 +197,7 @@ void Set_Expect_Target_Speed(u8 speed)
 int PID_Speed_Left_Front(float speed)
 {
 	float Differential, Bias;		//定义差分变量和偏差
-	static float Last_Bias, Integration, Balance_Integration, Flag_Target;  //上一次的偏差值
+	static float Last_Bias, Integration, Balance_Integration;  //上一次的偏差值
 	int balance;								//平衡的返回值
 
 	Bias = speed - LF_speed_target;  		//求出速度偏差
@@ -205,7 +206,7 @@ int PID_Speed_Left_Front(float speed)
 
 //	if(++Flag_Target > 10) 						//错频处理积分控制
 //	{
-		Flag_Target = 0;
+		//Flag_Target = 0;
 		Integration += Bias;  // 积分
 		if(Integration<-50) Integration = -50;	//积分限幅
 		if(Integration>50)  Integration = 50;	
@@ -227,7 +228,7 @@ int PID_Speed_Left_Front(float speed)
 int PID_Speed_Left_Behind(float speed)
 {
 	float Differential, Bias;		//定义差分变量和偏差
-	static float Last_Bias, Integration, Balance_Integration, Flag_Target;  //上一次的偏差值
+	static float Last_Bias, Integration, Balance_Integration;  //上一次的偏差值
 	int balance;								//平衡的返回值
 
 	Bias = speed - LB_speed_target;  		//求出速度偏差
@@ -236,7 +237,7 @@ int PID_Speed_Left_Behind(float speed)
 
 //	if(++Flag_Target > 10) 						//错频处理积分控制
 //	{
-		Flag_Target = 0;
+//		Flag_Target = 0;
 		Integration += Bias;  // 积分
 		if(Integration<-50) Integration = -50;	//积分限幅
 		if(Integration>50)  Integration = 50;	
@@ -258,7 +259,7 @@ int PID_Speed_Left_Behind(float speed)
 int PID_Speed_Right_Front(float speed)
 {
 	float Differential, Bias;		//定义差分变量和偏差
-	static float Last_Bias, Integration, Balance_Integration, Flag_Target;  //上一次的偏差值
+	static float Last_Bias, Integration, Balance_Integration;  //上一次的偏差值
 	int balance;								//平衡的返回值
 
 	Bias = speed - RF_speed_target;  		//求出速度偏差
@@ -267,7 +268,7 @@ int PID_Speed_Right_Front(float speed)
 
 //	if(++Flag_Target > 10) 						//错频处理积分控制
 //	{
-		Flag_Target = 0;
+		//Flag_Target = 0;
 		Integration += Bias;  // 积分
 		if(Integration<-50) Integration = -50;	//积分限幅
 		if(Integration>50)  Integration = 50;	
@@ -289,7 +290,7 @@ int PID_Speed_Right_Front(float speed)
 int PID_Speed_Right_Behind(float speed)
 {
 	float Differential, Bias;		//定义差分变量和偏差
-	static float Last_Bias, Integration, Balance_Integration, Flag_Target;  //上一次的偏差值
+	static float Last_Bias, Integration, Balance_Integration;  //上一次的偏差值
 	int balance;								//平衡的返回值
 
 	Bias = speed - RB_speed_target;  		//求出速度偏差
@@ -298,7 +299,7 @@ int PID_Speed_Right_Behind(float speed)
 
 //	if(++Flag_Target > 10) 						//错频处理积分控制
 //	{
-		Flag_Target = 0;
+		//Flag_Target = 0;
 		Integration += Bias;  // 积分
 		if(Integration<-50) Integration = -50;	//积分限幅
 		if(Integration>50)  Integration = 50;	

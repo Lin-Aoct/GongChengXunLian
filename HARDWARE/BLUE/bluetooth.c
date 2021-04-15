@@ -55,21 +55,20 @@ void bluetooth_init(u32 baud)
 
 //串口1中断
 
-u8 tx = 0, tem=3 ;
+u8 tx = 0, tem=1 ;
 
 void USART3_IRQHandler(void)
 {
 	u8 res = 0;
 	if(USART_GetITStatus(USART3,USART_IT_RXNE) != RESET)
 	{
-		
 			res = USART_ReceiveData(USART3);
 			tx = res;
 		if(tx==1)//上层夹取
 		{
 			uart3_sendStr("s_1\r\n");
 			top_grasp1();
-			place_playload1();
+//			place_playload1();
 			
 		}
 		
@@ -77,7 +76,7 @@ void USART3_IRQHandler(void)
 			{
 			  uart3_sendStr("s_2\r\n");
 				top_grasp2();
-				place_playload2();
+//				place_playload2();
 
 			}
 			
@@ -85,7 +84,7 @@ void USART3_IRQHandler(void)
 			{
 			  uart3_sendStr("s_3\r\n");
 				top_grasp3();
-				place_playload3();
+//				place_playload3();
 
 			}
 			
@@ -94,7 +93,7 @@ void USART3_IRQHandler(void)
 			uart3_sendStr("x_1\r\n");
 		 under_grasp1();
 		 Arm_back1();
-		 place_playload1();
+//		 place_playload1();
     }
 	 
 		else	 if(tx==5)
@@ -102,7 +101,7 @@ void USART3_IRQHandler(void)
 			uart3_sendStr("x_2\r\n");
 		  under_grasp2();
 		  Arm_back1();
-		 place_playload2();
+//		 place_playload2();
 	 }
     
 		 
@@ -111,19 +110,19 @@ void USART3_IRQHandler(void)
 		uart3_sendStr("x_3\r\n");
 		 under_grasp3();
 		 	Arm_back1();
-		 place_playload3();
+//		 place_playload3();
     }
 	 
 	else  if(tx==7)//初加工区放置
 	 {
 		 uart3_sendStr("r0_1\r\n");
-		 grasp_playload1();
+//		 grasp_playload1();
 		 First_place1();
 	 }
 	else if(tx==8)
 	 {
 		 uart3_sendStr("r0_2\r\n");
-		 grasp_playload2();
+//		 grasp_playload2();
 		 First_place2();
 	 }
 	else  if(tx==9)
@@ -135,40 +134,40 @@ void USART3_IRQHandler(void)
 	else  if(tx==10)//0a半成品第1次放置
 	 {
 		 uart3_sendStr("r1_1\r\n");
-		 	grasp_playload1();
+//		 	grasp_playload1();
 		 Second_place1();
 	 }
 	else  if(tx==11)//0b
 	 {
 		 uart3_sendStr("r1_2\r\n");
-		 	grasp_playload2();
+//		 	grasp_playload2();
 		 		 Second_place2();
 
 	 }
 	else  if(tx==12)//0c
 	 {
 		 uart3_sendStr("r1_3\r\n");
-		 	grasp_playload3();
+//		 	grasp_playload3();
 		 	Second_place3();
 	 }
 	 else if(tx==13)// 0d 半成品第二次放置
 	 {
 		 uart3_sendStr("r2_1\r\n");
-		 grasp_playload1();
+//		 grasp_playload1();
 		 Third_place1();
 		 
 	 }
 	else if(tx==14)//0e  半成品第二次放置
 	 {
 		 uart3_sendStr("r2_2\r\n");
-		 	grasp_playload2();
+//		 	grasp_playload2();
 		 	Third_place2();
 
 	 }
   else if(tx==15)// 0f  半成品第二次放置
 	 {
 		 uart3_sendStr("r2_3\r\n");
-		 	grasp_playload3();
+//		 	grasp_playload3();
 		 	Third_place3();
 	 }
 	else if(tx==16)// 10  二维码扫码姿势
@@ -297,15 +296,15 @@ void USART3_IRQHandler(void)
 	 else if(tx==36)//24
 	 {
 		 uart3_sendStr("tem+\r\n");
-		 tem += 3;
+		 tem += 1;
 		printf("tem %d\n",tem);
-
+//12:12:272719
 		 
 	 }
 	  else if(tx==37)//25
 	 {
 		 uart3_sendStr("tem-\r\n");
-		 tem -= 3;
+		 tem -= 1;
 		printf("tem %d\n",tem);
 	 }
 	 else if(tx==38)//26
@@ -358,6 +357,16 @@ void USART3_IRQHandler(void)
 
 
 
+	 }
+	 else if(tx==46)
+	 {
+		 printf("grasp_all");
+		 top_grasp_choose(way1);
+	 }
+	  else if(tx==47)
+	 {
+		 printf("arm3_low2");
+		 First_place_all(qr_mes,1);
 	 }
 			USART_ClearITPendingBit(USART3,USART_IT_RXNE);	
 		

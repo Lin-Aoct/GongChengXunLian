@@ -69,5 +69,6 @@ void Gui_DrawPoint(u16 x,u16 y,u16 Data);
 unsigned int Lcd_ReadPoint(u16 x,u16 y);
 void Lcd_SetRegion(u16 x_start,u16 y_start,u16 x_end,u16 y_end);
 void LCD_WriteData_16Bit(u16 Data);
+void Lcd_Clear_Part(u8 x, u8 y, u8 w, u8 h, u16 Color);
 
 #endif

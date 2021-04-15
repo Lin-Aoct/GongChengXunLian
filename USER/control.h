@@ -7,12 +7,15 @@
 void Mode_Start(void);
 void Mode_Init(void);
 void Mode_Go_Area1(void);
-void Mode_Area1_To_Area2(void);
+void Mode_Area1_To_Area2(u8 mode);
 void Mode_Area2_To_Area3_Top(void);
 void Mode_Area3_To_Area1(void);
 void Mode_Go_One_Step(void);
 void Mode_Back_One_Step(void);
-
+void Mode_Go_One_Aera1(u8 current_step);
+void Mode_Back_One_Area1(u8 current_step);
+void Mode_Area2_To_Area3_Bottom(void);
+void Mode_Area3_Back(void);
 
 void Set_PID_PWM(void);
 void Cross_Road_Fix(u8 mode);

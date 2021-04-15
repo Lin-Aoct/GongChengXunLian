@@ -24,6 +24,8 @@
 #include "find.h"
 #include "control.h"
 #include "pid.h"
+#include "key.h"
+#include "led.h"
 
 #include "headfiles.h"
 #include "Vcan_Oscilloscope.h"
@@ -114,7 +116,7 @@ extern float LB_speed_target;
 extern float RF_speed_target;
 extern float RB_speed_target;
 extern u8 Expect_Target_Speed_Sta;
-
+extern float Find_Target_Speed;
 
 extern u8 ARM_Action;
 

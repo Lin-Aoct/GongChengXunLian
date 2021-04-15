@@ -302,3 +302,25 @@ void Lcd_Clear(u16 Color)
 	  	LCD_WriteData_16Bit(Color);
     }   
 }
+
+/*************************************************
+函数名：Lcd_Clear
+功能：全屏清屏函数
+入口参数：填充颜色COLOR
+					X坐标x
+					Y坐标y
+					宽度w
+					高度h
+返回值：无
+*************************************************/
+void Lcd_Clear_Part(u8 x, u8 y, u8 w, u8 h, u16 Color)               
+{	
+   unsigned int i,m;
+   Lcd_SetRegion(x,y,x+w-1,y+h-1);
+   Lcd_WriteIndex(0x2C);
+   for(i=x;i<x+w;i++)
+    for(m=h;m<y+h;m++)
+    {	
+	  	LCD_WriteData_16Bit(Color);
+    }   
+}

@@ -123,17 +123,15 @@ void Find(void)
 	
 	if(FIND_DRIVER == 0 && CURRENT_DIRATION == 1)				//Ç°ÃæÑ­¼£
 	{
-		if(FIND_MODE)
+		if(FIND_MODE==1)
 		{
-			if(front_data == 11 || front_data == 111 || front_data == 1011)
-				Set_Speed_Target(1, 15), Set_Speed_Target(2, 15), Set_Speed_Target(3, 30), Set_Speed_Target(4, 30);
-				//Car_Yaw_Left();
-			else if(front_data == 1100 || front_data == 1110 || front_data == 1101)
-				Set_Speed_Target(3, 15), Set_Speed_Target(4, 15), Set_Speed_Target(1, 30), Set_Speed_Target(2, 30);
-				//Car_Yaw_Right();
+			if(front_data == 11 || front_data == 111 || front_data == 1011)					//Æ«ÓÒ
+				Set_Speed_Target(1, 15), Set_Speed_Target(2, 15), Set_Speed_Target(3, Find_Target_Speed), Set_Speed_Target(4, Find_Target_Speed);
+			else if(front_data == 1100 || front_data == 1110 || front_data == 1101)	//Æ«×ó
+				Set_Speed_Target(3, 15), Set_Speed_Target(4, 15), Set_Speed_Target(1, Find_Target_Speed), Set_Speed_Target(2, Find_Target_Speed);
 			else if(front_data == 1001) Car_Continue();
 		}
-		else
+		else if(FIND_MODE==0)
 		{
 			if(front_data == 11 || front_data == 111 || front_data == 1011)
 				Car_Yaw_Left();
@@ -141,15 +139,21 @@ void Find(void)
 				Car_Yaw_Right();
 			else Car_Continue();
 		}
+		else if(FIND_MODE==2)
+		{
+			if(front_data == 11 || front_data == 111 || front_data == 1011)					//Æ«ÓÒ
+				Set_Speed_Target(1, 15), Set_Speed_Target(2, 15), Set_Speed_Target(3, Find_Target_Speed), Set_Speed_Target(4, Find_Target_Speed);
+			else if(front_data == 1100 || front_data == 1110 || front_data == 1101)	//Æ«×ó
+				Set_Speed_Target(3, 15), Set_Speed_Target(4, 15), Set_Speed_Target(1, Find_Target_Speed), Set_Speed_Target(2, Find_Target_Speed);
+			else if(front_data) Car_Continue();
+		}
 	}
 	else if(FIND_DRIVER == 1 && CURRENT_DIRATION == 4)	//ÓÒ²àÑ­¼£
 	{
 		if(right_data == 11 || right_data == 111 || right_data == 1011)
-			Set_Speed_Target(3, 10), Set_Speed_Target(4, 30);
-			//Car_Yaw_Left();
+			Set_Speed_Target(3, 10), Set_Speed_Target(4, Find_Target_Speed);
 		else if(right_data == 1100 || right_data == 1110 || right_data == 1101)
-			Set_Speed_Target(4, 10), Set_Speed_Target(3, 30);
-			//Car_Yaw_Right();
+			Set_Speed_Target(4, 10), Set_Speed_Target(3, Find_Target_Speed);
 		else if(right_data == 1001) Car_Continue();
 	}
 	else if(FIND_DRIVER == 2 && CURRENT_DIRATION == 2)	//ºóÃæÑ­¼£
@@ -157,10 +161,10 @@ void Find(void)
 		if(FIND_MODE)
 		{
 			if(behind_data == 11 || behind_data == 111 || behind_data == 1011)
-				Set_Speed_Target(3, 15), Set_Speed_Target(4, 15), Set_Speed_Target(1, 30),Set_Speed_Target(2, 30);
+				Set_Speed_Target(3, 15), Set_Speed_Target(4, 15), Set_Speed_Target(1, Find_Target_Speed),Set_Speed_Target(2, Find_Target_Speed);
 				//Car_Yaw_Left();
 			else if(behind_data == 1100 || behind_data == 1110 || behind_data == 1101)
-				Set_Speed_Target(1, 15),Set_Speed_Target(2, 15), Set_Speed_Target(3, 30),Set_Speed_Target(4, 30);
+				Set_Speed_Target(1, 15),Set_Speed_Target(2, 15), Set_Speed_Target(3, Find_Target_Speed),Set_Speed_Target(4, Find_Target_Speed);
 				//Car_Yaw_Right();
 			else if(behind_data == 1001) Car_Continue();
 		}
@@ -176,10 +180,10 @@ void Find(void)
 	else if(FIND_DRIVER == 3 && CURRENT_DIRATION == 3)	//×ó²àÑ­¼£
 	{
 		if(left_data == 11 || left_data == 111 || left_data == 1011)
-			Set_Speed_Target(2, 5), Set_Speed_Target(1, 30);
+			Set_Speed_Target(2, 10), Set_Speed_Target(3, 10), Set_Speed_Target(1, Find_Target_Speed), Set_Speed_Target(4, Find_Target_Speed);
 			//Car_Yaw_Left();
 		else if(left_data == 1100 || left_data == 1110 || left_data == 1101)
-			Set_Speed_Target(1, 5), Set_Speed_Target(2, 30);
+			Set_Speed_Target(1, 10), Set_Speed_Target(4,10), Set_Speed_Target(2, Find_Target_Speed), Set_Speed_Target(3, Find_Target_Speed);
 			//Car_Yaw_Right();
 		else if(left_data == 1001) Car_Continue();
 	}
