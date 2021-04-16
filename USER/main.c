@@ -12,7 +12,7 @@ u32 count_flag;								//Debug
 u8 u1_action_mode = 10;				//串口1动作指令变量
 
 u8 ARM_Action = 0;						//机械臂动作变量
-u8 is_key_pressed = 0;				//标志按键是否已经被按下 判断双击
+u8 is_start = 0;							//标志是否已开始
 int motor_current_pwm[4];
 
 int	main()
@@ -53,10 +53,8 @@ int	main()
 //		count_flag ++;
 
 		//判断按键是否按下 一键启动
-		if(KEY_Scan(0) == 1 && is_key_pressed==0)
-			printf("按下"), is_key_pressed = 1;
-			
-		//LED0=1, delay_ms(1000), LED0=0, Mode_Init(), Stop_Find(), CAR_MODE = 1;
+		if(KEY_Scan(0) == 1 && is_start==0)
+			LED0=1, delay_ms(1000), LED0=0, Mode_Init(), Stop_Find(), CAR_MODE = 1, is_start=1;
 
 		
 		//判断是否收到串口1动作
@@ -142,6 +140,9 @@ int	main()
 			case 0x61: Set_PID_Value(4, 2, 0, 0.01); break;
 			case 0x62: Set_PID_Value(4, 3, 1, 0.1); break;
 			case 0x63: Set_PID_Value(4, 3, 0, 0.1); break;
+			
+			case 0x71: is_car_debug_mode=1; break;
+			case 0x72: is_car_debug_mode=0; break;
 			default: break;
 		}
 		u1_action_mode = 100;
@@ -153,7 +154,7 @@ int	main()
 			case 0: break;
 			case 1: LED0=1; OPENMV_Cmd("1"); Gui_DrawFont_GBK16(2,100,WHITE,BLACK, (u8*)"扫码"); printf("机械臂模式[扫码]\n"); ARM_Action=0; break;		//扫码姿势 告诉OV扫码
 			case 2: LED0=1; OPENMV_Cmd("2"); Gui_DrawFont_GBK16(2,100,WHITE,BLACK, (u8*)"OV扫描上层"); printf("机械臂模式[OV扫描上层]\n"); ARM_Action=0;	break;	//颜色识别	告诉OV识别上层颜色
-			case 3: Gui_DrawFont_GBK16(2,100,WHITE,BLACK, (u8*)"抓取上层"); top_grasp_choose1(way1); top_grasp_choose2(way1); top_grasp_choose3(way1); Mode_Init(); CAR_MODE = 3; ARM_Action=0; break; 	//机械臂抓取物料
+			case 3: Gui_DrawFont_GBK16(2,100,WHITE,BLACK, (u8*)"抓取上层"); top_grasp_choose1(way1); top_grasp_choose2(way1); top_grasp_choose3(way1); Mode_Init(); CAR_MODE = 3; finish_top_grasp_status(); ARM_Action=0; break; 	//机械臂抓取物料
 			case 4: 
 			{
 				printf("机械臂模式[粗加工区放置 上层模式]\n");
@@ -172,6 +173,7 @@ int	main()
 				cujiagong_choose_grasp3(qr_mes, 1);
 				Mode_Init();
 				CAR_MODE = 4;		//粗加工 -> 半成品	顶层模式
+				finish_rough_status();
 				ARM_Action=0;
 				break;
 			}
@@ -185,7 +187,7 @@ int	main()
 				place_top_product3(qr_mes);
 				Mode_Init();
 				CAR_MODE = 5;					//半成品	-> 	原料区
-				scan_block_under();		//机械臂识别颜色动作
+				finish_top_product_status();		//机械臂识别颜色动作
 				ARM_Action=0;
 				break;
 			}
@@ -228,7 +230,8 @@ int	main()
 			case 9:
 			{
 				printf("机械臂模式[机械臂第一次收回]\n");
-				Arm_back1();									//机械臂第一次收回
+				under_Arm_back();
+				//Arm_back1();									//机械臂第一次收回
 				place_playload1();						//放置物料到车上
 				under_grasp_choose2(way2);		//机械臂伸出
 				Mode_Init();
@@ -251,7 +254,8 @@ int	main()
 			case 11:					//准备第三次抓取
 			{
 				printf("机械臂模式[准备第三次抓取]\n");
-				Arm_back1();				//机械臂第二次收回
+				under_Arm_back();
+				//Arm_back1();				//机械臂第二次收回
 				place_playload2();	//放置物料到车上2
 				under_grasp_choose3(way2);		//机械臂第三次伸出
 				Mode_Init();
@@ -266,9 +270,11 @@ int	main()
 				Lcd_Clear_Part(2,100,180,32, BLACK);					//部分清屏
 				Gui_DrawFont_GBK16(2,100,WHITE,BLACK, (u8*)"爪子闭合3");
 				Arm0 = 740;				//机械臂抓取动作
+				
 				Mode_Init();
-				CAR_MODE = 11;		//车前往粗加工区 
-				ARM_Action=13;
+				CAR_MODE = 11;		//车后退一格
+				
+				ARM_Action=0;
 				break;
 			}
 			case 13:
@@ -276,9 +282,13 @@ int	main()
 				printf("机械臂模式[下层抓取第三次存放]\n");
 				Lcd_Clear_Part(2,100,180,32, BLACK);					//部分清屏
 				Gui_DrawFont_GBK16(2,100,WHITE,BLACK, (u8*)"下层放置3");
-				Arm_back1();				//机械臂第三次收回
+				under_Arm_back();
+				//Arm_back1();				//机械臂第三次收回
 				place_playload3();	//放置物料到车上3
-				ARM_Action=14;
+				Mode_Init();
+				CAR_MODE = 12;			//车前往粗加工区 
+				finish_under_grasp_status();
+				ARM_Action=0;
 				break;
 			}
 			case 14: 
@@ -298,7 +308,8 @@ int	main()
 				cujiagong_choose_grasp2(qr_mes, 2);
 				cujiagong_choose_grasp3(qr_mes, 2);
 				Mode_Init();
-				CAR_MODE = 12;		//粗加工 -> 半成品	下层模式
+				CAR_MODE = 13;		//粗加工 -> 半成品	下层模式
+				finish_rough_status();
 				ARM_Action=0;
 				break;
 			}
@@ -308,12 +319,23 @@ int	main()
 				printf("机械臂模式[半成品区放置物料 下层模式]\n");
 				Lcd_Clear_Part(2,100,180,32, BLACK);					//部分清屏
 				Gui_DrawFont_GBK16(2,100,WHITE,BLACK, (u8*)"半成品区下层放置");
-				place_under_product1(qr_mes);
-				place_under_product2(qr_mes);
-				place_under_product3(qr_mes);
+				if(is_plus_mode == 0)
+				{
+					place_under_product1(qr_mes);
+					place_under_product2(qr_mes);
+					place_under_product3(qr_mes);
+				}
+				else
+				{
+					Place_Plus1_choose(qr_mes);
+					Place_Plus2_choose(qr_mes);
+					Place_Plus3_choose(qr_mes);
+				}
+
 				Mode_Init();
-				CAR_MODE = 13;		//去返回区
+				CAR_MODE = 14;		//去返回区
 				ARM_Action=0;
+				is_start = 0;			//标志已停机
 				break;
 			}
 			default: break;

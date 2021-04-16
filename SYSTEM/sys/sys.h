@@ -119,7 +119,8 @@ extern u8 Expect_Target_Speed_Sta;
 extern float Find_Target_Speed;
 
 extern u8 ARM_Action;
-
+extern u8 is_plus_mode;
+extern u8 is_car_debug_mode;
 
 //以下为汇编函数
 void WFI_SET(void);		//执行WFI指令

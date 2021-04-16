@@ -4,7 +4,9 @@ u8 CAR_MODE = 0;						//标志小车模式
 u8 step = 0, count = 10;		//标志执行步骤以及计时变量
 u16 front_data, right_data, behind_data, left_data;	//前 右 后 左 红外循迹模块读数变量
 u8 is_stop_mode = 0;				//标志是否为停车模式 便于PID停车
-u8 is_car_debug_mode = 0;		//小车 debug 模式标志 若为1则到点后不执行机械臂动作
+u8 is_car_debug_mode = 1;		//小车 debug 模式标志 若为1则到点后不执行机械臂动作
+
+u8 is_plus_mode = 1;
 
 /*
 *===================================================================
@@ -30,9 +32,12 @@ void TIM6_DAC_IRQHandler(void)
 			case 8: Mode_Go_One_Aera1(2); break;					//车第2次往前走一格
 			case 9: Mode_Back_One_Area1(2); break;				//车第2次往后退一格
 			case 10: Mode_Go_One_Aera1(3); break;					//车第3次往前走一格
-			case 11: Mode_Area1_To_Area2(2); break;				//物料堆放区	->	粗加工区	下层模式
-			case 12: Mode_Area2_To_Area3_Bottom(); break;	//粗加工区		->	半成品区	下层模式
-			case 13: Mode_Area3_Back(); break;						//半成品区		->	返回区
+
+			case 11: Mode_Back_One_Area1(3); break;				//车第3次往后退一格
+			
+			case 12: Mode_Area1_To_Area2(2); break;				//物料堆放区	->	粗加工区	下层模式
+			case 13: Mode_Area2_To_Area3_Bottom(); break;	//粗加工区		->	半成品区	下层模式
+			case 14: Mode_Area3_Back(); break;						//半成品区		->	返回区
 			
 			case 20: Mode_PID_Test(1); break;
 			case 21: Mode_PID_Test(2); break;
@@ -295,7 +300,6 @@ void Mode_Go_Area1(void)
 //		if(!is_car_debug_mode)
 //			ARM_Action = 2;							//机械臂扫描上层
 //	}
-//	
 	
 	
 	
@@ -306,7 +310,8 @@ void Mode_Go_Area1(void)
 	
 	
 	
-	if(step == 0)	Set_Expect_Target_Speed(40), Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1, step = 1;	//前面处于线中
+	
+	if(step == 0)	Set_Expect_Target_Speed(40), Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1, FIND_MODE=2, step = 1;	//前面处于线中
 	
 	Find();
 	
@@ -321,7 +326,7 @@ void Mode_Go_Area1(void)
 		step++, Set_Expect_Target_Speed(15);			//出线3 减速 准备转向
 	
 	if((right_data == 1001 || right_data == 11) && step == 7)
-		Set_Expect_Target_Speed(7), Car_Go_Left(), FIND_DRIVER = 3, CURRENT_DIRATION = 3, step++;	//碰到线4 左平移
+		Set_Expect_Target_Speed(7), Car_Go_Left(), FIND_DRIVER = 3, CURRENT_DIRATION = 3, FIND_MODE=1, step++;	//碰到线4 左平移
 
 	Set_PID_PWM();
 
@@ -348,52 +353,85 @@ void Mode_Go_Area1(void)
 */
 void Mode_Area1_To_Area2(u8 mode)
 {
-	static u8 down_temp, dis_temp;
+	//static u8 down_temp, dis_temp;
 	
 	front_data = Find_Get_Front();
 	right_data = Find_Get_Right();
 	
-	if(step == 0)
-		Set_Expect_Target_Speed(25), Find_Target_Speed = 25, Car_Go_Left(), FIND_DRIVER = 3, CURRENT_DIRATION = 3, step++;	//左平移	Y轴循迹
-	Find();
-	
-	if(front_data == 1001 && step == 1)
-		step++, Expect_Target_Speed_Sta = 0, Reset_Target_Speed();	//X线1 中间 恢复速度
-	if(front_data == 1110 && step == 2)	step++;	//出线1
-	
-	if(front_data == 1001 && step == 3)	step++;	//X线2 中间
-	if(front_data == 1110 && step == 4) step++;	//出 X线2 降低巡线速度 
-	
-//	if(front_data == 1001 && step == 5)						//X线3 中间
-//		down_temp = 20, dis_temp=2, Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1, FIND_MODE = 1, step++;	//碰到线3 减速 向前运动 X轴巡线
-
-//	if(step == 6)	{dis_temp--;if(dis_temp==0){Set_Expect_Target_Speed(down_temp--);dis_temp=2; if(down_temp == 6) step++;}}
-
-	if(front_data == 1001 && step == 5)						//X线3 中间
-		Set_Expect_Target_Speed(10), Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1, FIND_MODE = 0, step++;	//碰到线3 减速 向前运动 X轴巡线
-	
-	if(front_data == 0000 && step == 6)
+	if(mode == 1)
 	{
-		step++;
-		Car_Stop();
-		Stop_Find();
-		Expect_Target_Speed_Sta = 0;
-		Reset_Target_Speed();					//恢复速度
-		Find_Target_Speed = 35;	//巡线速度恢复
-		down_temp = 0;
-		dis_temp = 0;
-		CAR_MODE = 42;									//粗加工区定点
-		//CAR_MODE = 0;									//到达物料抓取位置 开始定点
-		if(!is_car_debug_mode)
+		if(step == 0)
+			Set_Expect_Target_Speed(25), Find_Target_Speed = 25, Car_Go_Left(), FIND_DRIVER = 3, CURRENT_DIRATION = 3, step++;	//左平移	Y轴循迹
+		
+		if(front_data == 1001 && step == 1)
+			step++, Expect_Target_Speed_Sta = 0, Reset_Target_Speed();	//X线1 中间 恢复速度
+		if(front_data == 1110 && step == 2)	step++;	//出线1
+		
+		if(front_data == 1001 && step == 3)	step++;	//X线2 中间
+		if(front_data == 1110 && step == 4) Find_Target_Speed=15, Set_Expect_Target_Speed(15), step++;	//出 X线2 降低巡线速度 
+		
+	//	if(front_data == 1001 && step == 5)						//X线3 中间
+	//		down_temp = 20, dis_temp=2, Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1, FIND_MODE = 1, step++;	//碰到线3 减速 向前运动 X轴巡线
+
+	//	if(step == 6)	{dis_temp--;if(dis_temp==0){Set_Expect_Target_Speed(down_temp--);dis_temp=2; if(down_temp == 6) step++;}}
+
+		if(front_data == 1001 && step == 5)						//X线3 中间
+			Set_Expect_Target_Speed(7), Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1, FIND_MODE = 0, step++;	//碰到线3 减速 向前运动 X轴巡线
+		
+		Find();
+		Set_PID_PWM();
+		
+		if(front_data == 0000 && step == 6)
 		{
-			if(mode)
+			step++;
+			Car_Stop();
+			Stop_Find();
+			Expect_Target_Speed_Sta = 0;
+			Reset_Target_Speed();					//恢复速度
+			Find_Target_Speed = 35;				//巡线速度恢复
+			//down_temp = 0;
+			//dis_temp = 0;
+			CAR_MODE = 42;									//粗加工区定点
+			//CAR_MODE = 0;									//到达物料抓取位置 开始定点
+			if(!is_car_debug_mode)
 				ARM_Action = 4;
-			else
+		}
+	}
+	else
+	{
+		if(step == 0)
+			Set_Expect_Target_Speed(25), Find_Target_Speed = 25, Car_Go_Left(), FIND_DRIVER = 3, CURRENT_DIRATION = 3, count=31, step++;	//左平移	Y轴循迹
+		Find();
+		
+		if(count > 0 && step == 1) count--;
+		if(count == 0 && step == 1)	step++;					//延时 30*15 450ms
+		
+		if(front_data == 1001 && step == 2)	step++;	//X线1 中间
+		if(front_data == 1110 && step == 3) Find_Target_Speed=15, Set_Expect_Target_Speed(15), step++;	//出 X线1 降低巡线速度 
+		
+		if(front_data == 1001 && step == 4)					//X线3 中间
+			Set_Expect_Target_Speed(7), Car_Go(), FIND_DRIVER=0, CURRENT_DIRATION=1, FIND_MODE=0, step++;	//碰到线3 减速 向前运动 X轴巡线
+		
+		Find();
+		Set_PID_PWM();
+		
+		if(front_data == 0000 && step == 5)
+		{
+			step++;
+			Car_Stop();
+			Stop_Find();
+			Expect_Target_Speed_Sta = 0;
+			Reset_Target_Speed();					//恢复速度
+			Find_Target_Speed = 35;				//巡线速度恢复
+			//down_temp = 0;
+			//dis_temp = 0;
+			CAR_MODE = 42;								//粗加工区定点
+			//CAR_MODE = 0;								//退出模式
+			if(!is_car_debug_mode)
 				ARM_Action = 14;
 		}
 	}
 	
-	Set_PID_PWM();
 }
 
 /*
@@ -475,7 +513,7 @@ void Mode_Area3_To_Area1(void)
 	if(front_data == 1110 && step == 8)	Set_Expect_Target_Speed(25), step++;		//出 X线4
 
 	if(front_data == 1001 && step == 9)	
-		Car_Go(), FIND_MODE=0, FIND_DRIVER = 0, CURRENT_DIRATION = 1, Expect_Target_Speed_Sta=0, Reset_Target_Speed(), step++, count+=11;	//X线5中间	前进	X轴巡线
+		Car_Go(), FIND_MODE=0, FIND_DRIVER = 0, CURRENT_DIRATION = 1, Expect_Target_Speed_Sta=0, Reset_Target_Speed(), step++, count=11;	//X线5中间	前进	X轴巡线
 
 	if(count > 0 && step == 10)	count--;					//延时 10*15ms = 150ms
 	if(count == 0 && step == 10) step++;
@@ -544,14 +582,14 @@ void Mode_Go_One_Aera1(u8 current_step)
 			Set_Expect_Target_Speed(15), Car_Go_Right(), FIND_DRIVER = 1, CURRENT_DIRATION = 4, step++;	//右平移 Y轴负半轴循迹
 		Find();
 		
-		//if(right_data == 0 && step == 1)	
+		if(right_data == 0 && step == 1) step++;
 		
-		if(right_data == 0 && step == 1) count=3, step++;
+		//if(right_data == 0 && step == 1) count=3, step++;
 		
-		if(count > 0 && step == 2) count--;
-		if(count == 0 && step == 2) step++;		//3*15 30ms
+//		if(count > 0 && step == 2) count--;
+//		if(count == 0 && step == 2) step++;		//3*15 30ms
 		
-		if(step == 3)
+		if(step == 2)
 		{
 			step++;
 			Car_Stop();
@@ -606,8 +644,8 @@ void Mode_Back_One_Area1(u8 current_step)
 				ARM_Action = 9;							//机械臂存放 下层第一次抓取物料
 			else if(current_step==2)
 				ARM_Action = 11;						//机械臂存放 下层第二次抓取物料
-//			else if(step==3)
-//				ARM_Action = 13;						//机械臂存放 下层第三次抓取物料
+			else if(current_step==3)
+				ARM_Action = 13;						//机械臂存放 下层第三次抓取物料
 		}
 	}
 	
@@ -693,39 +731,75 @@ void Mode_Area2_To_Area3_Bottom(void)
 	right_data = Find_Get_Right();
 	left_data = Find_Get_Left();
 	
-	if(step == 0)	Set_Expect_Target_Speed(35), Car_Back(), FIND_DRIVER = 2, CURRENT_DIRATION = 2, FIND_MODE = 1, step++;	//后退	X轴负半轴循迹
-	
-	Find();
-	
-	if(right_data == 1001 && step == 1)	step++;		//Y线1 中间
-	if(right_data == 1110 && step == 2)	step++;		//出Y线1
-	
-	if(right_data == 1001 && step == 3)	step++;		//Y线2 中间
-	if(right_data == 1110 && step == 4)	step++;		//出Y线2
-	
-	if((right_data == 1110 || right_data == 1001)&& step == 5)
-		Set_Expect_Target_Speed(25), Car_Go_Left(), FIND_MODE = 1, FIND_DRIVER = 3, CURRENT_DIRATION = 3, count = 35, step++;	//Y线3 中间	左走 Y轴正半轴巡线
-
-	if(count > 0 && step == 6)	count--;					//延时 34*15ms = 510ms
-	if(count == 0 && step == 6) step++;
-	
-	if(front_data == 1001 && step == 7)	step++;		//X线1 中间
-	if(front_data == 1110 && step == 8)	step++, Set_Expect_Target_Speed(15);		//出X线1
-	
-	if((front_data == 1001 || front_data == 111) && step == 9)	step++, Set_Expect_Target_Speed(7);		//X线2 中间
-
-	if(front_data == 1110 && step == 10)					//X线2 上侧 停车
+	if(is_plus_mode == 0)
 	{
-		step++;
-		Car_Stop();
-		Stop_Find();
-		Expect_Target_Speed_Sta = 0;
-		Reset_Target_Speed();					//恢复速度
-		CAR_MODE = 0;
-		if(!is_car_debug_mode)
-			ARM_Action = 15;						//机械臂底层半成品区放置
+		if(step == 0)	Set_Expect_Target_Speed(35), Car_Back(), FIND_DRIVER = 2, CURRENT_DIRATION = 2, FIND_MODE = 1, step++;	//后退	X轴负半轴循迹
+		
+		if(right_data == 1001 && step == 1)	step++;		//Y线1 中间
+		if(right_data == 1110 && step == 2)	step++;		//出Y线1
+		
+		if(right_data == 1001 && step == 3)	step++;		//Y线2 中间
+		if(right_data == 1110 && step == 4)	step++;		//出Y线2
+		
+		if((right_data == 1110 || right_data == 1001)&& step == 5)
+			Set_Expect_Target_Speed(25), Car_Go_Left(), FIND_MODE = 1, FIND_DRIVER = 3, CURRENT_DIRATION = 3, count = 35, step++;	//Y线3 中间	左走 Y轴正半轴巡线
+
+		if(count > 0 && step == 6)	count--;					//延时 34*15ms = 510ms
+		if(count == 0 && step == 6) step++;
+		
+		if(front_data == 1001 && step == 7)	step++;		//X线1 中间
+		if(front_data == 1110 && step == 8)	step++, Set_Expect_Target_Speed(15);		//出X线1
+		
+		if((front_data == 1001 || front_data == 111) && step == 9)	step++, Set_Expect_Target_Speed(7);		//X线2 中间
+
+		if(front_data == 1110 && step == 10)					//X线2 上侧 停车
+		{
+			step++;
+			Car_Stop();
+			Stop_Find();
+			Expect_Target_Speed_Sta = 0;
+			Reset_Target_Speed();					//恢复速度
+			CAR_MODE = 0;
+			if(!is_car_debug_mode)
+				ARM_Action = 15;						//机械臂底层半成品区放置
+		}
+	}
+	else
+	{
+		if(step == 0)	Set_Expect_Target_Speed(35), Car_Back(), FIND_DRIVER = 2, CURRENT_DIRATION = 2, FIND_MODE = 1, step++;	//后退	X轴负半轴循迹
+		
+		if(right_data == 1001 && step == 1)	step++;		//Y线1 中间
+		if(right_data == 1110 && step == 2)	step++;		//出Y线1
+		
+		if(right_data == 1001 && step == 3)	step++;		//Y线2 中间
+		if(right_data == 1110 && step == 4)	step++;		//出Y线2
+		
+		if((right_data == 1110 || right_data == 1001)&& step == 5)
+			Set_Expect_Target_Speed(25), Car_Go_Left(), FIND_MODE = 1, FIND_DRIVER = 3, CURRENT_DIRATION = 3, count = 35, step++;	//Y线3 中间	左走 Y轴正半轴巡线
+
+		if(count > 0 && step == 6)	count--;					//延时 34*15ms = 510ms
+		if(count == 0 && step == 6) step++;
+		
+		if(front_data == 1001 && step == 7)	step++;		//X线1 中间
+		if(front_data == 1110 && step == 8)	step++;		//出X线1
+		
+		if(front_data == 1001 && step == 9)	step++;		//X线2 中间
+		if(front_data == 1110 && step == 10) step++, Set_Expect_Target_Speed(15);	//出X线2
+		
+		if(left_data == 0 && step == 11)					//X线3 中间 停车
+		{
+			step++;
+			Car_Stop();
+			Stop_Find();
+			Expect_Target_Speed_Sta = 0;
+			Reset_Target_Speed();					//恢复速度
+			CAR_MODE = 0;
+			if(!is_car_debug_mode)
+				ARM_Action = 15;						//机械臂顶层第二次放置 码垛
+		}
 	}
 	
+	Find();
 	Set_PID_PWM();
 }
 
@@ -898,9 +972,21 @@ void under_grasp_all(u8 * ptr)
 //粗加工放置
 void  First_choose_place1(u8* ptr,u8 mode)
 {
+	
 	if(mode==1)
 	{
-	grasp_playload1();
+	Arm0 = 740;
+	delay_ms(200);
+	//收手
+	 Arm1 = 959;
+	 delay_ms(50);
+	 Arm2 = 1060;
+	 delay_ms(50);
+	 Arm3 = 907;
+	 delay_ms(50);
+	 Arm4 = 430;
+	 delay_ms(50);
+	
 	if(ptr[0]=='1')
 		First_place2();
 	else if(ptr[0]=='2')
@@ -910,7 +996,17 @@ void  First_choose_place1(u8* ptr,u8 mode)
 }
 	else if(mode==2)
 	{
-		grasp_playload1();
+	Arm0 = 740;
+	delay_ms(200);
+	//收手
+	 Arm1 = 959;
+	 delay_ms(50);
+	 Arm2 = 1060;
+	 delay_ms(50);
+	 Arm3 = 907;
+	 delay_ms(50);
+	 Arm4 = 430;
+	 delay_ms(50);
 	if(ptr[4]=='1')
 		First_place2();
 	else if(ptr[4]=='2')
@@ -1088,7 +1184,18 @@ void place_top_product1(u8* ptr)
 {
 	
 	
-	grasp_playload3();
+	Arm0 = 740;
+	delay_ms(200);
+
+	//收手
+	 Arm2 = 1060;
+	 Arm1 = 959;
+	 delay_ms(300);
+	 Arm3 = 907;
+	 delay_ms(500);
+	 Arm4 = 800;
+	 delay_ms(300);
+	
 	if(ptr[0]=='1')
 		Second_place2();
 	else if(ptr[0]=='2')
@@ -1133,7 +1240,16 @@ void place_top_product3(u8* ptr)
 void place_under_product1(u8* ptr)
 {
 	
-	grasp_playload3();
+	Arm0 = 740;
+	delay_ms(200);
+	//收手
+ Arm2 = 1060;
+	 Arm1 = 959;
+	 delay_ms(300);
+	 Arm3 = 907;
+	 delay_ms(500);
+	 Arm4 = 800;
+	 delay_ms(300);
 	if(ptr[4]=='1')
 		Third_place2();
 	else if(ptr[4]=='2')
@@ -1165,8 +1281,57 @@ void place_under_product3(u8* ptr )
 	if(ptr[6]=='1')
 		Third_place2();
 	else if(ptr[6]=='2')
-     Third_place3();
+		Third_place3();
 	else if(ptr[6]=='3')
-			Third_place1();
+		Third_place1();
   
+}
+
+
+//下层物块码垛
+//放置1
+void Place_Plus1_choose(u8* ptr)
+{
+	Arm0 = 740;
+	delay_ms(200);
+	//收手
+ Arm2 = 1060;
+	 Arm1 = 959;
+	 delay_ms(300);
+	 Arm3 = 907;
+	 delay_ms(500);
+	 Arm4 = 800;
+	 delay_ms(450);
+	if(ptr[4]=='1')
+		Place_Plus2();
+	else if(ptr[4]=='2')
+     Place_Plus3();
+	else if(ptr[4]=='3')
+			Place_Plus1();
+	
+}
+//放置2号
+void Place_Plus2_choose(u8* ptr)
+{
+	grasp_playload2();
+	if(ptr[5]=='1')
+		Place_Plus2();
+	else if(ptr[5]=='2')
+     Place_Plus3();
+	else if(ptr[5]=='3')
+			Place_Plus1();
+	
+}
+
+//放置3号
+void Place_Plus3_choose(u8* ptr)
+{
+	grasp_playload1();
+	if(ptr[6]=='1')
+		Place_Plus2();
+	else if(ptr[6]=='2')
+        Place_Plus3();
+	else if(ptr[6]=='3')
+		Place_Plus1();
+	
 }

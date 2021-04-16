@@ -344,7 +344,7 @@ void USART3_IRQHandler(void)
 	 else if(tx==44)//2c
 	 {
 		  uart3_sendStr("arm_back");
-		 Arm_back();
+		  Arm_back();
 
 	 }
 	 else if(tx==45)
@@ -353,21 +353,306 @@ void USART3_IRQHandler(void)
 				printf("Arm1 %d\n",Arm1);
 		 		printf("Arm2 %d\n",Arm2);
 		    printf("Arm3 %d\n",Arm3);
-		   printf("Arm4 %d\n",Arm4);
+		    printf("Arm4 %d\n",Arm4);
 
 
 
 	 }
-	 else if(tx==46)
+	 else if(tx==46)//2e
 	 {
-		 printf("grasp_all");
-		 top_grasp_choose(way1);
+//		 printf("grasp_all");
+//		 top_grasp_choose(way1);
 	 }
-	  else if(tx==47)
+	  else if(tx==47)//2f
 	 {
-		 printf("arm3_low2");
-		 First_place_all(qr_mes,1);
+//		 printf("first_place_all");
+//		 First_place_all(qr_mes,1);
 	 }
+	  else if(tx==48)//30
+	 {
+//		 printf("first_grasp_all");
+//		 First_grasp_all(qr_mes,1);
+	 }
+	 else if(tx==49)//31
+	 {
+//		 printf("top_place_all");
+//		 Place_top_all(qr_mes);
+	 }
+	 else if(tx==50)//32
+	 {
+//		 printf("粗加工一套动作");
+//		 First_place_all(qr_mes,1);
+//		 First_grasp_all(qr_mes,1);
+	 }
+	 
+	 else if(tx==51)//33
+	 {
+		  printf("码垛1");
+		 Place_Plus1();
+	 }
+	 else if(tx==52)//34
+	 {
+		  printf("码垛2");
+		 Place_Plus2();
+	 }
+	 else if(tx==53)//35
+	 {
+		  printf("码垛3");
+		 Place_Plus3();
+	 }
+	 
+	 else if(tx == 54)//36
+	 {
+		 uart3_sendStr("debug s_1\n");
+		 
+	Arm4 = top_grasp1_arm4;
+	delay_ms(400);
+	Arm1 = top_grasp1_arm1;
+	delay_ms(50);
+	Arm3 = 800;
+	delay_ms(300);
+	Arm2 = top_grasp1_arm2;
+	delay_ms(400);
+	Arm3_low_speed1(top_grasp1_arm3,710);//
+	delay_ms(100);
+	Arm0 = 740;
+	delay_ms(200);	
+					
+
+	 }
+	  else if(tx == 55)//37
+	 {
+		uart3_sendStr("debug s_2\n");
+		 //抓
+	Arm4 = top_grasp2_arm4;
+	delay_ms(400);
+	Arm1 = top_grasp2_arm1;
+	delay_ms(50);
+	Arm3 = 800;
+	delay_ms(300);
+	Arm2 = top_grasp2_arm2;
+	delay_ms(300);
+	Arm3_low_speed1(top_grasp2_arm3,710);
+	delay_ms(100);
+	Arm0 = 760;
+					
+
+	 }
+	  else if(tx == 56)//38
+	 {
+	uart3_sendStr("debug s_3\n");
+		 //抓
+	Arm4 = top_grasp3_arm4;
+	delay_ms(700);
+	Arm1 = top_grasp3_arm1;
+	delay_ms(50);
+	Arm3 = 800;
+	delay_ms(300);
+	Arm2 = top_grasp3_arm2;
+	delay_ms(300);
+	Arm3_low_speed1(top_grasp3_arm3,710);
+	delay_ms(100);
+	Arm0 = 740;
+	delay_ms(200);
+					
+
+	 }
+	  else if(tx == 57)//39
+	 {
+		 		 uart3_sendStr("debug x_1\n");
+		 
+					under_grasp1();
+
+	 }
+	  else if(tx == 58)//3a
+	 {
+		 		  uart3_sendStr("debug x_2\n");
+					under_grasp2();
+
+	 }
+	  else if(tx == 59)//3b
+	 {
+		 uart3_sendStr("debug x_3\n");
+		 under_grasp3();
+					
+
+	 }
+	  else if(tx == 60)//3c
+	 {
+		 		  uart3_sendStr("debug first_1\n");
+		 Arm4 = first_plcace1_arm4;
+	delay_ms(500);
+	Arm1= first_plcace1_arm1;
+	delay_ms(50);
+	Arm3 = 800;
+	delay_ms(50);
+	Arm2 = first_plcace1_arm2;
+	delay_ms(50);
+	Arm3_low_speed1(first_plcace1_arm3,800);
+	delay_ms(50);
+	Arm0 = 600;
+	delay_ms(200);
+					
+
+	 }
+	  else if(tx == 61)//3d
+	 {
+		 		  uart3_sendStr("debug first_2\n");
+		 Arm4 = first_plcace2_arm4;
+	delay_ms(500);
+	Arm1= first_plcace2_arm1;
+	delay_ms(50);
+	Arm3 = 800;
+	delay_ms(50);
+	Arm2 = first_plcace2_arm2;
+	delay_ms(50);
+	Arm3_low_speed1(first_plcace2_arm3,800);
+	delay_ms(50);
+	Arm0 = 600;
+	delay_ms(200);
+		 
+					
+
+	 }
+	  else if(tx == 62)//3e
+	 {
+		 		  uart3_sendStr("debug first_3\n");
+		 	Arm4 = first_plcace3_arm4;
+	delay_ms(600);
+	Arm1= first_plcace3_arm1;
+	delay_ms(50);
+	Arm3 = 800;
+	delay_ms(50);
+	Arm2 = first_plcace3_arm2;
+	delay_ms(50);
+	Arm3_low_speed1(first_plcace3_arm3,800);
+	delay_ms(50);
+	Arm0 = 600;
+	delay_ms(200);
+					
+
+	 }
+	  else if(tx == 63)//3f
+	 {
+		 		  uart3_sendStr("debug second_1\n");
+		 	Arm4 = second_place1_arm4;
+		delay_ms(500);
+	  Arm1 = second_place1_arm1;
+    delay_ms(100);
+	  
+	  Arm3 = 800;
+	  delay_ms(50);  
+	  Arm2 = second_place1_arm2;
+	 delay_ms(50);
+	 Arm3_low_speed1(second_place1_arm3,800);
+	 delay_ms(100);
+   Arm0 = 600;
+	 delay_ms(200);
+					
+
+	 }
+	  else if(tx == 64)//40
+	 {
+		 		  uart3_sendStr("debug second_2\n");
+		 	Arm4 = second_place2_arm4;
+		delay_ms(500);
+	  Arm1 = second_place2_arm1;
+	  delay_ms(50);
+	  
+	  Arm3 = 800;
+		delay_ms(50);	
+	 Arm2 = second_place2_arm2;
+	 delay_ms(50);
+	Arm3_low_speed1(second_place2_arm3,800);
+	delay_ms(50);
+	Arm0 = 600;
+	delay_ms(200);
+					
+
+	 }
+	  else if(tx == 65)//41
+	 {
+		 		  uart3_sendStr("debug second_3\n");
+		 	Arm4 = second_place3_arm4;
+	 delay_ms(500);
+	  Arm1 = second_place3_arm1;
+	 delay_ms(100);
+	
+	Arm3 = 800;
+	delay_ms(50);
+	
+	 Arm2 = second_place3_arm2;
+	 delay_ms(50);
+	Arm3_low_speed1(second_place3_arm3,800);
+	delay_ms(100);
+	Arm0 = 600;
+	delay_ms(200);
+					
+
+	 }
+	   else if(tx == 65)//42
+	 {
+		 		  uart3_sendStr("debug under_plus_1\n");
+		 Arm4 = Place_Plus1_arm4;
+	delay_ms(500);
+	Arm1 = Place_Plus1_arm1;
+	delay_ms(50);
+	Arm3 = 800;
+	delay_ms(100);
+	Arm2 = Place_Plus1_arm2;
+	delay_ms(100);
+	place_plus_arm3_lowspeed(Place_Plus1_arm3,750);
+	delay_ms(50);
+	Arm0 = Place_Plus1_arm0;
+	delay_ms(300);
+	Arm3 = 518;
+	delay_ms(300);
+					
+
+	 }
+	   else if(tx == 65)//43
+	 {
+		 		  uart3_sendStr("debug under_plus_2\n");
+		 
+	Arm4 = Place_Plus2_arm4;
+	delay_ms(500);
+	Arm1 = Place_Plus2_arm1;
+	delay_ms(50);
+	Arm3 = 800;
+	delay_ms(100);
+	Arm2 = Place_Plus2_arm2;
+	delay_ms(100);
+	place_plus_arm3_lowspeed(Place_Plus2_arm3,750);
+	delay_ms(50);
+	Arm0 = Place_Plus2_arm0;
+	delay_ms(300);
+	Arm3 = 620;
+	delay_ms(300);
+					
+
+	 }
+	   else if(tx == 65)//44
+	 {
+		uart3_sendStr("debug under_plus_3\n");
+		 Arm4 = Place_Plus3_arm4;
+	delay_ms(500);
+	Arm1 = Place_Plus3_arm1;
+	delay_ms(50);
+	Arm3 = 800;
+	delay_ms(100);
+	Arm2 = Place_Plus3_arm2;
+	delay_ms(100);
+	place_plus_arm3_lowspeed(Place_Plus3_arm3,750);
+	delay_ms(50);
+	Arm0 = Place_Plus3_arm0;
+	delay_ms(300);
+	Arm3 = 585;
+	delay_ms(300);
+	
+					
+
+	 }
+	 
 			USART_ClearITPendingBit(USART3,USART_IT_RXNE);	
 		
 		

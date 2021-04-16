@@ -6,24 +6,24 @@
 u16 Arm_open = 642;
 
 //上层抓取
- u16 top_grasp1_arm1 = 827,top_grasp1_arm2 = 955,\
-			top_grasp1_arm3 = 637,top_grasp1_arm4 = 469;
+ u16 top_grasp1_arm1 = 852,top_grasp1_arm2 = 933,\
+			top_grasp1_arm3 = 632,top_grasp1_arm4 = 469;
 			
- u16 top_grasp2_arm1 = 802,top_grasp2_arm2 = 984,\
+ u16 top_grasp2_arm1 = 832,top_grasp2_arm2 = 967,\
 			top_grasp2_arm3 = 652,top_grasp2_arm4 = 400;
 			
  u16 top_grasp3_arm1 = 904,top_grasp3_arm2 = 766,\
-			top_grasp3_arm3 = 548,top_grasp3_arm4 = 346;
+			top_grasp3_arm3 = 548,top_grasp3_arm4 = 343;
 
 //下层抓取
- u16 under_grasp1_arm1 = 716, under_grasp1_arm2 =916, \
-			under_grasp1_arm3 = 493, under_grasp1_arm4 = 458;
+ u16 under_grasp1_arm1 = 717, under_grasp1_arm2 =916, \
+			under_grasp1_arm3 = 495, under_grasp1_arm4 = 458;
 			
- u16 under_grasp2_arm1 = 746, under_grasp2_arm2 = 911, \
-				under_grasp2_arm3 = 509, under_grasp2_arm4 = 400;
+ u16 under_grasp2_arm1 = 745, under_grasp2_arm2 = 915, \
+				under_grasp2_arm3 = 515, under_grasp2_arm4 = 400;
 				
- u16 under_grasp3_arm1 = 762, under_grasp3_arm2 =858 ,\
-			under_grasp3_arm3 = 479, under_grasp3_arm4 = 359;
+ u16 under_grasp3_arm1 = 755, under_grasp3_arm2 =864 ,\
+			under_grasp3_arm3 = 482, under_grasp3_arm4 = 345;
 
 //粗加工区
  u16 first_plcace1_arm1 = 655,first_plcace1_arm2 = 945,\
@@ -55,6 +55,18 @@ u16 Arm_open = 642;
  u16 third_place3_arm1 = 692,third_place3_arm2 = 917,\
 		 third_place3_arm3 = 489,third_place3_arm4 = 871;
 
+		 
+ //半成品区码垛
+ u16 Place_Plus1_arm0 = 642,Place_Plus1_arm1 = 863,\
+				Place_Plus1_arm2 = 790,Place_Plus1_arm3 = 530,Place_Plus1_arm4  =1022 ;
+				
+u16 Place_Plus2_arm0 = 642,Place_Plus2_arm1 = 758,\
+			Place_Plus2_arm2 = 1020,Place_Plus2_arm3 = 635,Place_Plus2_arm4 = 957;
+ 
+u16 Place_Plus3_arm0 = 642,Place_Plus3_arm1 = 823,\
+			Place_Plus3_arm2 = 925,Place_Plus3_arm3 = 600,Place_Plus3_arm4 = 889;
+			
+
  //第一个载物台各个关节的值
  u16 place1_arm1 = 975;
  u16 place1_arm2 = 1192;
@@ -74,7 +86,7 @@ u16 Arm_open = 642;
  u16 place3_arm4 = 1091;
 
 //机械臂调速
-static void Arm3_low_speed1(unsigned int target, unsigned int curt)
+ void Arm3_low_speed1(unsigned int target, unsigned int curt)
 {
 	int tem;
 	for(tem=curt;tem>=target;tem-=3)		
@@ -86,7 +98,7 @@ static void Arm3_low_speed1(unsigned int target, unsigned int curt)
 }
 
 
-static void Arm3_low_speed2(unsigned int target, unsigned int curt)
+ void Arm3_low_speed2(unsigned int target, unsigned int curt)
 {
 	int tem;
 	for(tem=curt;tem<=target;tem+=2)		
@@ -97,7 +109,7 @@ static void Arm3_low_speed2(unsigned int target, unsigned int curt)
 	
 }
 
-static void Arm3_low_speed3(unsigned int target, unsigned int curt)
+ void Arm3_low_speed3(unsigned int target, unsigned int curt)
 {
 	int tem;
 	for(tem=curt;tem<=target;tem+=2)		
@@ -130,6 +142,20 @@ static void Arm3_low_speed3(unsigned int target, unsigned int curt)
 	}
  }
 
+
+
+ //码垛机械臂减速
+  void  place_plus_arm3_lowspeed(unsigned int target, unsigned int curt)
+ {
+	 int tem;
+	for(tem=curt;tem>=target;tem-=2)		
+	{
+		Arm3 = tem;
+		delay_ms(12);
+	}
+	
+ }
+
  //endif
  
  
@@ -142,7 +168,7 @@ static void Arm3_low_speed3(unsigned int target, unsigned int curt)
 	Arm2 = 1130;
 	delay_ms(100);
 	Arm3_low_speed3(915,850);
-  Arm1_low_speed(929,900);	 
+    Arm1_low_speed(929,900);	 
 	delay_ms(200);
  }
  void third_place3_armback()
@@ -166,6 +192,20 @@ static void Arm3_low_speed3(unsigned int target, unsigned int curt)
 	Arm3_low_speed3(925,850);
   Arm1_low_speed(959,850);
  }
+ 
+ void under_Arm_back()
+ {
+	 Arm1= 662;
+	 delay_ms(100);
+	 Arm3 = 850;
+	 delay_ms(50);
+   Arm1_low_speed(959,850);
+	delay_ms(100);
+	Arm3_low_speed3(925,850);
+	 Arm2 = 1060;
+
+ 
+ }
  //中间动作
  void middle_state()
  {
@@ -179,7 +219,7 @@ static void Arm3_low_speed3(unsigned int target, unsigned int curt)
 	 
  }
  //云台800
- static void place_back()
+  void place_back()
  {
 	
 	 Arm2 = 1060;
@@ -191,6 +231,22 @@ static void Arm3_low_speed3(unsigned int target, unsigned int curt)
 	 delay_ms(300);
  }
 
+//码垛放置收手
+ void Plus_arm_back()
+ {
+	 	 Arm0 = 600;
+	 delay_ms(50);
+	 Arm3 =  800;
+	 delay_ms(100);
+	 Arm2 = 1082;
+	 delay_ms(100);
+	 Arm3_low_speed3(925,850);
+	 Arm1_low_speed(929,900);	 
+	 
+ }
+ 
+ 
+ 
  //放置第一个物块到
  void place_playload1()
  {
@@ -266,7 +322,7 @@ static void Arm3_low_speed3(unsigned int target, unsigned int curt)
  void grasp_playload1()
  {
 	  //抓
-   Arm0= Arm_open;
+     Arm0= Arm_open;
 	 Arm4 = place1_arm4;
 	 delay_ms(700);
 	 Arm1 = place1_arm1;
@@ -874,7 +930,135 @@ void Third_place3(void)
 	Arm_back();
 }
 
+//码垛放置函数
+//相对于小车左
+void Place_Plus1()
+{
+	Arm4 = Place_Plus1_arm4;
+	delay_ms(500);
+	Arm1 = Place_Plus1_arm1;
+	delay_ms(50);
+	Arm3 = 800;
+	delay_ms(100);
+	Arm2 = Place_Plus1_arm2;
+	delay_ms(100);
+	place_plus_arm3_lowspeed(Place_Plus1_arm3,750);
+	delay_ms(50);
+	Arm0 = Place_Plus1_arm0;
+	delay_ms(300);
+	Arm3 = 518;
+	delay_ms(300);
+	delay_ms(200);
+	Arm0 = 715;
+	delay_ms(250);
+	
+	
+	Plus_arm_back();
+}
 
+//相对于小车中
+void Place_Plus2()
+{
+	Arm4 = Place_Plus2_arm4;
+	delay_ms(500);
+	Arm1 = Place_Plus2_arm1;
+	delay_ms(50);
+	Arm3 = 800;
+	delay_ms(100);
+	Arm2 = Place_Plus2_arm2;
+	delay_ms(100);
+	place_plus_arm3_lowspeed(Place_Plus2_arm3,750);
+	delay_ms(50);
+	Arm0 = Place_Plus2_arm0;
+	delay_ms(300);
+	Arm3 = 620;
+	delay_ms(300);
+	delay_ms(200);
+	Arm0 = 715;
+	delay_ms(250);
+	
+	Plus_arm_back();
+}
+
+//相对于小车右
+void Place_Plus3()
+{
+	Arm4 = Place_Plus3_arm4;
+	delay_ms(500);
+	Arm1 = Place_Plus3_arm1;
+	delay_ms(50);
+	Arm3 = 800;
+	delay_ms(100);
+	Arm2 = Place_Plus3_arm2;
+	delay_ms(100);
+	place_plus_arm3_lowspeed(Place_Plus3_arm3,750);
+	delay_ms(50);
+	Arm0 = Place_Plus3_arm0;
+	delay_ms(300);
+	Arm3 = 585;
+	delay_ms(200);
+	Arm0 = 715;
+	delay_ms(250);
+
+	
+	
+	Plus_arm_back();
+	
+}
+
+
+
+//机械臂完成动作后的准备姿态
+//上层
+void finish_top_grasp_status()
+{
+	  Arm0= Arm_open;
+	 Arm4 = place1_arm4;
+	 delay_ms(700);
+	 Arm1 = place1_arm1;
+	 delay_ms(50);
+	 Arm3 = place1_arm3;
+	 delay_ms(50);
+	 Arm2_low_speed(place1_arm2,1060);
+	 delay_ms(100);
+	
+}
+
+//下层
+ void finish_under_grasp_status()
+ {
+	 //grasp1改写
+	 Arm0= Arm_open;
+	 Arm4 = place1_arm4;
+	 delay_ms(700);
+	 Arm1 = place1_arm1;
+	 delay_ms(50);
+	 Arm3 = place1_arm3;
+	 delay_ms(50);
+	 Arm2_low_speed(place1_arm2,1060);
+	 delay_ms(100);
+ }
+ 
+ //粗加工完成动作
+ void finish_rough_status()
+ {
+	 //grasp3改写
+    Arm0 = Arm_open;
+	 Arm4 = place3_arm4;
+	 delay_ms(900);
+	 Arm1 = place3_arm1;
+	 delay_ms(50);
+	 Arm3 = place3_arm3;
+	 delay_ms(100);  
+	 Arm2_low_speed(place3_arm2,1060);
+	 delay_ms(50);
+ }
+ //半成品上层完成姿态
+ void finish_top_product_status()
+ {
+	 scan_block_under();
+ }
+ 
 
 
 

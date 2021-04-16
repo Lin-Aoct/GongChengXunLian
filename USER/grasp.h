@@ -24,6 +24,18 @@ extern u16 third_place3_arm1,third_place3_arm2,third_place3_arm3,third_place3_ar
 
 
 
+//平半成品区码垛
+extern  u16 Place_Plus1_arm0,Place_Plus1_arm1,\
+			Place_Plus1_arm2,Place_Plus1_arm3,Place_Plus1_arm4;
+
+extern u16 Place_Plus2_arm0,Place_Plus2_arm1,\
+		   Place_Plus2_arm2,Place_Plus2_arm3,Place_Plus2_arm4;
+
+
+extern u16 Place_Plus3_arm0,Place_Plus3_arm1,\
+			Place_Plus3_arm2,Place_Plus3_arm3,Place_Plus3_arm4;
+
+
 
 
 
@@ -77,12 +89,26 @@ extern void reset_state(void);
 extern  void  middle_state(void);
 extern  void Arm_back(void);
 extern  void Arm_back1(void);
+extern void  under_Arm_back(void);
 
 
+extern void Place_Plus1(void);
+extern void Place_Plus2(void);
+extern void Place_Plus3(void);
 
+extern void finish_top_grasp_status(void);
+extern void finish_under_grasp_status(void);
+extern void finish_rough_status(void);
+extern void finish_top_product_status(void);
 
-
-
+extern void place_back(void );
+extern void Plus_arm_back(void);
+extern  void Arm3_low_speed1(unsigned int target, unsigned int curt);
+extern  void Arm3_low_speed2(unsigned int target, unsigned int curt);
+extern  void Arm3_low_speed3(unsigned int target, unsigned int curt);
+extern  void Arm1_low_speed(unsigned int target,unsigned int curt);
+extern  void Arm2_low_speed(unsigned int target,unsigned int curt);
+extern   void  place_plus_arm3_lowspeed(unsigned int target, unsigned int curt);
 
 
 

@@ -55,6 +55,18 @@ extern void  place_under_product1(u8* ptr);//半成品区底层放置
 extern void  place_under_product2(u8* ptr);
 extern void  place_under_product3(u8* ptr);
 
+
+
+//码垛放置顺序选择
+extern void Place_Plus1_choose(u8* ptr);
+extern void Place_Plus2_choose(u8* ptr);
+extern void Place_Plus3_choose(u8* ptr);
+
+
+
+
+
+
 //简洁版后期稳定后可以使用前期一个个函数调用
 extern void  top_grasp_choose(u8* ptr);//一次抓三个
 extern void  under_grasp_all(u8 *ptr);
