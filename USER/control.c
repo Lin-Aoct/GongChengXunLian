@@ -742,7 +742,7 @@ void Mode_Area3_Back(void)
 	front_data = Find_Get_Front();
 	right_data = Find_Get_Right();
 	
-	if(step == 0)	Car_Back(), FIND_DRIVER=2, CURRENT_DIRATION=2, FIND_MODE=0, count=31, step++;	//后退 X轴负半轴循迹
+	if(step == 0)	Set_Expect_Target_Speed(35), Car_Back(), FIND_DRIVER=2, CURRENT_DIRATION=2, FIND_MODE=0, count=31, step++;	//后退 X轴负半轴循迹
 	Find();
 	
 	if(count>0 && step == 1) count--;
@@ -762,9 +762,11 @@ void Mode_Area3_Back(void)
 	if(front_data == 1001 && step == 8)	step++;		//X线1 中间
 	if(front_data == 1110 && step == 9)	step++;		//出 X线1
 	
-	if(right_data == 0 && step == 10)	Car_Back(), step++;	//出X线2
+	if(right_data == 0 && step == 10)	Stop_Find(), Car_Back(), Set_Expect_Target_Speed(10), step++;	//出X线2
 	
 	if(front_data == 0 && step == 11)	Car_Stop(), Stop_Find(), CAR_MODE = 0, step++;	//前面与黑线重合 停车 到达返回区
+	
+	Set_PID_PWM();
 }
 
 void Mode_Init(void)

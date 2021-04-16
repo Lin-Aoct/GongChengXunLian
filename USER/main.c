@@ -12,7 +12,7 @@ u32 count_flag;								//Debug
 u8 u1_action_mode = 10;				//串口1动作指令变量
 
 u8 ARM_Action = 0;						//机械臂动作变量
-
+u8 is_key_pressed = 0;				//标志按键是否已经被按下 判断双击
 int motor_current_pwm[4];
 
 int	main()
@@ -53,8 +53,10 @@ int	main()
 //		count_flag ++;
 
 		//判断按键是否按下 一键启动
-		if(KEY_Scan(0) == 1)
-			LED0=1, delay_ms(1000), LED0=0, Mode_Init(), Stop_Find(), CAR_MODE = 1;
+		if(KEY_Scan(0) == 1 && is_key_pressed==0)
+			printf("按下"), is_key_pressed = 1;
+			
+		//LED0=1, delay_ms(1000), LED0=0, Mode_Init(), Stop_Find(), CAR_MODE = 1;
 
 		
 		//判断是否收到串口1动作
@@ -309,8 +311,8 @@ int	main()
 				place_under_product1(qr_mes);
 				place_under_product2(qr_mes);
 				place_under_product3(qr_mes);
-				//Mode_Init();
-				//CAR_MODE = 13;		//去返回区
+				Mode_Init();
+				CAR_MODE = 13;		//去返回区
 				ARM_Action=0;
 				break;
 			}
