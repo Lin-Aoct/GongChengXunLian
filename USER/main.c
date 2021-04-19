@@ -27,7 +27,7 @@ int	main()
 	scan_qr_on();								//机械臂保持扫码动作
 
 	KEY_Init();									//按键初始化
-	LED_Init();									//LED 灯初始化
+	//LED_Init();									//LED 灯初始化
 	Lcd_Init();									//TFT屏幕初始化
 	Find_IO_Init();							//红外循迹模块初始化
 	MOTO_GPIO_Config();					//电机驱动引脚初始化
@@ -41,7 +41,7 @@ int	main()
 
 	Car_Stop();
 	Lcd_Clear(BLACK);
-	GUI_Draw_Long_Font(1, 1, WHITE, BLACK, (u8*)qr_mes);
+	//GUI_Draw_Long_Font(1, 1, WHITE, BLACK, (u8*)qr_mes);
 	printf("初始化完成\n");
 	
 	while(1)
@@ -54,7 +54,7 @@ int	main()
 
 		//判断按键是否按下 一键启动
 		if(KEY_Scan(0) == 1 && is_start==0)
-			LED0=1, delay_ms(1000), LED0=0, Mode_Init(), Stop_Find(), CAR_MODE = 1, is_start=1;
+			Mode_Init(), Stop_Find(), CAR_MODE = 1, is_start=1;
 
 		
 		//判断是否收到串口1动作
@@ -93,6 +93,7 @@ int	main()
 			case 0x67: Mode_Init(), Stop_Find(), CAR_MODE = 11; break;
 			case 0x68: Mode_Init(), Stop_Find(), CAR_MODE = 12; break;
 			case 0x69: Mode_Init(), Stop_Find(), CAR_MODE = 13; break;
+			case 0x70: Mode_Init(), Stop_Find(), CAR_MODE = 14; break;
 			//杂项
 			case 0x21: Change_Speed_Target(0, 1, 5); ENCODER_DATA[4]+=5; break;
 			case 0x22: Change_Speed_Target(0, 0, 5); ENCODER_DATA[4]-=5; break;
@@ -152,8 +153,8 @@ int	main()
 		switch(ARM_Action)
 		{
 			case 0: break;
-			case 1: LED0=1; OPENMV_Cmd("1"); Gui_DrawFont_GBK16(2,100,WHITE,BLACK, (u8*)"扫码"); printf("机械臂模式[扫码]\n"); ARM_Action=0; break;		//扫码姿势 告诉OV扫码
-			case 2: LED0=1; OPENMV_Cmd("2"); Gui_DrawFont_GBK16(2,100,WHITE,BLACK, (u8*)"OV扫描上层"); printf("机械臂模式[OV扫描上层]\n"); ARM_Action=0;	break;	//颜色识别	告诉OV识别上层颜色
+			case 1: OPENMV_Cmd("1");while(qr_mes[6]=='0'){Arm4-=17;delay_ms(200);Arm4 +=17;delay_ms(200);};printf("机械臂模式[扫码]\n");ARM_Action=0; break;		//扫码姿势 告诉OV扫码  Gui_DrawFont_GBK16(2,100,WHITE,BLACK, (u8*)"扫码"); 
+			case 2: printf("OV发2\n"),OPENMV_Cmd("2"); printf("机械臂模式[OV扫描上层]\n"); ARM_Action=0; break;	//颜色识别	告诉OV识别上层颜色 Gui_DrawFont_GBK16(2,100,WHITE,BLACK, (u8*)"OV扫描上层"); 
 			case 3: Gui_DrawFont_GBK16(2,100,WHITE,BLACK, (u8*)"抓取上层"); top_grasp_choose1(way1); top_grasp_choose2(way1); top_grasp_choose3(way1); Mode_Init(); CAR_MODE = 3; finish_top_grasp_status(); ARM_Action=0; break; 	//机械臂抓取物料
 			case 4: 
 			{
@@ -230,6 +231,7 @@ int	main()
 			case 9:
 			{
 				printf("机械臂模式[机械臂第一次收回]\n");
+				Arm4 -= 8;delay_ms(50); 
 				under_Arm_back();
 				//Arm_back1();									//机械臂第一次收回
 				place_playload1();						//放置物料到车上

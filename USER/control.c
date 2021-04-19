@@ -4,7 +4,7 @@ u8 CAR_MODE = 0;						//标志小车模式
 u8 step = 0, count = 10;		//标志执行步骤以及计时变量
 u16 front_data, right_data, behind_data, left_data;	//前 右 后 左 红外循迹模块读数变量
 u8 is_stop_mode = 0;				//标志是否为停车模式 便于PID停车
-u8 is_car_debug_mode = 1;		//小车 debug 模式标志 若为1则到点后不执行机械臂动作
+u8 is_car_debug_mode = 0;		//小车 debug 模式标志 若为1则到点后不执行机械臂动作
 
 u8 is_plus_mode = 1;
 
@@ -51,7 +51,8 @@ void TIM6_DAC_IRQHandler(void)
 			case 29: Mode_PID_Test(10); break;
 
 			case 41: Cross_Road_Fix(1); break;		
-			case 42: Cross_Road_Fix(2); break;		
+			case 42: Cross_Road_Fix(2); break;
+			case 43: Cross_Road_Fix(3); break;
 
 			default: break;
 		}
@@ -125,6 +126,26 @@ void Cross_Road_Fix(u8 mode)
 						(behind_data == 1110 || behind_data == 11)) Car_Yaw_Right();	//Yaw向左
 		else if((front_data == 111 || front_data == 11) &&
 						(behind_data == 111 || behind_data == 11)) Car_Yaw_Right();		//Yaw向右
+	}
+
+	if(mode == 3)	//半成品区定点
+	{
+		if(right_data == 1001 && left_data == 0)
+			Car_Stop(), Stop_Find(), fix_counter = 0, CAR_MODE=0;	//位置合适 停车
+		else if(left_data == 0)
+		{
+			if(right_data == 111 || right_data == 1011 || right_data == 11) Car_Go();						//前进
+			else if(right_data == 1110 || right_data == 1101 || right_data == 1100) Car_Back();	//后退
+			else if(right_data == 1111 && fix_counter == 0) Car_Go(), fix_counter = 22;				//左侧无数据 前进一下 等待 ((22-2)*15) 300ms 后无数据再进行折返
+			else if(right_data == 1111 && fix_counter-- == 1) Car_Back();													//扫描间隔到时间后折返
+		}
+		else if(left_data == 11 || left_data == 1) Car_Yaw_Left();				//Yaw向左
+		else if(left_data == 1100 || left_data == 1000) Car_Yaw_Right();	//Yaw向右
+
+		else if((left_data == 1110 || left_data == 1100) &&
+						(right_data == 1110 || right_data == 11)) Car_Yaw_Right();	//Yaw向左
+		else if((left_data == 111 || left_data == 11) &&
+						(right_data == 111 || right_data == 11)) Car_Yaw_Right();		//Yaw向右
 	}
 	
 	Set_PID_PWM();
@@ -214,39 +235,64 @@ void Set_PID_PWM(void)
 */
 void Mode_Start(void)
 {
-	static u8 y_line_step;		//启动模式数y线步骤变量  避免斜移时丢线
+	static u8 y_line_step, start_mode;		//启动模式数y线步骤变量  避免斜移时丢线
 	
 	front_data = Find_Get_Front();
 	right_data = Find_Get_Right();
 	
 	if(step == 0)	
-		Set_Expect_Target_Speed(35), Car_Left_Front(), step++, count = 35;		//左上平移	减速 
+		{Set_Expect_Target_Speed(35); Car_Left_Front(); start_mode=0; step++, count = 35; if(front_data==0) start_mode=0; else start_mode=1;}		//左上平移	减速 
 	
-	if(count > 0 && step == 1)	count--;	//延时510ms
-	
-	if(front_data == 1001 && step == 1 && count == 0)
-		Car_Go(), Set_Expect_Target_Speed(30), FIND_MODE=0, FIND_DRIVER = 0, CURRENT_DIRATION = 1, step++;	//前面处于线中
-	Find();
-	
-	if(right_data == 1001 && y_line_step == 0)	y_line_step++;	//Y线1 中间
-	
-	if(right_data == 1110 && y_line_step == 1)	y_line_step++;	//出线1
-	
-	if(right_data == 1001 && y_line_step == 2)	y_line_step++;	//线2中间
-	
-	if(right_data == 1110 && y_line_step == 3)	count = 3, y_line_step++, step++;	//出线2
-		
-	if(count > 0 && step == 3)	count--;						//3*15ms = 45ms
-
-	if(count == 0 && step == 3)	
+	if(start_mode == 0)	//有Y线1启动模式
 	{
-		Car_Stop();				//退出出发模式
-		Stop_Find();			//停止巡迹
-		CAR_MODE = 0;
-		y_line_step = 0;
-		if(!is_car_debug_mode)
-			ARM_Action = 1;		//机械臂扫码
+		if(count > 0 && step == 1)	count--;	//延时510ms
+		
+		if(front_data == 1001 && step == 1 && count == 0)
+			Car_Go(), Set_Expect_Target_Speed(30), FIND_MODE=0, FIND_DRIVER = 0, CURRENT_DIRATION = 1, step++;	//前面处于线中
+		
+		if(right_data == 1001 && y_line_step == 0)	y_line_step++;	//Y线1 中间
+		
+		if(right_data == 1110 && y_line_step == 1)	y_line_step++;	//出线1
+		
+		if(right_data == 1001 && y_line_step == 2)	y_line_step++;	//线2中间
+		
+		if(right_data == 1110 && y_line_step == 3)	y_line_step++, step++;	//出线2
+			
+		if(step == 3)	
+		{
+			Car_Stop();				//退出出发模式
+			Stop_Find();			//停止巡迹
+			CAR_MODE = 0;
+			y_line_step = 0;
+			start_mode = 0;
+			if(!is_car_debug_mode)
+				ARM_Action = 1;		//机械臂扫码
+		}
 	}
+	else	//无Y线1启动模式
+	{
+		if(count > 0 && step == 1)	count--;	//延时510ms
+		
+		if(front_data == 1001 && step == 1 && count == 0)
+			Car_Go(), Set_Expect_Target_Speed(30), FIND_MODE=0, FIND_DRIVER = 0, CURRENT_DIRATION = 1, step++;	//前面处于线中
+		
+		if(right_data == 1001 && step == 2)	step++;	//Y线2 中间
+		
+		if(right_data == 1110 && step == 3)	step++;	//出Y线2
+			
+		if(step == 4)	
+		{
+			Car_Stop();				//退出出发模式
+			Stop_Find();			//停止巡迹
+			CAR_MODE = 0;
+			y_line_step = 0;
+			start_mode = 0;
+			if(!is_car_debug_mode)
+				ARM_Action = 1;		//机械臂扫码
+		}
+	}
+	
+	Find();
 	
 	Set_PID_PWM();
 }
@@ -467,7 +513,7 @@ void Mode_Area2_To_Area3_Top(void)
 	if(front_data == 1110 && step == 8)	step++;		//出X线1
 	
 	if(front_data == 1001 && step == 9)	step++;		//X线2 中间
-	if(front_data == 1110 && step == 10) step++, Set_Expect_Target_Speed(15);	//出X线2
+	if(front_data == 1110 && step == 10) step++, Set_Expect_Target_Speed(13);	//出X线2 !!!!!!!!!!!!! 15
 	
 	if(left_data == 0 && step == 11)					//X线3 中间 停车
 	{
@@ -509,8 +555,8 @@ void Mode_Area3_To_Area1(void)
 	if(front_data == 1001 && step == 5)	step++;		//X线3 中间
 	if(front_data == 1110 && step == 6)	step++;		//出 X线3
 	
-	if(front_data == 1001 && step == 7)	step++;		//X线4 中间
-	if(front_data == 1110 && step == 8)	Set_Expect_Target_Speed(25), step++;		//出 X线4
+	if(front_data == 1001 && step == 7)	Reset_Target_Speed(), Set_Expect_Target_Speed(18), step++;		//X线4 中间
+	if(front_data == 1110 && step == 8)	step++;		//出 X线4
 
 	if(front_data == 1001 && step == 9)	
 		Car_Go(), FIND_MODE=0, FIND_DRIVER = 0, CURRENT_DIRATION = 1, Expect_Target_Speed_Sta=0, Reset_Target_Speed(), step++, count=11;	//X线5中间	前进	X轴巡线
@@ -784,7 +830,7 @@ void Mode_Area2_To_Area3_Bottom(void)
 		if(front_data == 1110 && step == 8)	step++;		//出X线1
 		
 		if(front_data == 1001 && step == 9)	step++;		//X线2 中间
-		if(front_data == 1110 && step == 10) step++, Set_Expect_Target_Speed(15);	//出X线2
+		if(front_data == 1110 && step == 10) step++, Set_Expect_Target_Speed(13);	//出X线2 !!!!!!!!!!!!!!!!15
 		
 		if(left_data == 0 && step == 11)					//X线3 中间 停车
 		{
@@ -814,32 +860,66 @@ void Mode_Area2_To_Area3_Bottom(void)
 void Mode_Area3_Back(void)
 {
 	front_data = Find_Get_Front();
+	behind_data = Find_Get_Behind();
 	right_data = Find_Get_Right();
 	
-	if(step == 0)	Set_Expect_Target_Speed(35), Car_Back(), FIND_DRIVER=2, CURRENT_DIRATION=2, FIND_MODE=0, count=31, step++;	//后退 X轴负半轴循迹
-	Find();
-	
-	if(count>0 && step == 1) count--;
-	if(count == 0 && step == 1)step++;						//延时 30*15 450ms
-	
-	if(right_data == 1001 && step == 2)	step++;		//Y线1 中间
-	if(right_data == 1110 && step == 3)	step++;		//出 Y线1
-	
-	if(right_data == 1001 && step == 4)	step++;		//Y线2 中间
-	if(right_data == 1110 && step == 5)	step++;		//出 Y线2
+	if(is_plus_mode == 1) //!!!!!!!!!!!!
+	{
+		if(step == 0)	Set_Expect_Target_Speed(35), Car_Back(), FIND_DRIVER=2, CURRENT_DIRATION=2, FIND_MODE=0, count=31, step++;	//后退 X轴负半轴循迹
+		
+		if(count>0 && step == 1) count--;
+		if(count == 0 && step == 1)step++;						//延时 30*15 450ms
+		
+		if(right_data == 1001 && step == 2)	step++;		//Y线1 中间
+		if(right_data == 1110 && step == 3)	step++;		//出 Y线1
+		
+		if(right_data == 1001 && step == 4)	step++;		//Y线2 中间
+		if(right_data == 1110 && step == 5)	Set_Expect_Target_Speed(20), step++;		//出 Y线2
 
-	if(right_data == 1001 && step == 6)	Car_Go_Left(), FIND_DRIVER=3, CURRENT_DIRATION=3, count=31, step++;	//Y线3中间 左移 Y轴正半轴巡线
+		if(right_data == 1001 && step == 6)	Car_Go_Left(), FIND_DRIVER=3, CURRENT_DIRATION=3, count=31, step++;	//Y线3中间 左移 Y轴正半轴巡线
 
-	if(count>0 && step == 7) count--;
-	if(count == 0 && step == 7)step++;						//延时 30*15 450ms
-	
-	if(front_data == 1001 && step == 8)	step++;		//X线1 中间
-	if(front_data == 1110 && step == 9)	step++;		//出 X线1
-	
-	if(right_data == 0 && step == 10)	Stop_Find(), Car_Back(), Set_Expect_Target_Speed(10), step++;	//出X线2
-	
-	if(front_data == 0 && step == 11)	Car_Stop(), Stop_Find(), CAR_MODE = 0, step++;	//前面与黑线重合 停车 到达返回区
-	
+		if(count>0 && step == 7) count--;
+		if(count == 0 && step == 7)step++;						//延时 30*15 450ms
+		
+		if(front_data == 1001 && step == 8)	step++;		//X线1 中间
+		if(front_data == 1110 && step == 9)	step++;		//出 X线1
+		
+		if(right_data == 0 && step == 10) count=5, step++;
+		
+		if(count > 0 && step == 11) count--;
+		
+		if(count == 0 && step == 11) Stop_Find(), Car_Back(), Set_Expect_Target_Speed(10), step++;	//出X线2
+		
+		if((front_data == 0 || front_data == 1001) && step == 12)	Car_Stop(), Stop_Find(), CAR_MODE = 0, step++;	//前面与黑线重合 停车 到达返回区
+		Find();		
+	}
+	else
+	{
+		if(step == 0)	Stop_Find(), Set_Expect_Target_Speed(35), Car_Back(), count=31, step++;	//后退 不循迹
+		
+		if(count > 0 && step == 1) count--;
+		if(count == 0 && step == 1) step++;						//延时 30*15 450ms
+		
+		if(right_data == 1001 && step == 2)	step++;		//Y线1 中间
+		if(right_data == 111 && step == 3) step++;		//出 Y线1
+		
+		if(right_data == 1001 && step == 4)	step++;		//Y线2 中间
+		if(right_data == 111 && step == 5) Set_Expect_Target_Speed(20), step++;		//出 Y线2
+
+		if((right_data == 1001 || right_data == 1110) && step == 6)	step++;	//Y线3 中间
+		
+		if(right_data == 111 && step == 7) step++;	//出 Y线3
+		
+		if(behind_data == 0 && step == 8) Car_Go_Left(), step++;	//左移
+		
+		if(right_data == 0 && step == 9) count=19, step++;		//出 X线1
+		
+		if(count > 0 && step == 10) count--;	//18*15 270ms
+		if(count == 0 && step == 10) step++;
+
+		if(step == 11)	Car_Stop(), Stop_Find(), CAR_MODE = 0, step++;	//停车 到达返回区	
+		
+	}
 	Set_PID_PWM();
 }
 
@@ -988,9 +1068,9 @@ void  First_choose_place1(u8* ptr,u8 mode)
 	 delay_ms(50);
 	
 	if(ptr[0]=='1')
-		First_place2();
+		First_place3();
 	else if(ptr[0]=='2')
-     First_place3();
+     First_place2();
 	else if(ptr[0]=='3')
 			First_place1();
 }
@@ -1008,9 +1088,9 @@ void  First_choose_place1(u8* ptr,u8 mode)
 	 Arm4 = 430;
 	 delay_ms(50);
 	if(ptr[4]=='1')
-		First_place2();
+		First_place3();
 	else if(ptr[4]=='2')
-     First_place3();
+     First_place2();
 	else if(ptr[4]=='3')
 			First_place1();
 		
@@ -1023,9 +1103,9 @@ void  First_choose_place2(u8* ptr,u8 mode)
 	{
 	grasp_playload2();
 	if(ptr[1]=='1')
-		First_place2();
+		First_place3();
 	else if(ptr[1]=='2')
-     First_place3();
+     First_place2();
 	else if(ptr[1]=='3')
 			First_place1();
 }
@@ -1033,9 +1113,9 @@ void  First_choose_place2(u8* ptr,u8 mode)
 	{
 		grasp_playload2();
 	if(ptr[5]=='1')
-		First_place2();
+		First_place3();
 	else if(ptr[5]=='2')
-     First_place3();
+     First_place2();
 	else if(ptr[5]=='3')
 			First_place1();
 	}
@@ -1047,9 +1127,9 @@ void  First_choose_place3(u8* ptr,u8 mode)
 	{
 	grasp_playload3();
 	if(ptr[2]=='1')
-		First_place2();
+		First_place3();
 	else if(ptr[2]=='2')
-     First_place3();
+     First_place2();
 	else if(ptr[2]=='3')
 			First_place1();
 }
@@ -1057,9 +1137,9 @@ void  First_choose_place3(u8* ptr,u8 mode)
 	{
 			grasp_playload3();
 	if(ptr[6]=='1')
-		First_place2();
+		First_place3();
 	else if(ptr[6]=='2')
-     First_place3();
+     First_place2();
 	else if(ptr[6]=='3')
 			First_place1();
 	}
@@ -1106,9 +1186,9 @@ void  cujiagong_choose_grasp1(u8 *ptr,u8 mode)
 	if(mode==1)
 	{
 	if(ptr[0]=='1')
-		cujiagongclip2();
+		cujiagongclip3();
 	else if(ptr[0]=='2')
-     cujiagongclip3();
+     cujiagongclip2();
 	else if(ptr[0]=='3')
 			cujiagongclip1();
 	place_playload3();
@@ -1118,9 +1198,9 @@ void  cujiagong_choose_grasp1(u8 *ptr,u8 mode)
 	else if(mode==2)
 	{
 			if(ptr[4]=='1')
-		cujiagongclip2();
+		cujiagongclip3();
 	else if(ptr[4]=='2')
-     cujiagongclip3();
+     cujiagongclip2();
 	else if(ptr[4]=='3')
 			cujiagongclip1();
 		place_playload3();
@@ -1133,9 +1213,9 @@ void  cujiagong_choose_grasp2(u8 *ptr,u8 mode)
 	if(mode==1)
 	{
 	if(ptr[1]=='1')
-		cujiagongclip2();
+		cujiagongclip3();
 	else if(ptr[1]=='2')
-     cujiagongclip3();
+     cujiagongclip2();
 	else if(ptr[1]=='3')
 			cujiagongclip1();
 	place_playload2();
@@ -1145,9 +1225,9 @@ void  cujiagong_choose_grasp2(u8 *ptr,u8 mode)
 	else if(mode==2)
 	{
 			if(ptr[5]=='1')
-		cujiagongclip2();
+		cujiagongclip3();
 	else if(ptr[5]=='2')
-     cujiagongclip3();
+     cujiagongclip2();
 	else if(ptr[5]=='3')
 			cujiagongclip1();
 		place_playload2();
@@ -1159,9 +1239,9 @@ void  cujiagong_choose_grasp3(u8 *ptr,u8 mode)
 	if(mode==1)
 	{
 	if(ptr[2]=='1')
-		cujiagongclip2();
+		cujiagongclip3();
 	else if(ptr[2]=='2')
-     cujiagongclip3();
+     cujiagongclip2();
 	else if(ptr[2]=='3')
 			cujiagongclip1();
 	place_playload1();
@@ -1169,9 +1249,9 @@ void  cujiagong_choose_grasp3(u8 *ptr,u8 mode)
 	else if(mode==2)
 	{
 			if(ptr[6]=='1')
-		cujiagongclip2();
+		cujiagongclip3();
 	else if(ptr[6]=='2')
-     cujiagongclip3();
+     cujiagongclip2();
 	else if(ptr[6]=='3')
 			cujiagongclip1();
 		place_playload1();
@@ -1197,9 +1277,9 @@ void place_top_product1(u8* ptr)
 	 delay_ms(300);
 	
 	if(ptr[0]=='1')
-		Second_place2();
+		Second_place3();
 	else if(ptr[0]=='2')
-     Second_place3();
+     Second_place2();
 	else if(ptr[0]=='3')
 			Second_place1();
    
@@ -1212,9 +1292,9 @@ void place_top_product2(u8* ptr)
 
 	grasp_playload2();
 	if(ptr[1]=='1')
-		Second_place2();
+		Second_place3();
 	else if(ptr[1]=='2')
-     Second_place3();
+     Second_place2();
 	else if(ptr[1]=='3')
 			Second_place1();
    
@@ -1226,9 +1306,9 @@ void place_top_product3(u8* ptr)
 
 	grasp_playload1();
 	if(ptr[2]=='1')
-		Second_place2();
+		Second_place3();
 	else if(ptr[2]=='2')
-     Second_place3();
+     Second_place2();
 	else if(ptr[2]=='3')
 			Second_place1();
  
@@ -1251,9 +1331,9 @@ void place_under_product1(u8* ptr)
 	 Arm4 = 800;
 	 delay_ms(300);
 	if(ptr[4]=='1')
-		Third_place2();
+		Third_place3();
 	else if(ptr[4]=='2')
-     Third_place3();
+     Third_place2();
 	else if(ptr[4]=='3')
 			Third_place1();
   
@@ -1265,9 +1345,9 @@ void place_under_product2(u8* ptr)
 	
 	grasp_playload2();
 	if(ptr[5]=='1')
-		Third_place2();
+		Third_place3();
 	else if(ptr[5]=='2')
-     Third_place3();
+     Third_place2();
 	else if(ptr[5]=='3')
 			Third_place1();
 
@@ -1279,9 +1359,9 @@ void place_under_product3(u8* ptr )
 
 	grasp_playload1();
 	if(ptr[6]=='1')
-		Third_place2();
-	else if(ptr[6]=='2')
 		Third_place3();
+	else if(ptr[6]=='2')
+		Third_place2();
 	else if(ptr[6]=='3')
 		Third_place1();
   
@@ -1295,17 +1375,18 @@ void Place_Plus1_choose(u8* ptr)
 	Arm0 = 740;
 	delay_ms(200);
 	//收手
- Arm2 = 1060;
-	 Arm1 = 959;
-	 delay_ms(300);
-	 Arm3 = 907;
+  	Arm3 = 922;
 	 delay_ms(500);
-	 Arm4 = 800;
+   Arm2 = 943;
+	 Arm1 = 1148;
+	 delay_ms(300);
+	 
+	 Arm4 = 900;
 	 delay_ms(450);
 	if(ptr[4]=='1')
-		Place_Plus2();
+		Place_Plus3();
 	else if(ptr[4]=='2')
-     Place_Plus3();
+     Place_Plus2();
 	else if(ptr[4]=='3')
 			Place_Plus1();
 	
@@ -1315,9 +1396,9 @@ void Place_Plus2_choose(u8* ptr)
 {
 	grasp_playload2();
 	if(ptr[5]=='1')
-		Place_Plus2();
+		Place_Plus3();
 	else if(ptr[5]=='2')
-     Place_Plus3();
+     Place_Plus2();
 	else if(ptr[5]=='3')
 			Place_Plus1();
 	
@@ -1328,9 +1409,9 @@ void Place_Plus3_choose(u8* ptr)
 {
 	grasp_playload1();
 	if(ptr[6]=='1')
-		Place_Plus2();
+		Place_Plus3();
 	else if(ptr[6]=='2')
-        Place_Plus3();
+        Place_Plus2();
 	else if(ptr[6]=='3')
 		Place_Plus1();
 	

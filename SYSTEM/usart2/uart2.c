@@ -2,7 +2,7 @@
 
 
 u8 AT = 'N';
-static u8 flag = 0 ;
+u8 flag = 0 ;
 
 //发送一个字节
 void uart2_sendByte(u8 dat)
@@ -72,7 +72,7 @@ void OPENMV_Cmd(char* s)
 u8 color = 0;
 u8 way1[] = "000";
 u8 way2[] = "000";
-u8 qr_mes[] = "123+123";
+u8 qr_mes[] = "000+000";
 
  
 
@@ -100,7 +100,7 @@ void USART2_IRQHandler(void)
 				}
 			}
 			if(qr_i == 7)
-				qr_i = 0, flag=0, LED0=0, Mode_Init(), CAR_MODE = 2, scan_block_top(), printf("接收到搬运顺序[%s]\n", qr_mes), Lcd_Clear(BLACK), GUI_Draw_Long_Font(1, 1, WHITE, BLACK, (u8*)qr_mes);	//TFT 显示顺序
+				qr_i = 0, flag=0, Mode_Init(), CAR_MODE = 2, scan_block_top(), printf("接收到搬运顺序[%s]\n", qr_mes), Lcd_Clear(BLACK), GUI_Draw_Long_Font(1, 1, WHITE, BLACK, (u8*)qr_mes);	//TFT 显示顺序
 		}
 			
 	else if(flag =='B')//进入色块位置接收阶段
@@ -116,7 +116,7 @@ void USART2_IRQHandler(void)
 				}
 			}
 			if(len >2)
-				len= 0, flag=0, LED0=0, Gui_DrawFont_GBK16(1,67,WHITE,BLACK, (u8*)"way1:"), Gui_DrawFont_GBK16(35,67,WHITE,BLACK, way1), printf("接收到上层色块位置信息[%s]\n", way1), ARM_Action = 3;	//接收上层颜色信息完成
+				len= 0, flag=0, Gui_DrawFont_GBK16(1,67,WHITE,BLACK, (u8*)"way1:"), Gui_DrawFont_GBK16(35,67,WHITE,BLACK, way1), printf("接收到上层色块位置信息[%s]\n", way1), ARM_Action = 3;	//接收上层颜色信息完成
 		}
 		else if(flag=='C')
 		{

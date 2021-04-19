@@ -12,38 +12,38 @@ u16 Arm_open = 642;
  u16 top_grasp2_arm1 = 832,top_grasp2_arm2 = 967,\
 			top_grasp2_arm3 = 652,top_grasp2_arm4 = 400;
 			
- u16 top_grasp3_arm1 = 904,top_grasp3_arm2 = 766,\
+ u16 top_grasp3_arm1 = 934,top_grasp3_arm2 = 757,\
 			top_grasp3_arm3 = 548,top_grasp3_arm4 = 343;
 
 //下层抓取
  u16 under_grasp1_arm1 = 717, under_grasp1_arm2 =916, \
 			under_grasp1_arm3 = 495, under_grasp1_arm4 = 458;
 			
- u16 under_grasp2_arm1 = 745, under_grasp2_arm2 = 915, \
+ u16 under_grasp2_arm1 = 749, under_grasp2_arm2 = 915, \
 				under_grasp2_arm3 = 515, under_grasp2_arm4 = 400;
 				
  u16 under_grasp3_arm1 = 755, under_grasp3_arm2 =864 ,\
-			under_grasp3_arm3 = 482, under_grasp3_arm4 = 345;
+			under_grasp3_arm3 = 482, under_grasp3_arm4 = 338;
 
 //粗加工区
- u16 first_plcace1_arm1 = 655,first_plcace1_arm2 = 945,\
-			first_plcace1_arm3 = 475,first_plcace1_arm4 = 740;
+ u16 first_plcace1_arm1 = 653-18,first_plcace1_arm2 = 977,\
+			first_plcace1_arm3 = 489,first_plcace1_arm4 = 739;
 			
- u16 first_plcace2_arm1 = 587,first_plcace2_arm2 = 1037,\
-			first_plcace2_arm3 = 493,first_plcace2_arm4 = 670;
+ u16 first_plcace2_arm1 = 598,first_plcace2_arm2 = 1050,\
+			first_plcace2_arm3 = 500,first_plcace2_arm4 = 674;
 			
- u16 first_plcace3_arm1 = 667,first_plcace3_arm2 = 945,
-			first_plcace3_arm3 = 476,first_plcace3_arm4 = 599;
+ u16 first_plcace3_arm1 = 654,first_plcace3_arm2 = 969,
+			first_plcace3_arm3 = 488,first_plcace3_arm4 = 603;
 
 //半成品区上层
- u16 second_place1_arm1 = 762,second_place1_arm2 = 861,\
-			second_place1_arm3 = 479,second_place1_arm4 = 1021;
+ u16 second_place1_arm1 = 762,second_place1_arm2 = 875,\
+			second_place1_arm3 = 495,second_place1_arm4 = 1011;
 			
- u16 second_place2_arm1 = 689,second_place2_arm2 = 990,\
-			second_place2_arm3 = 539,second_place2_arm4 = 956;
+ u16 second_place2_arm1 = 683,second_place2_arm2 = 1030,\
+			second_place2_arm3 = 564,second_place2_arm4 = 948;
 			
- u16 second_place3_arm1 = 708,second_place3_arm2 = 970,\
-			second_place3_arm3 = 538,second_place3_arm4 = 889;
+ u16 second_place3_arm1 = 688,second_place3_arm2 = 998,\
+			second_place3_arm3 = 547,second_place3_arm4 = 877;
 
 //半成品区下层
  u16 third_place1_arm1 = 729,third_place1_arm2 = 877,\
@@ -57,14 +57,14 @@ u16 Arm_open = 642;
 
 		 
  //半成品区码垛
- u16 Place_Plus1_arm0 = 642,Place_Plus1_arm1 = 863,\
-				Place_Plus1_arm2 = 790,Place_Plus1_arm3 = 530,Place_Plus1_arm4  =1022 ;
+ u16 Place_Plus1_arm0 = 642,Place_Plus1_arm1 = 844,\
+				Place_Plus1_arm2 = 881,Place_Plus1_arm3 = 571,Place_Plus1_arm4  =1011 ;
 				
-u16 Place_Plus2_arm0 = 642,Place_Plus2_arm1 = 758,\
-			Place_Plus2_arm2 = 1020,Place_Plus2_arm3 = 635,Place_Plus2_arm4 = 957;
+u16 Place_Plus2_arm0 = 642,Place_Plus2_arm1 = 789,\
+			Place_Plus2_arm2 = 1021,Place_Plus2_arm3 = 650,Place_Plus2_arm4 = 948;
  
-u16 Place_Plus3_arm0 = 642,Place_Plus3_arm1 = 823,\
-			Place_Plus3_arm2 = 925,Place_Plus3_arm3 = 600,Place_Plus3_arm4 = 889;
+u16 Place_Plus3_arm0 = 642,Place_Plus3_arm1 = 793,\
+			Place_Plus3_arm2 = 967,Place_Plus3_arm3 = 608,Place_Plus3_arm4 = 873;
 			
 
  //第一个载物台各个关节的值
@@ -80,10 +80,10 @@ u16 Place_Plus3_arm0 = 642,Place_Plus3_arm1 = 823,\
  u16 place2_arm4 = 1183;
  
  //第三个载物台各个关节的值
- u16 place3_arm1 = 948;
+ u16 place3_arm1 = 944;
  u16 place3_arm2 = 1189;
- u16 place3_arm3 = 1006;
- u16 place3_arm4 = 1091;
+ u16 place3_arm3 = 994;
+ u16 place3_arm4 = 1089;
 
 //机械臂调速
  void Arm3_low_speed1(unsigned int target, unsigned int curt)
@@ -179,8 +179,10 @@ u16 Place_Plus3_arm0 = 642,Place_Plus3_arm1 = 823,\
 	Arm2 = 1130;
 	delay_ms(100);
 	Arm3_low_speed3(907,850);
+	 	delay_ms(100);
+
   Arm1_low_speed(929,900);	 
-	delay_ms(200);
+	delay_ms(100);
  }
  //下层收手
  void Arm_back1(void)
@@ -198,10 +200,10 @@ u16 Place_Plus3_arm0 = 642,Place_Plus3_arm1 = 823,\
 	 Arm1= 662;
 	 delay_ms(100);
 	 Arm3 = 850;
-	 delay_ms(50);
+	 delay_ms(100);
+	 	Arm3_low_speed3(925,850);
    Arm1_low_speed(959,850);
 	delay_ms(100);
-	Arm3_low_speed3(925,850);
 	 Arm2 = 1060;
 
  
@@ -234,14 +236,14 @@ u16 Place_Plus3_arm0 = 642,Place_Plus3_arm1 = 823,\
 //码垛放置收手
  void Plus_arm_back()
  {
-	 	 Arm0 = 600;
+	 	Arm0 = 600;
 	 delay_ms(50);
 	 Arm3 =  800;
 	 delay_ms(100);
-	 Arm2 = 1082;
+	 Arm2 = 943;
 	 delay_ms(100);
 	 Arm3_low_speed3(925,850);
-	 Arm1_low_speed(929,900);	 
+	 Arm1_low_speed(1140,900);	 
 	 
  }
  
@@ -946,10 +948,12 @@ void Place_Plus1()
 	delay_ms(50);
 	Arm0 = Place_Plus1_arm0;
 	delay_ms(300);
-	Arm3 = 518;
+	Arm3 = 556;
 	delay_ms(300);
 	delay_ms(200);
-	Arm0 = 715;
+	
+	Arm0 = 715;//715抓  注释则不抓
+	
 	delay_ms(250);
 	
 	
@@ -971,10 +975,12 @@ void Place_Plus2()
 	delay_ms(50);
 	Arm0 = Place_Plus2_arm0;
 	delay_ms(300);
-	Arm3 = 620;
+	Arm3 = 629;
 	delay_ms(300);
 	delay_ms(200);
-	Arm0 = 715;
+	
+	Arm0 = 715;//715抓  注释则不抓
+	
 	delay_ms(250);
 	
 	Plus_arm_back();
@@ -995,9 +1001,11 @@ void Place_Plus3()
 	delay_ms(50);
 	Arm0 = Place_Plus3_arm0;
 	delay_ms(300);
-	Arm3 = 585;
+	Arm3 = 592;
 	delay_ms(200);
-	Arm0 = 715;
+	
+	Arm0 = 715;//715抓  注释则不抓
+	
 	delay_ms(250);
 
 	
